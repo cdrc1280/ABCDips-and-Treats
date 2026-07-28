@@ -1,8 +1,38 @@
-############################################
-# Stage 1 - PHP Dependencies
-############################################
+# ==========================================
+# Stage 1 - PHP + Composer
+# ==========================================
 
-FROM composer:2 AS vendor
+FROM php:8.3-fpm AS vendor
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_MEMORY_LIMIT=-1
+
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    zip \
+    curl \
+    libzip-dev \
+    libicu-dev \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-ext-configure gd \
+    --with-freetype \
+    --with-jpeg
+
+RUN docker-php-ext-install \
+    pdo_mysql \
+    intl \
+    zip \
+    exif \
+    gd \
+    bcmath \
+    opcache
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
@@ -20,9 +50,9 @@ COPY . .
 RUN composer dump-autoload --optimize
 
 
-############################################
+# ==========================================
 # Stage 2 - Frontend
-############################################
+# ==========================================
 
 FROM node:22-alpine AS frontend
 
@@ -37,21 +67,20 @@ COPY . .
 RUN npm run build
 
 
-############################################
+# ==========================================
 # Stage 3 - Runtime
-############################################
+# ==========================================
 
 FROM php:8.3-fpm
 
-ENV APP_ENV=production
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN apt-get update && apt-get install -y \
     nginx \
     supervisor \
+    git \
     unzip \
     curl \
-    git \
     libzip-dev \
     libicu-dev \
     libpng-dev \
