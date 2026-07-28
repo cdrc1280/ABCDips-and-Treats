@@ -1,0 +1,125 @@
+<template>
+  <div class="page-container py-10 md:py-16">
+    <PageHeader
+      tagline="intelligent operations"
+      title="Antigravity AI Bakery Advisor"
+      subtitle="Ask operational questions regarding raw ingredient reorder levels, recipe gross margin pricing, and real-time sales trends."
+    />
+
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl p-6 md:p-8 border border-[#C08E5D]/20 shadow-md space-y-6">
+
+      <!-- AI Prompt Preset Quick Chips -->
+      <div class="space-y-2">
+        <label class="block text-xs font-bold uppercase text-[#5C3A22]">Suggested Operational Queries:</label>
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-for="chip in presetChips"
+            :key="chip"
+            class="px-3.5 py-1.5 rounded-xl bg-[#FBF3E7] hover:bg-[#D9A876]/30 text-[#5C3A22] text-xs font-semibold border border-[#C08E5D]/30 transition-all text-left"
+            @click="promptInput = chip; askAi()"
+          >
+            💬 {{ chip }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Chat History Area -->
+      <div class="bg-[#FBF3E7]/60 rounded-2xl p-4 md:p-6 border border-[#C08E5D]/20 space-y-4 max-h-[450px] overflow-y-auto">
+        <div v-if="chatMessages.length === 0" class="text-center py-10 space-y-2 text-[#8C7A68]">
+          <div class="w-12 h-12 rounded-full bg-[#5C3A22] text-[#D9A876] font-bold text-xl flex items-center justify-center mx-auto">AI</div>
+          <p class="text-sm font-bold text-[#1C1410]">Welcome to Antigravity AI Bakery Assistant!</p>
+          <p class="text-xs">Select a suggested query above or type your operational question below.</p>
+        </div>
+
+        <div
+          v-for="(msg, i) in chatMessages"
+          :key="i"
+          class="flex gap-3 text-xs md:text-sm"
+          :class="msg.role === 'user' ? 'justify-end' : 'justify-start'"
+        >
+          <div
+            v-if="msg.role === 'assistant'"
+            class="w-8 h-8 rounded-full bg-[#5C3A22] text-[#D9A876] font-extrabold flex items-center justify-center shrink-0 text-xs shadow-xs"
+          >
+            AI
+          </div>
+
+          <div
+            class="max-w-[85%] rounded-2xl p-4 leading-relaxed shadow-xs"
+            :class="msg.role === 'user' ? 'bg-[#5C3A22] text-[#FBF3E7] font-medium' : 'bg-white text-[#1C1410] border border-[#C08E5D]/20'"
+          >
+            <div class="whitespace-pre-line">{{ msg.text }}</div>
+            <div v-if="msg.source" class="mt-2 text-[10px] opacity-70 border-t border-current/20 pt-1 text-right">
+              Powered by {{ msg.source }}
+            </div>
+          </div>
+        </div>
+
+        <div v-if="thinking" class="flex items-center gap-2 text-xs text-[#8C7A68] italic">
+          <span class="animate-pulse">🤖 Antigravity AI is analyzing bakery inventory &amp; recipe metrics...</span>
+        </div>
+      </div>
+
+      <!-- Input Form -->
+      <form @submit.prevent="askAi" class="flex gap-3">
+        <input
+          v-model="promptInput"
+          type="text"
+          placeholder="e.g. Which ingredients need reordering from suppliers?"
+          class="flex-1 bg-white border border-[#C08E5D]/30 rounded-2xl px-4 py-3 text-sm text-[#1C1410] placeholder-[#8C7A68] focus:outline-none focus:border-[#5C3A22]"
+          :disabled="thinking"
+        />
+        <BaseButton type="submit" variant="primary" :loading="thinking">
+          Ask AI Advisor
+        </BaseButton>
+      </form>
+
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, inject } from 'vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+
+const axios = inject('axios')
+
+const promptInput = ref('')
+const thinking = ref(false)
+
+const chatMessages = ref([])
+
+const presetChips = [
+  'Which raw ingredients are low in stock and need reordering?',
+  'What price should I charge for 65% gross margin?',
+  'Summarize our top-selling pastries and sales performance.'
+]
+
+async function askAi() {
+  if (!promptInput.value.trim() || thinking.value) return
+
+  const userQuery = promptInput.value
+  promptInput.value = ''
+
+  chatMessages.value.push({ role: 'user', text: userQuery })
+  thinking.value = true
+
+  try {
+    const { data } = await axios.post('/api/admin/ai/query', { prompt: userQuery })
+    chatMessages.value.push({
+      role: 'assistant',
+      text: data.data.response,
+      source: data.data.source
+    })
+  } catch (err) {
+    chatMessages.value.push({
+      role: 'assistant',
+      text: 'Sorry, I encountered an issue connecting to the AI engine. Please try again.',
+      source: 'System Alert'
+    })
+  } finally {
+    thinking.value = false
+  }
+}
+</script>
