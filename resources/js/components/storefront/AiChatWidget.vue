@@ -23,7 +23,7 @@
               <p class="text-[10px] text-[#D9A876] leading-none mt-0.5">Ask me anything about our pastries!</p>
             </div>
           </div>
-          <button @click="isOpen = false" class="text-[#FBF3E7]/60 hover:text-[#FBF3E7] transition-colors p-1">
+          <button @click="isOpen = false" class="text-[#FBF3E7]/60 hover:text-[#FBF3E7] transition-colors p-1" v-tooltip="'Close assistant'">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
@@ -88,6 +88,7 @@
               type="submit"
               :disabled="!inputText.trim() || loading"
               class="bg-[#5C3A22] text-white rounded-xl px-3 py-2 disabled:opacity-40 hover:bg-[#4A2D1A] transition-colors flex-shrink-0"
+              v-tooltip="'Send message to AI assistant'"
             >
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
             </button>
@@ -99,6 +100,7 @@
     <!-- FAB Button -->
     <button
       @click="isOpen = !isOpen"
+      v-tooltip="'Ask Dips AI about menu items, ingredients, allergens &amp; custom orders'"
       class="w-14 h-14 rounded-full bg-[#5C3A22] text-white shadow-xl hover:bg-[#4A2D1A] hover:scale-110 transition-all duration-300 flex items-center justify-center relative group"
     >
       <Transition mode="out-in" enter-active-class="transition-all duration-200" enter-from-class="opacity-0 rotate-90 scale-50" enter-to-class="opacity-100 rotate-0 scale-100" leave-active-class="transition-all duration-150" leave-from-class="opacity-100 rotate-0 scale-100" leave-to-class="opacity-0 rotate-90 scale-50">
@@ -118,8 +120,8 @@ const axios = inject('axios')
 const isOpen = ref(false)
 const loading = ref(false)
 const inputText = ref('')
-const messages = ref([])
 const messagesEl = ref(null)
+const messages = ref([])
 
 const quickPrompts = ['What are your best sellers?', 'Do you have gluten-free options?', 'How do I place a custom cake order?']
 

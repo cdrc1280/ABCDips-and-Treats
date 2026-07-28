@@ -1,29 +1,29 @@
 <template>
     <header :class="[
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-200',
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         scrolled
-            ? 'bg-[#FBF3E7]/95 backdrop-blur-md shadow-sm border-b border-[#C08E5D]/25'
-            : 'bg-[#FBF3E7]/90 backdrop-blur-sm border-b border-[#C08E5D]/15'
+            ? 'bg-[#FBF3E7]/95 backdrop-blur-xl shadow-md border-b border-[#C08E5D]/30'
+            : 'bg-[#FBF3E7]/80 backdrop-blur-md border-b border-[#C08E5D]/10'
     ]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-18">
 
-            <!-- Brand Logo -->
-            <RouterLink to="/" class="flex items-center gap-3 group flex-shrink-0">
-                <img src="/images/logo.png" alt="ABCDips & Treats"
-                    class="h-10 sm:h-11 w-auto transition-transform duration-200 group-hover:scale-105" />
+            <!-- Brand Logo & Wordmark -->
+            <RouterLink to="/" class="flex items-center gap-3 group flex-shrink-0" v-tooltip="'ABCDips &amp; Treats — Home'">
+                <img src="/images/logo.png" alt="ABCDips &amp; Treats"
+                    class="h-11 w-auto transition-transform duration-300 group-hover:scale-105" />
                 <div class="hidden lg:block">
-                    <span class="font-extrabold text-base text-[#1C1410] tracking-tight block leading-none">ABCDips
-                        &amp; Treats</span>
-                    <span class="font-['Caveat'] text-[#C08E5D] text-xs leading-none">lovely bakery</span>
+                    <span class="font-extrabold text-base text-[#1C1410] tracking-tight block leading-none">ABCDips &amp;
+                        Treats</span>
+                    <span class="font-['Caveat'] text-[#C08E5D] text-xs leading-none">artisan bakery</span>
                 </div>
             </RouterLink>
 
-            <!-- Center Desktop Navigation Links with Active Page Highlight -->
+            <!-- Desktop Navigation Links -->
             <nav class="hidden md:flex items-center gap-1">
                 <RouterLink v-for="link in navLinks" :key="link.to" :to="link.to" :class="[
-                    'px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150',
+                    'px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-200',
                     isLinkActive(link.to)
-                        ? 'bg-[#5C3A22] text-[#FBF3E7] font-bold shadow-sm'
+                        ? 'bg-[#5C3A22] text-[#FBF3E7] font-bold shadow-xs'
                         : 'text-[#1C1410] hover:text-[#5C3A22] hover:bg-[#D9A876]/20'
                 ]">
                     {{ link.label }}
@@ -36,6 +36,7 @@
                 <!-- Signed-in User Menu Dropdown -->
                 <div v-if="authStore.isAuthenticated" class="relative" ref="userMenuRef">
                     <button @click="userMenuOpen = !userMenuOpen"
+                        v-tooltip="'Manage profile, orders &amp; wishlist'"
                         class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold text-[#5C3A22] bg-[#D9A876]/20 hover:bg-[#D9A876]/35 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -91,6 +92,7 @@
 
                 <!-- Guest Sign In Link -->
                 <RouterLink v-else to="/auth/login"
+                    v-tooltip="'Sign in to view orders &amp; wishlist'"
                     class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold text-[#5C3A22] hover:bg-[#D9A876]/20 transition-all">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -101,6 +103,7 @@
 
                 <!-- Basket Button -->
                 <button @click="cartStore.openDrawer = true"
+                    v-tooltip="'View your selected treats &amp; cart subtotal'"
                     class="relative flex items-center gap-1.5 bg-[#5C3A22] text-[#FBF3E7] px-3.5 py-2 rounded-xl hover:bg-[#4A2D1A] transition-all duration-200 shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -114,6 +117,7 @@
 
                 <!-- Mobile Menu Hamburger -->
                 <button @click="mobileOpen = !mobileOpen"
+                    v-tooltip="'Toggle navigation menu'"
                     class="md:hidden p-2 rounded-xl hover:bg-[#D9A876]/20 transition-colors"
                     aria-label="Toggle Navigation">
                     <svg class="w-5 h-5 text-[#1C1410]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,16 +169,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
+import { useWishlistStore } from '@/stores/wishlist'
 import { useToast } from '@/composables/useToast'
 
-const route = useRoute()
-const router = useRouter()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
+const wishlistStore = useWishlistStore()
+const router = useRouter()
+const route = useRoute()
 const toast = useToast()
 
 const scrolled = ref(false)
@@ -185,26 +191,36 @@ const userMenuRef = ref(null)
 
 const navLinks = [
     { to: '/', label: 'Home' },
-    { to: '/shop', label: 'Shop Menu' },
+    { to: '/shop', label: 'Shop' },
     { to: '/best-sellers', label: 'Best Sellers' },
     { to: '/new-arrivals', label: 'New Arrivals' },
     { to: '/custom-orders', label: 'Custom Cakes' },
     { to: '/about', label: 'About' },
-    { to: '/blog', label: 'Blog' },
+    { to: '/blog', label: 'Blog & Vlog' },
 ]
 
-const accountLinks = [
-    { to: '/account/orders', label: 'My Orders', icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>' },
-    { to: '/account/wishlist', label: 'My Wishlist', icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>' },
-    { to: '/account/profile', label: 'My Profile', icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>' },
-]
-
-function isLinkActive(path) {
-    if (path === '/') return route.path === '/'
-    if (path === '/shop') return route.path.startsWith('/shop') || route.path.startsWith('/category')
-    if (path === '/blog') return route.path.startsWith('/blog')
-    return route.path === path
+function isLinkActive(toPath) {
+    if (toPath === '/') return route.path === '/'
+    return route.path.startsWith(toPath)
 }
+
+const accountLinks = computed(() => [
+    {
+        to: '/account/orders',
+        label: 'My Orders',
+        icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>'
+    },
+    {
+        to: '/account/wishlist',
+        label: wishlistStore.count > 0 ? `My Wishlist (${wishlistStore.count})` : 'My Wishlist',
+        icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>'
+    },
+    {
+        to: '/account/profile',
+        label: 'My Profile',
+        icon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>'
+    },
+])
 
 async function handleLogout() {
     loggingOut.value = true
@@ -212,10 +228,10 @@ async function handleLogout() {
     mobileOpen.value = false
     try {
         await authStore.logout()
-        toast.success('You have been signed out. See you soon! 🍞')
+        toast.success('You have been signed out. See you soon! 🍞', 'Signed Out')
         router.push({ name: 'home' })
     } catch {
-        toast.error('Logout failed. Please try again.')
+        toast.error('Logout failed. Please try again.', 'Auth Error')
     } finally {
         loggingOut.value = false
     }
