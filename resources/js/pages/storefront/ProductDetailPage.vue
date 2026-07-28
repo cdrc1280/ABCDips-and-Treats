@@ -50,6 +50,7 @@
             />
             <div class="absolute top-4 left-4 flex flex-col gap-2">
               <BaseBadge v-if="product.is_best_seller" variant="brand">Best Seller</BaseBadge>
+              <BaseBadge v-else-if="product.is_highly_rated" variant="warning">⭐ Highly Rated</BaseBadge>
               <BaseBadge v-if="product.is_on_sale" variant="error">Sale</BaseBadge>
               <BaseBadge v-if="product.is_seasonal" variant="warning">Seasonal</BaseBadge>
             </div>
@@ -81,9 +82,20 @@
         <!-- Right Product Info Column -->
         <div class="space-y-6">
           <div>
-            <div class="text-xs font-bold uppercase tracking-wider text-[#C08E5D] mb-1">
-              {{ product.category?.name }}
+            <div class="flex items-center gap-3 mb-1">
+              <span class="text-xs font-bold uppercase tracking-wider text-[#C08E5D]">
+                {{ product.category?.name }}
+              </span>
+              <a
+                v-if="product.reviews_count && product.reviews_count > 0"
+                href="#reviews"
+                class="inline-flex items-center gap-1 bg-[#FBF3E7] border border-[#C08E5D]/30 px-2.5 py-0.5 rounded-full text-xs font-extrabold text-[#5C3A22] hover:bg-[#D9A876]/30 transition-colors"
+              >
+                <span>⭐ {{ product.avg_rating }}</span>
+                <span class="text-[#8C7A68] font-normal">({{ product.reviews_count }} reviews)</span>
+              </a>
             </div>
+
             <h1 class="text-3xl md:text-4xl font-extrabold text-[#1C1410] tracking-tight mb-3">
               {{ product.name }}
             </h1>

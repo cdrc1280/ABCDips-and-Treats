@@ -9,14 +9,14 @@ use App\Models\PurchaseOrder;
 use App\Services\PurchasingService;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\DatePicker;
+use Filament\Schemas\Components\Repeater;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Select;
+use Filament\Schemas\Components\Textarea;
+use Filament\Schemas\Components\TextInput;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -36,6 +36,7 @@ class PurchaseOrderResource extends Resource
         return $schema
             ->components([
                 Section::make('Purchase Order Details')
+                    ->columnSpanFull()
                     ->components([
                         TextInput::make('po_number')->readOnly(),
                         Select::make('supplier_id')
@@ -54,9 +55,10 @@ class PurchaseOrderResource extends Resource
                         TextInput::make('tax')->numeric()->prefix('₱'),
                         TextInput::make('total')->numeric()->prefix('₱'),
                         Textarea::make('notes')->columnSpanFull(),
-                    ]),
+                    ])->columns(2),
 
                 Section::make('Ordered Line Items')
+                    ->columnSpanFull()
                     ->components([
                         Repeater::make('items')
                             ->relationship()
@@ -93,6 +95,7 @@ class PurchaseOrderResource extends Resource
                 TextColumn::make('expected_delivery_date')->date(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Action::make('receive_po')
                     ->label('Receive PO & Restock')

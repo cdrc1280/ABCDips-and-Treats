@@ -36,10 +36,10 @@ class ReviewResource extends Resource
         return $schema
             ->components([
                 Section::make('Review Details')
+                    ->columnSpanFull()
                     ->components([
                         Select::make('product_id')
-                            ->relationship('product', 'name')
-                            ->required(),
+                            ->relationship('product', 'name'),
                         TextInput::make('reviewer_name')->required(),
                         TextInput::make('reviewer_email')->email()->required(),
                         Select::make('rating')
@@ -50,7 +50,7 @@ class ReviewResource extends Resource
                         Toggle::make('is_approved')->default(true),
                         Toggle::make('is_featured')->default(false),
                         Toggle::make('is_verified_buyer')->default(false),
-                    ])->columnSpanFull(),
+                    ])->columns(2),
             ]);
     }
 
@@ -85,6 +85,7 @@ class ReviewResource extends Resource
                     ->dateTime()
                     ->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 TernaryFilter::make('is_approved'),
                 TernaryFilter::make('is_featured'),

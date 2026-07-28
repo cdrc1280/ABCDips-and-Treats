@@ -197,6 +197,13 @@
             </div>
         </section>
 
+        <SectionDivider />
+
+        <!-- 6. Store & Service Customer Reviews -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <StoreReviews />
+        </section>
+
     </div>
 </template>
 
@@ -205,6 +212,7 @@ import { ref, onMounted, inject } from 'vue'
 import SectionDivider from '@/components/ui/SectionDivider.vue'
 import SkeletonCard from '@/components/ui/SkeletonCard.vue'
 import ProductCard from '@/components/storefront/ProductCard.vue'
+import StoreReviews from '@/components/storefront/StoreReviews.vue'
 
 const axios = inject('axios')
 const categories = ref([])

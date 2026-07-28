@@ -13,15 +13,29 @@
       />
 
       <!-- Badges -->
-      <div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+      <div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start z-10">
         <BaseBadge v-if="product.is_best_seller" variant="brand">Best Seller</BaseBadge>
+        <BaseBadge v-else-if="product.is_highly_rated" variant="warning">⭐ Highly Rated</BaseBadge>
         <BaseBadge v-else-if="product.is_featured" variant="neutral">Featured</BaseBadge>
         <BaseBadge v-else-if="product.is_new_arrival" variant="success">New</BaseBadge>
         <BaseBadge v-if="product.is_on_sale" variant="error">Sale</BaseBadge>
       </div>
 
+      <!-- Wishlist Heart Button -->
+      <button
+        type="button"
+        class="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-white/90 backdrop-blur-md shadow-sm flex items-center justify-center transition-all hover:scale-110"
+        :class="wishlistStore.isInWishlist(product.id) ? 'text-red-500 bg-red-50' : 'text-[#8C7A68] hover:text-red-500'"
+        title="Save to Wishlist"
+        @click.prevent="wishlistStore.toggleWishlist(product)"
+      >
+        <svg class="w-4 h-4" :fill="wishlistStore.isInWishlist(product.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      </button>
+
       <!-- Quick Add Overlay Button -->
-      <div class="absolute inset-x-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      <div class="absolute inset-x-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
         <BaseButton
           variant="primary"
           full-width
@@ -37,8 +51,20 @@
     <!-- Product Details -->
     <div class="p-5 flex-1 flex flex-col justify-between">
       <div>
-        <div class="text-xs font-semibold text-[#C08E5D] uppercase tracking-wider mb-1">
-          {{ product.category?.name || 'Pastries' }}
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-xs font-semibold text-[#C08E5D] uppercase tracking-wider">
+            {{ product.category?.name || 'Pastries' }}
+          </span>
+
+          <!-- Rating Score Pill -->
+          <div
+            v-if="product.reviews_count && product.reviews_count > 0"
+            class="text-[11px] font-extrabold text-[#5C3A22] flex items-center gap-1 bg-[#FBF3E7] px-2 py-0.5 rounded-full border border-[#C08E5D]/20"
+          >
+            <span class="text-amber-500">⭐</span>
+            <span>{{ product.avg_rating }}</span>
+            <span class="text-[#8C7A68] font-normal">({{ product.reviews_count }})</span>
+          </div>
         </div>
 
         <RouterLink :to="`/products/${product.slug}`" class="group-hover:text-[#5C3A22] transition-colors">
@@ -75,6 +101,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useCartStore } from '@/stores/cart'
+import { useWishlistStore } from '@/stores/wishlist'
 import { useToast } from '@/composables/useToast'
 import BaseBadge from '@/components/ui/BaseBadge.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -84,6 +111,7 @@ const props = defineProps({
 })
 
 const cartStore = useCartStore()
+const wishlistStore = useWishlistStore()
 const toast = useToast()
 const adding = ref(false)
 

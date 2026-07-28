@@ -35,6 +35,17 @@ class Payroll extends Model
         'total_net'        => 'decimal:2',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (Payroll $payroll) {
+            if (empty($payroll->payroll_number)) {
+                $date = date('Ym');
+                $count = static::where('payroll_number', 'like', "PAY-{$date}-%")->count() + 1;
+                $payroll->payroll_number = "PAY-{$date}-" . str_pad((string) $count, 3, '0', STR_PAD_LEFT);
+            }
+        });
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(PayrollItem::class);

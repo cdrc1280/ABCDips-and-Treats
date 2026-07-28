@@ -68,4 +68,26 @@ class OrderController extends Controller
 
         return OrderResource::collection($orders)->response();
     }
+
+    public function cancel(Request $request, int $id): JsonResponse
+    {
+        $user = $request->user();
+        $order = Order::where('id', $id)->where('user_id', $user->id)->first();
+
+        if (! $order) {
+            return response()->json(['message' => 'Order not found.'], 404);
+        }
+
+        try {
+            $cancelledOrder = $this->orderService->cancelCustomerOrder($order, $user);
+            return response()->json([
+                'message' => "Order #{$order->order_number} has been cancelled successfully.",
+                'data'    => new OrderResource($cancelledOrder),
+            ]);
+        } catch (\DomainException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 403);
+        }
+    }
 }

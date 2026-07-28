@@ -34,7 +34,7 @@
           <div v-if="cartStore.items.length === 0" class="py-12 text-center">
             <EmptyState
               title="Your Basket is Empty"
-              description="Add some fresh banana bread, cookies, or brownies to get started."
+              description="Add some fresh banana bread, cookies, brownies, or build a custom cake."
             >
               <template #action>
                 <RouterLink to="/shop" @click="cartStore.openDrawer = false">
@@ -47,7 +47,7 @@
           <div
             v-for="item in cartStore.items"
             :key="item.id"
-            class="flex items-center gap-4 py-3 border-b border-[#C08E5D]/15"
+            class="flex items-start gap-4 py-3 border-b border-[#C08E5D]/15"
           >
             <img
               :src="item.image_url || '/images/placeholder-bakery.png'"
@@ -55,8 +55,25 @@
               class="w-16 h-16 rounded-xl object-cover border border-[#C08E5D]/20 flex-shrink-0"
             />
             <div class="flex-1 min-w-0">
-              <h4 class="font-bold text-sm text-[#1C1410] truncate">{{ item.name }}</h4>
-              <div class="text-xs text-[#8C7A68] mt-0.5">₱{{ item.unit_price.toFixed(2) }} each</div>
+              <h4 class="font-bold text-sm text-[#1C1410] truncate">
+                {{ item.options?.is_custom ? item.options.custom_title : item.name }}
+              </h4>
+
+              <!-- Custom Cake Spec Pill -->
+              <div v-if="item.options?.is_custom" class="mt-1 bg-[#FBF3E7] p-2.5 rounded-xl text-[11px] text-[#5C3A22] border border-[#C08E5D]/20 space-y-0.5">
+                <div class="font-extrabold flex items-center gap-1 text-[#5C3A22]">
+                  🎂 Custom Cake Spec:
+                </div>
+                <div>Flavor: <strong>{{ item.options.flavor_preference }}</strong></div>
+                <div>Frosting: <strong>{{ item.options.frosting_type }}</strong></div>
+                <div v-if="item.options.budget_range_min" class="text-[#8C7A68]">
+                  Budget: <strong>₱{{ item.options.budget_range_min }} - ₱{{ item.options.budget_range_max }}</strong>
+                </div>
+                <div v-if="item.options.cake_inscription" class="italic text-[#8C7A68]">"{{ item.options.cake_inscription }}"</div>
+                <div v-if="item.options.event_date" class="text-[#8C7A68]">Event: {{ item.options.event_date }}</div>
+              </div>
+
+              <div class="text-xs text-[#8C7A68] mt-1">₱{{ item.unit_price.toFixed(2) }} each</div>
 
               <!-- Quantity selector -->
               <div class="flex items-center gap-2 mt-2">

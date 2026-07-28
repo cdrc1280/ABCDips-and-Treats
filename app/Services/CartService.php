@@ -47,12 +47,23 @@ class CartService
     public function addItem(Cart $cart, int $productId, int $qty = 1, ?array $options = null): CartItem
     {
         $product = Product::findOrFail($productId);
-        $unitPrice = $product->effective_price;
 
-        $existingItem = CartItem::where('cart_id', $cart->id)
+        // Respect custom bake price set in options if present
+        $unitPrice = (isset($options['unit_price']) && (float) $options['unit_price'] > 0)
+            ? (float) $options['unit_price']
+            : $product->effective_price;
+
+        $isCustom = !empty($options['is_custom']);
+
+        $query = CartItem::where('cart_id', $cart->id)
             ->where('product_id', $productId)
-            ->whereNull('deleted_at')
-            ->first();
+            ->whereNull('deleted_at');
+
+        if ($isCustom) {
+            $query->where('options', json_encode($options));
+        }
+
+        $existingItem = $query->first();
 
         if ($existingItem) {
             $existingItem->update([

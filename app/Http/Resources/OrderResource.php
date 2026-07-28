@@ -34,8 +34,10 @@ class OrderResource extends JsonResource
             'status_label'      => ucwords(str_replace('_', ' ', $this->status)),
             'items'             => $this->whenLoaded('items', fn () => $this->items->map(fn ($item) => [
                 'id'           => $item->id,
+                'product_id'   => $item->product_id,
                 'product_name' => $item->product_name,
                 'product_sku'  => $item->product_sku,
+                'product_slug' => $item->product?->slug,
                 'qty'          => $item->qty,
                 'unit_price'   => (float) $item->unit_price,
                 'subtotal'     => (float) $item->subtotal,

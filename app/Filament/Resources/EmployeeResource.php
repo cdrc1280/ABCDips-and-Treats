@@ -33,8 +33,13 @@ class EmployeeResource extends Resource
         return $schema
             ->components([
                 Section::make('Employee Profile')
+                    ->columnSpanFull()
                     ->components([
-                        TextInput::make('employee_number')->required()->unique(Employee::class, 'employee_number', ignoreRecord: true),
+                        TextInput::make('employee_number')
+                            ->label('Employee Number (Auto)')
+                            ->default(fn() => 'EMP-' . str_pad((string) ((Employee::max('id') ?? 0) + 1), 4, '0', STR_PAD_LEFT))
+                            ->required()
+                            ->unique(Employee::class, 'employee_number', ignoreRecord: true),
                         Select::make('user_id')
                             ->relationship('user', 'name')
                             ->searchable(),
@@ -51,7 +56,7 @@ class EmployeeResource extends Resource
                         TextInput::make('basic_monthly_salary')->label('Basic Monthly Salary (₱)')->numeric()->prefix('₱')->required(),
                         DatePicker::make('hired_at'),
                         Toggle::make('is_active')->default(true),
-                    ])->columnSpanFull(),
+                    ])->columns(2),
             ]);
     }
 
@@ -65,8 +70,9 @@ class EmployeeResource extends Resource
                 TextColumn::make('employment_type')->formatStateUsing(fn($state) => str_replace('_', ' ', strtoupper($state))),
                 TextColumn::make('basic_monthly_salary')->money('PHP')->sortable(),
                 IconColumn::make('is_active')->boolean(),
-                TextColumn::make('hired_at')->date(),
+                TextColumn::make('created_at')->dateTime()->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 EditAction::make(),
             ]);

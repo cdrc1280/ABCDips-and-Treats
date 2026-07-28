@@ -30,8 +30,8 @@ class M4ReviewsAndCustomOrderTest extends TestCase
 
         $response = $this->withToken($token)
             ->putJson('/api/customer/profile', [
-                'name'    => 'Updated Name',
-                'phone'   => '09179998888',
+                'name' => 'Updated Name',
+                'phone' => '09179998888',
                 'address' => '456 Katipunan Ave',
             ]);
 
@@ -51,8 +51,8 @@ class M4ReviewsAndCustomOrderTest extends TestCase
 
         $response = $this->withToken($token)
             ->postJson('/api/customer/password', [
-                'current_password'          => 'OldPassword@123',
-                'new_password'              => 'NewPassword@456',
+                'current_password' => 'OldPassword@123',
+                'new_password' => 'NewPassword@456',
                 'new_password_confirmation' => 'NewPassword@456',
             ]);
 
@@ -65,11 +65,11 @@ class M4ReviewsAndCustomOrderTest extends TestCase
         $product = Product::first();
 
         $response = $this->postJson("/api/products/{$product->id}/reviews", [
-            'product_id'     => $product->id,
-            'rating'         => 5,
-            'title'          => 'Delicious Banana Bread!',
-            'comment'        => 'Super moist and rich in banana flavor. Perfect with coffee!',
-            'reviewer_name'  => 'Maria Clara',
+            'product_id' => $product->id,
+            'rating' => 5,
+            'title' => 'Delicious Banana Bread!',
+            'comment' => 'Super moist and rich in banana flavor. Perfect with coffee!',
+            'reviewer_name' => 'Maria Clara',
             'reviewer_email' => 'maria@abcdips.test',
         ]);
 
@@ -84,12 +84,12 @@ class M4ReviewsAndCustomOrderTest extends TestCase
         $product = Product::first();
 
         Review::create([
-            'product_id'    => $product->id,
+            'product_id' => $product->id,
             'reviewer_name' => 'John Doe',
-            'reviewer_email'=> 'john@abcdips.test',
-            'rating'        => 5,
-            'comment'       => 'Best cookies in Manila!',
-            'is_approved'   => true,
+            'reviewer_email' => 'john@abcdips.test',
+            'rating' => 5,
+            'comment' => 'Best cookies in Manila!',
+            'is_approved' => true,
         ]);
 
         $response = $this->getJson("/api/products/{$product->id}/reviews");
@@ -107,12 +107,12 @@ class M4ReviewsAndCustomOrderTest extends TestCase
         $product = Product::first();
 
         $review = Review::create([
-            'product_id'    => $product->id,
+            'product_id' => $product->id,
             'reviewer_name' => 'John Doe',
-            'reviewer_email'=> 'john@abcdips.test',
-            'rating'        => 5,
-            'comment'       => 'Best cookies in Manila!',
-            'is_approved'   => true,
+            'reviewer_email' => 'john@abcdips.test',
+            'rating' => 5,
+            'comment' => 'Best cookies in Cavite!',
+            'is_approved' => true,
         ]);
 
         $response = $this->postJson("/api/reviews/{$review->id}/vote");
@@ -124,17 +124,17 @@ class M4ReviewsAndCustomOrderTest extends TestCase
     public function test_can_submit_custom_bakery_inquiry(): void
     {
         $response = $this->postJson('/api/custom-orders', [
-            'customer_name'     => 'Ana Kalaw',
-            'customer_email'    => 'ana@abcdips.test',
-            'customer_phone'    => '09181234567',
-            'event_date'        => now()->addDays(14)->toDateString(),
-            'servings_count'    => 40,
-            'tiers_count'       => 2,
+            'customer_name' => 'Ana Kalaw',
+            'customer_email' => 'ana@abcdips.test',
+            'customer_phone' => '09181234567',
+            'event_date' => now()->addDays(14)->toDateString(),
+            'servings_count' => 40,
+            'tiers_count' => 2,
             'flavor_preference' => 'Signature Ube Halaya',
-            'frosting_type'     => 'Silky Cream Cheese',
+            'frosting_type' => 'Silky Cream Cheese',
             'theme_description' => 'Pastel floral theme with gold leaf accents for a 30th birthday celebration.',
-            'budget_range_min'  => 2500,
-            'budget_range_max'  => 5000,
+            'budget_range_min' => 2500,
+            'budget_range_max' => 5000,
         ]);
 
         $response->assertStatus(201)

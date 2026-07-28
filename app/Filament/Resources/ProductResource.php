@@ -15,7 +15,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -88,11 +87,14 @@ class ProductResource extends Resource
                     ->columnSpanFull()
                     ->components([
                         TextInput::make('sku')
-                            ->label('SKU')
+                            ->label('SKU (Auto-generated)')
+                            ->default(fn() => 'SKU-' . strtoupper(Str::random(6)))
                             ->required()
                             ->unique(Product::class, 'sku', ignoreRecord: true),
 
                         TextInput::make('barcode')
+                            ->label('Barcode (Auto-generated)')
+                            ->default(fn() => '200' . sprintf('%09d', rand(100000000, 999999999)))
                             ->nullable(),
 
                         TextInput::make('price')
@@ -190,6 +192,11 @@ class ProductResource extends Resource
                     ->searchable()
                     ->badge(),
 
+                TextColumn::make('sku')
+                    ->label('SKU')
+                    ->searchable()
+                    ->sortable(),
+
                 TextColumn::make('price')
                     ->money('PHP')
                     ->sortable(),
@@ -213,12 +220,11 @@ class ProductResource extends Resource
                     ->label('Featured')
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('updated_at')
+                TextColumn::make('created_at')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('category_id')
                     ->label('Category')

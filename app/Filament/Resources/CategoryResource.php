@@ -112,12 +112,11 @@ class CategoryResource extends Resource
                 IconColumn::make('is_active')
                     ->boolean(),
 
-                TextColumn::make('updated_at')
+                TextColumn::make('created_at')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
             ])
-            ->defaultSort('sort_order', 'asc')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 TernaryFilter::make('is_active'),
             ])

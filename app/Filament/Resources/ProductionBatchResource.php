@@ -36,6 +36,7 @@ class ProductionBatchResource extends Resource
         return $schema
             ->components([
                 Section::make('Production Run Details')
+                    ->columnSpanFull()
                     ->components([
                         TextInput::make('batch_number')->readOnly(),
                         Select::make('recipe_id')
@@ -64,7 +65,7 @@ class ProductionBatchResource extends Resource
                             ->relationship('baker', 'name')
                             ->label('Head Baker'),
                         Textarea::make('notes')->columnSpanFull(),
-                    ])->columnSpanFull(),
+                    ])->columns(2),
             ]);
     }
 
@@ -89,6 +90,7 @@ class ProductionBatchResource extends Resource
                 TextColumn::make('baker.name')->label('Baker'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Action::make('complete_batch')
                     ->label('Complete & Credit Inventory')

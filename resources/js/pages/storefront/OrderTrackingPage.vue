@@ -25,8 +25,8 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <BaseBadge variant="brand" size="md">
-            {{ order.status_label }}
+          <BaseBadge :variant="getStatusVariant(order.status)" size="md" dot>
+            {{ order.status_label || order.status }}
           </BaseBadge>
           <BaseButton size="sm" variant="outline" @click="fetchOrder">
             ↻ Refresh Status
@@ -51,7 +51,7 @@
             <div
               class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300"
               :class="isStepComplete(step.key)
-                ? 'bg-[#5C3A22] text-[#FBF3E7] shadow-md scale-105'
+                ? 'bg-[#6B8F5E] text-white shadow-md scale-105'
                 : isStepActive(step.key)
                 ? 'bg-[#D9A876] text-[#1C1410] ring-4 ring-[#D9A876]/30 animate-bounce'
                 : 'bg-[#FBF3E7] text-[#8C7A68] border border-[#C08E5D]/30'"
@@ -97,13 +97,13 @@
                 <span class="font-bold text-[#1C1410]">{{ item.product_name }}</span>
                 <span class="text-[#8C7A68] block">Qty: {{ item.qty }}</span>
               </div>
-              <span class="font-bold text-[#5C3A22]">₱{{ item.subtotal.toFixed(2) }}</span>
+              <span class="font-bold text-[#5C3A22]">₱{{ (item.subtotal || 0).toFixed(2) }}</span>
             </div>
           </div>
 
           <div class="pt-2 border-t border-[#C08E5D]/20 flex justify-between items-baseline font-extrabold text-base text-[#5C3A22]">
             <span>Total Paid</span>
-            <span>₱{{ order.total.toFixed(2) }}</span>
+            <span>₱{{ (order.total || 0).toFixed(2) }}</span>
           </div>
         </div>
       </div>
@@ -135,6 +135,27 @@ const pipelineSteps = [
 
 const statusOrder = ['pending', 'confirmed', 'preparing', 'packaging', 'out_for_delivery', 'ready_for_pickup', 'completed']
 
+function getStatusVariant(status) {
+  switch (status?.toLowerCase()) {
+    case 'completed':
+      return 'success'
+    case 'pending':
+    case 'preparing':
+    case 'packaging':
+      return 'warning'
+    case 'out_for_delivery':
+    case 'ready_for_pickup':
+    case 'confirmed':
+      return 'brand'
+    case 'cancelled':
+    case 'refunded':
+    case 'failed':
+      return 'error'
+    default:
+      return 'neutral'
+  }
+}
+
 function isStepComplete(stepKey) {
   if (!order.value) return false
   if (order.value.status === 'completed') return true
@@ -160,9 +181,11 @@ function isStepActive(stepKey) {
 async function fetchOrder() {
   loading.value = true
   try {
-    const token = route.params.token
-    const { data } = await axios.get(`/api/orders/track/${token}`)
-    order.value = data.data
+    const token = route.params.token || route.query.token
+    if (token) {
+      const { data } = await axios.get(`/api/orders/track/${token}`)
+      order.value = data.data
+    }
   } catch (err) {
     console.error('Failed to track order', err)
   } finally {

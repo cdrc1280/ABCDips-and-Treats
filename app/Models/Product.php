@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -55,6 +56,18 @@ class Product extends Model implements HasMedia
         'is_active'         => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (Product $product) {
+            if (empty($product->sku)) {
+                $product->sku = 'SKU-' . strtoupper(Str::random(6));
+            }
+            if (empty($product->barcode)) {
+                $product->barcode = '200' . sprintf('%09d', rand(100000000, 999999999));
+            }
+        });
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'category_id');
@@ -73,6 +86,11 @@ class Product extends Model implements HasMedia
     public function nutrition(): HasOne
     {
         return $this->hasOne(ProductNutrition::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
     }
 
     public function getEffectivePriceAttribute(): float

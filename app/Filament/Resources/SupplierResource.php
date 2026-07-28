@@ -30,6 +30,7 @@ class SupplierResource extends Resource
         return $schema
             ->components([
                 Section::make('Supplier Information')
+                    ->columnSpanFull()
                     ->components([
                         TextInput::make('name')->required(),
                         TextInput::make('contact_person'),
@@ -38,7 +39,7 @@ class SupplierResource extends Resource
                         TextInput::make('payment_terms')->default('Net 30'),
                         Textarea::make('address')->columnSpanFull(),
                         Textarea::make('notes')->columnSpanFull(),
-                    ])->columnSpanFull(),
+                    ])->columns(2),
             ]);
     }
 
@@ -53,6 +54,7 @@ class SupplierResource extends Resource
                 TextColumn::make('payment_terms'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 EditAction::make(),
             ]);

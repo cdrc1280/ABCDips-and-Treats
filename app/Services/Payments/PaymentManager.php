@@ -16,6 +16,7 @@ class PaymentManager
             'gcash'         => new GCashGateway(),
             'maya'          => new MayaGateway(),
             'bank_transfer' => new BankTransferGateway(),
+            'cod'           => new CodGateway(),
             default         => throw new InvalidArgumentException("Unsupported payment method: {$method}"),
         };
     }

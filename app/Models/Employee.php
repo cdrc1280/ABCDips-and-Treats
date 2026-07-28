@@ -31,6 +31,16 @@ class Employee extends Model
         'is_active'            => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (Employee $employee) {
+            if (empty($employee->employee_number)) {
+                $nextId = (static::max('id') ?? 0) + 1;
+                $employee->employee_number = 'EMP-' . str_pad((string) $nextId, 4, '0', STR_PAD_LEFT);
+            }
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

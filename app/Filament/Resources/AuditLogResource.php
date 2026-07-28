@@ -28,7 +28,7 @@ class AuditLogResource extends Resource
             ->columns([
                 TextColumn::make('user.name')->label('User')->searchable()->default('System'),
                 TextColumn::make('event')->badge()->searchable(),
-                TextColumn::make('auditable_type')->label('Resource')->formatStateUsing(fn ($state) => class_basename($state ?? ''))->searchable(),
+                TextColumn::make('auditable_type')->label('Resource')->formatStateUsing(fn($state) => class_basename($state ?? ''))->searchable(),
                 TextColumn::make('description')->limit(60),
                 TextColumn::make('ip_address'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
@@ -41,7 +41,10 @@ class AuditLogResource extends Resource
             ->actions([]);
     }
 
-    public static function canCreate(): bool { return false; }
+    public static function canCreate(): bool
+    {
+        return false;
+    }
 
     public static function getPages(): array
     {

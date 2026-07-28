@@ -31,32 +31,18 @@ class IngredientResource extends Resource
         return $schema
             ->components([
                 Section::make('Ingredient Details')
+                    ->columnSpanFull()
                     ->components([
-                        TextInput::make('sku')
-                            ->label('SKU')
-                            ->required()
-                            ->unique(Ingredient::class, 'sku', ignoreRecord: true),
-                        TextInput::make('name')
-                            ->required(),
+                        TextInput::make('sku')->label('SKU')->required()->unique(Ingredient::class, 'sku', ignoreRecord: true),
+                        TextInput::make('name')->required(),
                         Select::make('unit')
                             ->options(['kg' => 'Kilograms (kg)', 'g' => 'Grams (g)', 'L' => 'Liters (L)', 'ml' => 'Milliliters (ml)', 'pcs' => 'Pieces (pcs)', 'box' => 'Box'])
                             ->required(),
-                        TextInput::make('cost_per_unit')
-                            ->numeric()
-                            ->prefix('₱')
-                            ->required(),
-                        TextInput::make('stock_qty')
-                            ->label('Current Stock Qty')
-                            ->numeric()
-                            ->required()
-                            ->default(0),
-                        TextInput::make('min_stock_qty')
-                            ->label('Min Reorder Level')
-                            ->numeric()
-                            ->required()
-                            ->default(5),
+                        TextInput::make('cost_per_unit')->numeric()->prefix('₱')->required(),
+                        TextInput::make('stock_qty')->label('Current Stock Qty')->numeric()->required()->default(0),
+                        TextInput::make('min_stock_qty')->label('Min Reorder Level')->numeric()->required()->default(5),
                         TextInput::make('supplier_name'),
-                    ])->columnSpanFull(),
+                    ])->columns(2),
             ]);
     }
 
@@ -76,8 +62,9 @@ class IngredientResource extends Resource
                     ->money('PHP')
                     ->sortable(),
                 TextColumn::make('supplier_name')->searchable(),
-                TextColumn::make('updated_at')->dateTime()->sortable(),
+                TextColumn::make('created_at')->dateTime()->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('low_stock')
                     ->label('Low Stock Alert Only')

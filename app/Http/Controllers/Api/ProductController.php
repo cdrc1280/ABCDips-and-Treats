@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\Review;
+use App\Models\User;
 use App\Services\ProductService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -59,5 +63,24 @@ class ProductController extends Controller
         $products = $this->productService->getNewArrivalProducts($limit);
 
         return response()->json(['data' => ProductResource::collection($products)]);
+    }
+
+    public function aboutStats(): JsonResponse
+    {
+        $customersCount = max(
+            User::where('role', 'customer')->count(),
+            Order::distinct('customer_email')->count()
+        );
+
+        $recipesCount = Product::where('is_active', true)->count();
+
+        $avgRating = Review::where('is_approved', true)->avg('rating');
+        $avgRatingFormatted = $avgRating ? number_format((float) $avgRating, 1) : '5.0';
+
+        return response()->json([
+            'happy_customers'   => $customersCount,
+            'signature_recipes' => $recipesCount,
+            'average_rating'    => $avgRatingFormatted,
+        ]);
     }
 }

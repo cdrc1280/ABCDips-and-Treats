@@ -22,8 +22,12 @@ class CartResource extends JsonResource
             'items'           => $this->items->map(fn ($item) => [
                 'id'         => $item->id,
                 'product_id' => $item->product_id,
-                'name'       => $item->product->name,
-                'sku'        => $item->product->sku,
+                'name'       => (!empty($item->options['is_custom']) && !empty($item->options['custom_title']))
+                    ? $item->options['custom_title']
+                    : $item->product->name,
+                'sku'        => (!empty($item->options['is_custom']))
+                    ? 'SKU-CUSTOM-CAKE'
+                    : $item->product->sku,
                 'slug'       => $item->product->slug,
                 'image_url'  => $item->product->primary_image_url,
                 'qty'        => $item->qty,

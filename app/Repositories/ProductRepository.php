@@ -49,6 +49,10 @@ class ProductRepository
         // Sorting
         $sort = $filters['sort'] ?? 'latest';
         switch ($sort) {
+            case 'rating_high':
+                $query->withAvg(['reviews' => fn ($q) => $q->where('is_approved', true)], 'rating')
+                      ->orderByDesc('reviews_avg_rating');
+                break;
             case 'price_low':
                 $query->orderBy('price', 'asc');
                 break;

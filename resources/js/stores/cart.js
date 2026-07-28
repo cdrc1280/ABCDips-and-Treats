@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import axios from 'axios'
+import router from '@/router'
+import { useAuthStore } from '@/stores/auth'
+import { useToast } from '@/composables/useToast'
 
 export const useCartStore = defineStore('cart', () => {
   // ─── State ───────────────────────────────────────────────────
@@ -18,6 +21,7 @@ export const useCartStore = defineStore('cart', () => {
   const total       = computed(() => cart.value?.total ?? 0)
   const couponCode  = computed(() => cart.value?.coupon_code ?? null)
   const isEmpty     = computed(() => items.value.length === 0)
+  const cartToken   = computed(() => cart.value?.cart_token ?? localStorage.getItem('cart_token'))
 
   // ─── Actions ─────────────────────────────────────────────────
   async function fetchCart() {
@@ -26,6 +30,9 @@ export const useCartStore = defineStore('cart', () => {
     try {
       const { data } = await axios.get('/api/cart')
       cart.value = data.data
+      if (data.data?.cart_token) {
+        localStorage.setItem('cart_token', data.data.cart_token)
+      }
     } catch (err) {
       error.value = err.response?.data?.message ?? 'Could not load cart.'
     } finally {
@@ -34,6 +41,16 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function addItem(productId, qty = 1, options = {}) {
+    const authStore = useAuthStore()
+    const toast = useToast()
+
+    // Enforce authentication for adding to cart
+    if (!authStore.isAuthenticated) {
+      toast.warning('Please sign in to add items to your basket and place orders.', 'Sign In Required')
+      router.push({ name: 'login', query: { redirect: router.currentRoute.value.fullPath } })
+      return { success: false, requiresAuth: true }
+    }
+
     adding.value = true
     error.value = null
     try {
@@ -107,10 +124,18 @@ export const useCartStore = defineStore('cart', () => {
     cart.value = null
   }
 
+  function clearLocalCart() {
+    if (cart.value) {
+      cart.value.items = []
+      cart.value.subtotal = 0
+      cart.value.total = 0
+    }
+  }
+
   return {
-    cart, loading, adding, error,
+    cart, loading, adding, error, cartToken,
     items, itemCount, subtotal, discount, fees, total, couponCode, isEmpty,
     fetchCart, addItem, updateItem, removeItem, restoreItem,
-    applyCoupon, removeCoupon, batch, clearCart,
+    applyCoupon, removeCoupon, batch, clearCart, clearLocalCart,
   }
 })

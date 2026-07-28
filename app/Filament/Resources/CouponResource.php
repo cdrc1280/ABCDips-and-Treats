@@ -30,9 +30,7 @@ class CouponResource extends Resource
     {
         return $schema->components([
             Section::make('Coupon Details')->components([
-                TextInput::make('code')
-                    ->required()
-                    ->unique(Coupon::class, 'code', ignoreRecord: true),
+                TextInput::make('code')->required()->uppercase()->unique(Coupon::class, 'code', ignoreRecord: true),
                 Select::make('type')
                     ->options(['fixed' => 'Fixed Amount (₱)', 'percent' => 'Percentage (%)'])
                     ->required(),
@@ -41,9 +39,8 @@ class CouponResource extends Resource
                 TextInput::make('max_uses')->label('Max Uses')->numeric(),
                 TextInput::make('used_count')->label('Times Used')->numeric()->disabled(),
                 DateTimePicker::make('expires_at'),
-                Toggle::make('is_active')
-                    ->default(true),
-            ])->columnSpanFull(),
+                Toggle::make('is_active')->default(true),
+            ])->columnSpanFull()->columns(2),
         ]);
     }
 
@@ -58,7 +55,9 @@ class CouponResource extends Resource
                 TextColumn::make('max_uses')->label('Max'),
                 TextColumn::make('expires_at')->date(),
                 IconColumn::make('is_active')->boolean(),
+                TextColumn::make('created_at')->dateTime()->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 EditAction::make(),
                 DeleteAction::make()

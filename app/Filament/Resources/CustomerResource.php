@@ -26,7 +26,7 @@ class CustomerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->query(User::query()->whereHas('roles', fn ($q) => $q->where('name', 'customer')))
+            ->query(User::query()->whereHas('roles', fn($q) => $q->where('name', 'customer')))
             ->columns([
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('email')->searchable(),
@@ -36,7 +36,10 @@ class CustomerResource extends Resource
             ->actions([]);
     }
 
-    public static function canCreate(): bool { return false; }
+    public static function canCreate(): bool
+    {
+        return false;
+    }
 
     public static function getPages(): array
     {

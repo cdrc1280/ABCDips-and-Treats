@@ -13,7 +13,7 @@
                         </div>
                     </div>
                     <p class="text-xs text-[#FBF3E7]/50 leading-relaxed mb-5">Handcrafted pastries baked with 100% real
-                        butter and a whole lot of love. Based in Metro Manila.</p>
+                        butter and a whole lot of love. Based in Cavite.</p>
                     <div class="flex gap-3">
                         <a href="#"
                             class="w-8 h-8 bg-[#FBF3E7]/10 rounded-lg flex items-center justify-center hover:bg-[#D9A876]/30 transition-colors text-xs">📘</a>

@@ -11,7 +11,7 @@ return new class extends Migration
         // Reviews Table
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $table->foreignId('product_id')->nullable()->constrained('products')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('reviewer_name');
             $table->string('reviewer_email');
@@ -46,15 +46,13 @@ return new class extends Migration
             $table->date('event_date');
             $table->integer('servings_count')->default(20);
             $table->integer('tiers_count')->default(1);
-            $table->string('flavor_preference')->nullable(); // e.g. Chocolate Fudge, Red Velvet, Vanilla, Ube
-            $table->string('frosting_type')->nullable(); // Cream Cheese, Buttercream, Fondant, Naked
+            $table->string('flavor_preference')->nullable();
+            $table->string('frosting_type')->nullable();
             $table->text('theme_description');
             $table->decimal('budget_range_min', 10, 2)->nullable();
             $table->decimal('budget_range_max', 10, 2)->nullable();
             $table->decimal('quoted_price', 10, 2)->nullable();
             $table->text('staff_notes')->nullable();
-            
-            // Status Pipeline: inquiry -> quoted -> deposit_paid -> in_production -> ready -> completed -> cancelled
             $table->string('status')->default('inquiry');
             $table->timestamps();
         });

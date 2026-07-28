@@ -9,6 +9,10 @@ class ProductResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $reviewsQuery = $this->reviews()->where('is_approved', true);
+        $count = $reviewsQuery->count();
+        $avg = $count > 0 ? round((float) $reviewsQuery->avg('rating'), 1) : null;
+
         return [
             'id'                => $this->id,
             'sku'               => $this->sku,
@@ -30,6 +34,9 @@ class ProductResource extends JsonResource
             'is_new_arrival'    => $this->is_new_arrival,
             'is_seasonal'       => $this->is_seasonal,
             'is_limited'        => $this->is_limited,
+            'avg_rating'        => $avg,
+            'reviews_count'     => $count,
+            'is_highly_rated'   => $count > 0 && $avg >= 4.5,
             'primary_image_url' => $this->primary_image_url,
             'gallery_images'    => $this->getMedia('gallery')->map(fn ($m) => $m->getUrl()),
             'category'          => new ProductCategoryResource($this->whenLoaded('category')),

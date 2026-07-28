@@ -8,7 +8,7 @@
     <div v-else-if="!order" class="max-w-lg mx-auto text-center py-16">
       <EmptyState title="Order Details Not Found" description="We couldn't retrieve details for this order.">
         <template #action>
-          <RouterLink to="/"><BaseButton variant="primary">Return Home</BaseButton></RouterLink>
+          <RouterLink to="/account/orders"><BaseButton variant="primary">View My Orders</BaseButton></RouterLink>
         </template>
       </EmptyState>
     </div>
@@ -26,11 +26,16 @@
           Thank you, <strong class="text-[#1C1410]">{{ order.customer_name }}</strong>! We have received your pastry order <strong class="text-[#5C3A22]">{{ order.order_number }}</strong>.
         </p>
 
-        <!-- Live Track Order Button -->
+        <!-- Live Track Order Button & History Links -->
         <div class="pt-4 flex flex-wrap gap-4 justify-center">
-          <RouterLink :to="`/orders/track/${order.tracking_token}`">
+          <RouterLink :to="`/track/${order.tracking_token}`">
             <BaseButton variant="primary" size="lg">
               Track Order Progress Live →
+            </BaseButton>
+          </RouterLink>
+          <RouterLink to="/account/orders">
+            <BaseButton variant="outline" size="lg">
+              View Order History
             </BaseButton>
           </RouterLink>
         </div>
@@ -101,7 +106,7 @@ const loading = ref(true)
 async function fetchOrder() {
   loading.value = true
   try {
-    const token = route.query.token
+    const token = route.params.token || route.query.token
     if (token) {
       const { data } = await axios.get(`/api/orders/track/${token}`)
       order.value = data.data

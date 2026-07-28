@@ -10,7 +10,7 @@
     <div v-if="cartStore.items.length === 0" class="bg-white rounded-3xl p-12 border border-[#C08E5D]/20 shadow-sm text-center">
       <EmptyState
         title="Your Pastry Basket is Empty"
-        description="You haven't added any fresh baked treats to your order yet."
+        description="You haven't added any fresh baked treats or custom cakes to your order yet."
       >
         <template #action>
           <RouterLink to="/shop">
@@ -46,17 +46,30 @@
             :key="item.id"
             class="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
           >
-            <div class="flex items-center gap-4">
+            <div class="flex items-start gap-4">
               <img
                 :src="item.image_url || '/images/placeholder-bakery.png'"
                 :alt="item.name"
                 class="w-20 h-20 rounded-2xl object-cover border border-[#C08E5D]/20 flex-shrink-0"
               />
               <div>
-                <RouterLink :to="`/products/${item.slug}`" class="font-bold text-base text-[#1C1410] hover:text-[#5C3A22]">
-                  {{ item.name }}
-                </RouterLink>
-                <div class="text-xs text-[#8C7A68] mt-0.5">SKU: {{ item.sku }}</div>
+                <h3 class="font-bold text-base text-[#1C1410]">
+                  {{ item.options?.is_custom ? item.options.custom_title : item.name }}
+                </h3>
+
+                <!-- Custom Spec Box -->
+                <div v-if="item.options?.is_custom" class="mt-1 bg-[#FBF3E7] p-3 rounded-xl text-xs text-[#5C3A22] border border-[#C08E5D]/20 space-y-1">
+                  <div class="font-extrabold text-[#5C3A22]">🎂 Custom Cake Configuration:</div>
+                  <div>Flavor: <strong>{{ item.options.flavor_preference }}</strong></div>
+                  <div>Frosting: <strong>{{ item.options.frosting_type }}</strong></div>
+                  <div v-if="item.options.budget_range_min" class="text-[#8C7A68]">
+                    Preferred Budget: <strong>₱{{ item.options.budget_range_min }} - ₱{{ item.options.budget_range_max }}</strong>
+                  </div>
+                  <div v-if="item.options.cake_inscription" class="italic text-[#8C7A68]">"{{ item.options.cake_inscription }}"</div>
+                  <div v-if="item.options.event_date" class="text-[#8C7A68]">Event Date: {{ item.options.event_date }}</div>
+                </div>
+
+                <div v-else class="text-xs text-[#8C7A68] mt-0.5">SKU: {{ item.sku }}</div>
                 <div class="text-sm font-semibold text-[#5C3A22] mt-1">₱{{ item.unit_price.toFixed(2) }} each</div>
               </div>
             </div>

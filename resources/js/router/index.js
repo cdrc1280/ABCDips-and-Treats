@@ -23,6 +23,7 @@ const AboutPage             = () => import('@/pages/storefront/AboutPage.vue')
 const FaqPage               = () => import('@/pages/storefront/FaqPage.vue')
 const ContactPage           = () => import('@/pages/storefront/ContactPage.vue')
 const BlogPage              = () => import('@/pages/storefront/BlogPage.vue')
+const BlogPostDetailPage    = () => import('@/pages/storefront/BlogPostDetailPage.vue')
 const PrivacyPolicyPage     = () => import('@/pages/storefront/PrivacyPolicyPage.vue')
 const TermsPage             = () => import('@/pages/storefront/TermsPage.vue')
 
@@ -54,13 +55,14 @@ const routes = [
       { path: 'new-arrivals',   name: 'new-arrivals',       component: NewArrivalsPage,       meta: { title: 'New Arrivals — ABCDips & Treats' } },
       { path: 'custom-orders',  name: 'custom-orders',      component: CustomOrderPage,       meta: { title: 'Custom Cake Orders — ABCDips & Treats' } },
       { path: 'cart',           name: 'cart',               component: CartPage,              meta: { title: 'Your Cart — ABCDips & Treats' } },
-      { path: 'checkout',       name: 'checkout',           component: CheckoutPage,          meta: { title: 'Checkout — ABCDips & Treats' } },
+      { path: 'checkout',       name: 'checkout',           component: CheckoutPage,          meta: { title: 'Checkout — ABCDips & Treats', requiresAuth: true } },
       { path: 'orders/:token/confirmation', name: 'order-confirmation', component: OrderConfirmationPage, meta: { title: 'Order Confirmed — ABCDips & Treats' } },
-      { path: 'track/:token',   name: 'order-tracking',     component: OrderTrackingPage,     meta: { title: 'Track Order — ABCDips & Treats' } },
+      { path: 'track/:token',   name: 'order-tracking',     component: OrderTrackingPage,     alias: ['/orders/track/:token', 'orders/track/:token'], meta: { title: 'Track Order — ABCDips & Treats' } },
       { path: 'about',          name: 'about',              component: AboutPage,             meta: { title: 'About Us — ABCDips & Treats' } },
       { path: 'faq',            name: 'faq',                component: FaqPage,               meta: { title: 'FAQ — ABCDips & Treats' } },
       { path: 'contact',        name: 'contact',            component: ContactPage,           meta: { title: 'Contact Us — ABCDips & Treats' } },
-      { path: 'blog',           name: 'blog',               component: BlogPage,              meta: { title: 'Blog — ABCDips & Treats' } },
+      { path: 'blog',           name: 'blog',               component: BlogPage,              alias: ['/vlog', 'vlog'], meta: { title: 'The ABCDips Journal & Vlog — ABCDips & Treats' } },
+      { path: 'blog/:slug',     name: 'blog-post',          component: BlogPostDetailPage,     alias: ['/vlog/:slug'],   meta: { title: 'Journal Post — ABCDips & Treats' } },
       { path: 'privacy',        name: 'privacy',            component: PrivacyPolicyPage,     meta: { title: 'Privacy Policy — ABCDips & Treats' } },
       { path: 'terms',          name: 'terms',              component: TermsPage,             meta: { title: 'Terms of Service — ABCDips & Treats' } },
     ],

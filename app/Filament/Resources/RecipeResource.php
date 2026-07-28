@@ -32,6 +32,7 @@ class RecipeResource extends Resource
         return $schema
             ->components([
                 Section::make('Recipe Specifications')
+                    ->columnSpanFull()
                     ->components([
                         Select::make('product_id')
                             ->relationship('product', 'name')
@@ -42,9 +43,10 @@ class RecipeResource extends Resource
                         TextInput::make('prep_time_minutes')->numeric()->default(20),
                         TextInput::make('baking_time_minutes')->numeric()->default(40),
                         RichEditor::make('instructions')->columnSpanFull(),
-                    ]),
+                    ])->columns(2),
 
                 Section::make('Bill of Materials (BOM) — Ingredients Needed')
+                    ->columnSpanFull()
                     ->components([
                         Repeater::make('recipeIngredients')
                             ->relationship()
@@ -86,7 +88,9 @@ class RecipeResource extends Resource
                     ->formatStateUsing(fn($state) => "{$state}%")
                     ->badge()
                     ->color(fn($state) => $state >= 60 ? 'success' : ($state >= 40 ? 'warning' : 'danger')),
+                TextColumn::make('created_at')->dateTime()->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 EditAction::make(),
             ]);

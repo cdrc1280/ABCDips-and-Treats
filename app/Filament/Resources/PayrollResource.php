@@ -35,8 +35,13 @@ class PayrollResource extends Resource
         return $schema
             ->components([
                 Section::make('Payroll Batch Summary')
+                    ->columnSpanFull()
                     ->components([
-                        TextInput::make('payroll_number')->readOnly(),
+                        TextInput::make('payroll_number')
+                            ->label('Payroll Number (Auto)')
+                            ->default(fn() => 'PAY-' . date('Ym') . '-' . str_pad((string) (Payroll::where('payroll_number', 'like', 'PAY-' . date('Ym') . '-%')->count() + 1), 3, '0', STR_PAD_LEFT))
+                            ->required()
+                            ->unique(Payroll::class, 'payroll_number', ignoreRecord: true),
                         DatePicker::make('period_start')->required(),
                         DatePicker::make('period_end')->required(),
                         Select::make('status')
@@ -49,9 +54,10 @@ class PayrollResource extends Resource
                         TextInput::make('total_gross')->label('Total Gross (₱)')->numeric()->prefix('₱'),
                         TextInput::make('total_deductions')->label('Total Deductions (₱)')->numeric()->prefix('₱'),
                         TextInput::make('total_net')->label('Total Net Pay (₱)')->numeric()->prefix('₱'),
-                    ]),
+                    ])->columns(2),
 
                 Section::make('Employee Payslips (Philippine SSS, PhilHealth, Pag-IBIG, Tax Deductions)')
+                    ->columnSpanFull()
                     ->components([
                         Repeater::make('items')
                             ->relationship()
@@ -93,6 +99,7 @@ class PayrollResource extends Resource
                 TextColumn::make('total_net')->money('PHP')->sortable(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Action::make('mark_paid')
                     ->label('Approve & Mark Paid')

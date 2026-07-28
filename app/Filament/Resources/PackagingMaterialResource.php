@@ -29,45 +29,19 @@ class PackagingMaterialResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Material Details')
-                ->components([
-                    TextInput::make('name')
-                        ->required(),
-                    TextInput::make('sku')
-                        ->required()
-                        ->unique(PackagingMaterial::class, 'sku', ignoreRecord: true),
-                    Select::make('type')
-                        ->options([
-                            'box' => 'Box',
-                            'bag' => 'Bag',
-                            'board' => 'Board',
-                            'container' => 'Container',
-                            'ribbon' => 'Ribbon',
-                            'label' => 'Label',
-                            'sticker' => 'Sticker',
-                            'tape' => 'Tape',
-                            'wrap' => 'Wrap',
-                            'other' => 'Other'
-                        ])
-
-                        ->required(),
-                    TextInput::make('unit')
-                        ->default('pcs')
-                        ->required(),
-                    TextInput::make('cost_per_unit')
-                        ->numeric()
-                        ->prefix('₱'),
-                    TextInput::make('stock_qty')
-                        ->numeric()
-                        ->label('Stock Qty'),
-                    TextInput::make('min_stock_qty')
-                        ->numeric()
-                        ->label('Min Stock'),
-                    Textarea::make('notes')
-                        ->columnSpanFull(),
-                    Toggle::make('is_active')
-                        ->default(true),
-                ])->columnSpanFull(),
+            Section::make('Material Details')->components([
+                TextInput::make('name')->required(),
+                TextInput::make('sku')->required()->unique(PackagingMaterial::class, 'sku', ignoreRecord: true),
+                Select::make('type')
+                    ->options(['box' => 'Box', 'bag' => 'Bag', 'board' => 'Board', 'container' => 'Container', 'ribbon' => 'Ribbon', 'label' => 'Label', 'sticker' => 'Sticker', 'tape' => 'Tape', 'wrap' => 'Wrap', 'other' => 'Other'])
+                    ->required(),
+                TextInput::make('unit')->default('pcs')->required(),
+                TextInput::make('cost_per_unit')->numeric()->prefix('₱'),
+                TextInput::make('stock_qty')->numeric()->label('Stock Qty'),
+                TextInput::make('min_stock_qty')->numeric()->label('Min Stock'),
+                Textarea::make('notes')->columnSpanFull(),
+                Toggle::make('is_active')->default(true),
+            ])->columnSpanFull()->columns(2),
         ]);
     }
 
@@ -83,7 +57,9 @@ class PackagingMaterialResource extends Resource
                 TextColumn::make('stock_qty')->label('Stock')->sortable()
                     ->color(fn($record) => $record->stock_qty <= $record->min_stock_qty ? 'danger' : 'success'),
                 IconColumn::make('is_active')->boolean(),
+                TextColumn::make('created_at')->dateTime()->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('type')
                     ->options(['box' => 'Box', 'bag' => 'Bag', 'board' => 'Board', 'container' => 'Container', 'ribbon' => 'Ribbon', 'label' => 'Label', 'sticker' => 'Sticker', 'tape' => 'Tape', 'wrap' => 'Wrap', 'other' => 'Other']),
