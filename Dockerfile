@@ -1,78 +1,100 @@
-FROM php:8.3-cli
+############################################
+# Stage 1 - PHP Dependencies
+############################################
 
-# Prevent Composer warnings
+FROM composer:2 AS vendor
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+
+RUN composer install \
+    --no-dev \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-interaction \
+    --no-scripts
+
+COPY . .
+
+RUN composer dump-autoload --optimize
+
+
+############################################
+# Stage 2 - Frontend
+############################################
+
+FROM node:22-alpine AS frontend
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+RUN npm run build
+
+
+############################################
+# Stage 3 - Runtime
+############################################
+
+FROM php:8.3-fpm
+
+ENV APP_ENV=production
 ENV COMPOSER_ALLOW_SUPERUSER=1
-ENV COMPOSER_MEMORY_LIMIT=-1
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git \
+    nginx \
+    supervisor \
     unzip \
-    zip \
     curl \
+    git \
     libzip-dev \
     libicu-dev \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
-    libonig-dev \
-    libxml2-dev \
-    libsqlite3-dev \
-    libpq-dev \
-    libxslt1-dev \
-    libwebp-dev \
-    libxpm-dev \
-    libexif-dev \
-    nodejs \
-    npm \
     && rm -rf /var/lib/apt/lists/*
 
-# Configure and install PHP extensions
 RUN docker-php-ext-configure gd \
     --with-freetype \
     --with-jpeg
 
-RUN docker-php-ext-install -j$(nproc) \
-    pdo \
+RUN docker-php-ext-install \
     pdo_mysql \
     intl \
     zip \
     exif \
     gd \
     bcmath \
-    pcntl
+    opcache
 
-# Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+WORKDIR /var/www/html
 
-WORKDIR /app
-
-# Copy project
 COPY . .
 
-# Install Composer dependencies
-RUN composer install \
-    --no-dev \
-    --prefer-dist \
-    --optimize-autoloader \
-    --no-interaction
+COPY --from=vendor /app/vendor ./vendor
+COPY --from=frontend /app/public/build ./public/build
 
-# Install Node dependencies
-RUN npm install
+COPY docker/nginx.conf /etc/nginx/sites-enabled/default
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/entrypoint.sh /entrypoint.sh
 
-# Build Vite assets
-RUN npm run build
+RUN chmod +x /entrypoint.sh
 
-# Optimize Laravel
-# Optimize Laravel
-RUN php artisan package:discover --ansi || true
+RUN mkdir -p \
+    storage/framework/cache \
+    storage/framework/views \
+    storage/framework/sessions \
+    storage/logs \
+    bootstrap/cache
+
+RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 775 storage bootstrap/cache
 
 EXPOSE 8080
 
-CMD php artisan migrate --force && \
-    (php artisan storage:link || true) && \
-    php artisan optimize:clear && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+ENTRYPOINT ["/entrypoint.sh"]
