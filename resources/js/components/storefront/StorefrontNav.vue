@@ -8,13 +8,15 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-18">
 
             <!-- Brand Logo & Wordmark -->
-            <RouterLink to="/" class="flex items-center gap-3 group flex-shrink-0" v-tooltip="'ABCDips &amp; Treats — Home'">
+            <RouterLink to="/" class="flex items-center gap-3 group flex-shrink-0"
+                v-tooltip="'ABCDips &amp; Treats — Home'">
                 <img src="/images/logo.png" alt="ABCDips &amp; Treats"
                     class="h-11 w-auto transition-transform duration-300 group-hover:scale-105" />
                 <div class="hidden lg:block">
-                    <span class="font-extrabold text-base text-[#1C1410] tracking-tight block leading-none">ABCDips &amp;
+                    <span class="font-extrabold text-base text-[#1C1410] tracking-tight block leading-none">ABCDips
+                        &amp;
                         Treats</span>
-                    <span class="font-['Caveat'] text-[#C08E5D] text-xs leading-none">artisan bakery</span>
+                    <span class="font-['Caveat'] text-[#C08E5D] text-xs leading-none">lovely bakery</span>
                 </div>
             </RouterLink>
 
@@ -35,15 +37,14 @@
 
                 <!-- Signed-in User Menu Dropdown -->
                 <div v-if="authStore.isAuthenticated" class="relative" ref="userMenuRef">
-                    <button @click="userMenuOpen = !userMenuOpen"
-                        v-tooltip="'Manage profile, orders &amp; wishlist'"
+                    <button @click="userMenuOpen = !userMenuOpen" v-tooltip="'Manage profile, orders &amp; wishlist'"
                         class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold text-[#5C3A22] bg-[#D9A876]/20 hover:bg-[#D9A876]/35 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         <span class="hidden sm:inline max-w-[110px] truncate">{{ authStore.userName || 'Account'
-                        }}</span>
+                            }}</span>
                         <svg class="w-3 h-3 transition-transform duration-200" :class="userMenuOpen ? 'rotate-180' : ''"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -91,8 +92,7 @@
                 </div>
 
                 <!-- Guest Sign In Link -->
-                <RouterLink v-else to="/auth/login"
-                    v-tooltip="'Sign in to view orders &amp; wishlist'"
+                <RouterLink v-else to="/auth/login" v-tooltip="'Sign in to view orders &amp; wishlist'"
                     class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold text-[#5C3A22] hover:bg-[#D9A876]/20 transition-all">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -102,8 +102,7 @@
                 </RouterLink>
 
                 <!-- Basket Button -->
-                <button @click="cartStore.openDrawer = true"
-                    v-tooltip="'View your selected treats &amp; cart subtotal'"
+                <button @click="cartStore.openDrawer = true" v-tooltip="'View your selected treats &amp; cart subtotal'"
                     class="relative flex items-center gap-1.5 bg-[#5C3A22] text-[#FBF3E7] px-3.5 py-2 rounded-xl hover:bg-[#4A2D1A] transition-all duration-200 shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -116,8 +115,7 @@
                 </button>
 
                 <!-- Mobile Menu Hamburger -->
-                <button @click="mobileOpen = !mobileOpen"
-                    v-tooltip="'Toggle navigation menu'"
+                <button @click="mobileOpen = !mobileOpen" v-tooltip="'Toggle navigation menu'"
                     class="md:hidden p-2 rounded-xl hover:bg-[#D9A876]/20 transition-colors"
                     aria-label="Toggle Navigation">
                     <svg class="w-5 h-5 text-[#1C1410]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
