@@ -64,6 +64,7 @@ RUN npm install
 RUN npm run build
 
 # Optimize Laravel
+# Optimize Laravel
 RUN php artisan package:discover --ansi || true
 
 EXPOSE 8080
