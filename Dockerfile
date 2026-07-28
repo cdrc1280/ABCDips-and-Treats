@@ -69,7 +69,7 @@ RUN php artisan package:discover --ansi || true
 
 EXPOSE 8080
 
-CMD php artisan migrate && \
+CMD php artisan migrate --force && \
     (php artisan storage:link || true) && \
     php artisan optimize:clear && \
     php artisan config:cache && \
