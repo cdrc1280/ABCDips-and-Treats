@@ -49,6 +49,10 @@ COPY . .
 
 RUN composer dump-autoload --optimize
 
+RUN php artisan vendor:publish --tag=laravel-assets --force
+
+RUN php artisan livewire:publish --assets
+
 
 # ==========================================
 # Stage 2 - Frontend
@@ -107,6 +111,7 @@ COPY . .
 
 COPY --from=vendor /app/vendor ./vendor
 COPY --from=frontend /app/public/build ./public/build
+COPY --from=vendor /app/public/vendor ./public/vendor
 
 COPY docker/nginx.conf /etc/nginx/sites-enabled/default
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf

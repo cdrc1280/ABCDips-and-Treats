@@ -17,7 +17,8 @@ chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
 # Run migrations + seed ONCE
-php artisan migrate:fresh --seed --force
+php artisan migrate --force
+php artisan db:seed --force
 
 # Create storage symlink
 php artisan storage:link || true
