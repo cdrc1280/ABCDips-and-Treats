@@ -49,10 +49,6 @@ COPY . .
 
 RUN composer dump-autoload --optimize
 
-RUN php artisan vendor:publish --tag=laravel-assets --force
-
-RUN php artisan livewire:publish --assets
-
 
 # ==========================================
 # Stage 2 - Frontend
