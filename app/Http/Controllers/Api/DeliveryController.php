@@ -39,11 +39,23 @@ class DeliveryController extends Controller
             ], 422);
         }
 
-        // 2. Get store coordinates from admin settings
-        $storeLat = (float) Setting::get('store_lat', 14.4597);
-        $storeLng = (float) Setting::get('store_lng', 120.9640);
+        // 2. Get store coordinates and address from admin settings
+        $storeAddress = Setting::get('store_address', 'Bacoor, Cavite, Philippines');
+        $storeLat = (float) Setting::get('store_lat', 0);
+        $storeLng = (float) Setting::get('store_lng', 0);
 
-        // 3. Get Lalamove quote
+        if (!$storeLat || !$storeLng) {
+            $storeCoords = $this->geocoder->geocode($storeAddress);
+            if ($storeCoords) {
+                $storeLat = (float) $storeCoords['lat'];
+                $storeLng = (float) $storeCoords['lng'];
+            } else {
+                $storeLat = 14.4597;
+                $storeLng = 120.9640;
+            }
+        }
+
+        // 3. Get Lalamove quote using dynamic store GPS coordinates
         $quote = $this->lalamove->quote(
             pickup:  ['lat' => $storeLat, 'lng' => $storeLng],
             dropoff: ['lat' => $dropoffCoords['lat'], 'lng' => $dropoffCoords['lng']],

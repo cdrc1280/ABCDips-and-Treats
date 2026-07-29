@@ -78,23 +78,43 @@ class AiAdvisorService
     {
         $promptLower = strtolower($prompt);
 
-        if (str_contains($promptLower, 'stock') || str_contains($promptLower, 'reorder') || str_contains($promptLower, 'ingredient')) {
+        if (str_contains($promptLower, 'best') || str_contains($promptLower, 'popular') || str_contains($promptLower, 'recommend')) {
+            return "🧁 **ABCDips Best Sellers:**\nOur customer favorites are:\n1. **Cheesy Ube Pandesal** (Soft, filled with real ube halaya & cheese)\n2. **Fudge Chocolate Brownies** (Rich Belgian chocolate fudge)\n3. **Artisan Banana Bread** (Moist loaf topped with walnuts & chocolate chips)\n4. **Custom Celebration Cakes** (Bespoke multi-tier designs)\n\nCheck out our Shop page to place an order today!";
+        }
+
+        if (str_contains($promptLower, 'custom') || str_contains($promptLower, 'cake') || str_contains($promptLower, 'wedding') || str_contains($promptLower, 'birthday')) {
+            return "🎂 **Custom Cake Orders:**\nWe create custom multi-tier cakes for birthdays, weddings, and special events!\n• You can use our **Custom Cake Builder** on the storefront to choose your tiers, guest count, flavors, and frosting style.\n• Our head chef will review your inquiry and send you a formal quote within 24 hours.";
+        }
+
+        if (str_contains($promptLower, 'delivery') || str_contains($promptLower, 'lalamove') || str_contains($promptLower, 'ship') || str_contains($promptLower, 'rate')) {
+            return "🛵 **Doorstep Delivery Info:**\n• We offer dynamic **Lalamove Doorstep Delivery** across Cavite and nearby areas!\n• Delivery rates are calculated live at Checkout based on your exact pin distance from our store.\n• You can also select **Store Pickup** for 100% FREE pickup!";
+        }
+
+        if (str_contains($promptLower, 'pay') || str_contains($promptLower, 'gcash') || str_contains($promptLower, 'maya') || str_contains($promptLower, 'bank') || str_contains($promptLower, 'bdo') || str_contains($promptLower, 'cod')) {
+            return "💳 **Accepted Payment Methods:**\nWe accept:\n• **GCash** & **Maya** (PayMaya) E-Wallets\n• **Bank Transfer** (BDO, BPI, Metrobank, UnionBank, Landbank, etc.)\n• **Cash on Delivery (COD)** for doorstep delivery\n• **Store Pickup** (Pay at counter or online)";
+        }
+
+        if (str_contains($promptLower, 'allergy') || str_contains($promptLower, 'gluten') || str_contains($promptLower, 'nut') || str_contains($promptLower, 'dairy')) {
+            return "🥜 **Allergen & Ingredient Notice:**\nAll our pastries are baked fresh using 100% real butter, fresh eggs, and high-grade flour. Each product listing displays specific allergen tags (Gluten, Dairy, Eggs, Nuts, Soy). Please review product tags before ordering if you have severe allergies.";
+        }
+
+        if (str_contains($promptLower, 'stock') || str_contains($promptLower, 'reorder') || str_contains($promptLower, 'inventory')) {
             if ($lowStock->isEmpty()) {
                 return "🥐 **Inventory Advisory:** All raw ingredients are currently above minimum stock thresholds. No immediate reorders are required today!";
             }
 
             $itemsList = $lowStock->map(fn ($i) => "• **{$i->name}**: Only {$i->stock_qty} {$i->unit} remaining (Reorder threshold: {$i->min_stock_qty} {$i->unit})")->implode("\n");
-            return "⚠️ **Inventory Alert & Reorder Advisory:**\nThe following raw ingredients have dropped below safe threshold levels and should be reordered from suppliers immediately:\n\n{$itemsList}\n\n*Tip: You can create a Purchase Order automatically in the Purchasing section!*";
+            return "⚠️ **Inventory Alert & Reorder Advisory:**\nThe following raw ingredients have dropped below safe threshold levels and should be reordered from suppliers immediately:\n\n{$itemsList}";
         }
 
         if (str_contains($promptLower, 'price') || str_contains($promptLower, 'margin') || str_contains($promptLower, 'cost')) {
-            return "💡 **Pricing & Gross Margin Advisor:**\nTo achieve a target **65% Gross Margin** on a pastry with a raw ingredient batch cost of ₱150 per loaf:\n• Target Selling Price = `Batch Cost / (1 - 0.65)` = **₱428.50**\n• Recommended Retail Price: **₱450.00** (provides 66.7% gross margin).\n\n*Check the Recipe Costing section in Filament to audit all gross margins!*";
+            return "💡 **Pricing & Gross Margin Advisor:**\nTo achieve a target **65% Gross Margin** on a pastry batch with a raw ingredient cost of ₱150:\n• Target RRP = `Cost / (1 - 0.65)` = **₱428.50**\n• Recommended Price: **₱450.00** (provides 66.7% gross margin).";
         }
 
-        if (str_contains($promptLower, 'sales') || str_contains($promptLower, 'revenue') || str_contains($promptLower, 'best')) {
-            return "📊 **Sales Performance Summary:**\n• Total Bakery Revenue: **₱" . number_format($kpis['total_revenue'], 2) . "** across **{$kpis['completed_orders']} completed orders**.\n• Current Top Products in Stock: " . $topProducts->pluck('name')->implode(', ') . ".\n\n*Recommendation: Increase morning production batch quantities for high-margin items like Ube Cheesecake and Chocolate Chip Cookies!*";
+        if (str_contains($promptLower, 'sales') || str_contains($promptLower, 'revenue')) {
+            return "📊 **Sales Performance Summary:**\n• Total Bakery Revenue: **₱" . number_format($kpis['total_revenue'], 2) . "** across **{$kpis['completed_orders']} completed orders**.\n• Current Top Products in Stock: " . $topProducts->pluck('name')->implode(', ') . ".";
         }
 
-        return "🥖 **ABCDips AI Operations Assistant:**\nHello! I am your AI Bakery Operations Advisor. I can analyze raw ingredient inventory levels, calculate target pricing for 65%+ gross margins, suggest optimal baking batch sizes, and generate sales performance insights.\n\nTry asking me:\n- *Which ingredients need reordering?*\n- *What price should I charge for 65% gross margin?*\n- *Summarize current sales performance.*";
+        return "🥖 **Dips AI Assistant:**\nHello! I'm Dips 🧁, your AI assistant for ABCDips & Treats.\nI can answer questions about our fresh pastries, custom cake inquiries, Lalamove doorstep delivery rates, payment methods, allergen details, and store pickup options.\n\nHow can I help you today?";
     }
 }

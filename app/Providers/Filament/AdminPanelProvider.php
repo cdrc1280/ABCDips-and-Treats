@@ -60,6 +60,9 @@ class AdminPanelProvider extends PanelProvider
                 'Analytics',
                 'Settings',
             ])
+            // ─── Database Notifications (Real-time Seller Order Alerts) ──
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('15s')
             // ─── Auth ──────────────────────────────────────────────────
             ->authGuard('web')
             ->middleware([

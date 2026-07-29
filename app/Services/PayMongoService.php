@@ -15,8 +15,8 @@ class PayMongoService
 
     public function __construct()
     {
-        $this->secretKey = Setting::get('paymongo_secret_key', '');
-        $this->publicKey = Setting::get('paymongo_public_key', '');
+        $this->secretKey = (string) (Setting::get('paymongo_secret_key', '') ?? '');
+        $this->publicKey = (string) (Setting::get('paymongo_public_key', '') ?? '');
     }
 
     /**

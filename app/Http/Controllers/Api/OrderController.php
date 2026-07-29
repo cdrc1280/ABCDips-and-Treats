@@ -32,8 +32,17 @@ class OrderController extends Controller
             'payment_method'   => ['required', 'in:gcash,maya,bank_transfer,cod'],
         ]);
 
+        $user = $request->user('sanctum');
+
+        if ($user && ! $user->hasVerifiedEmail()) {
+            return response()->json([
+                'message'    => 'Email verification required. Please verify your account email before placing an order.',
+                'unverified' => true,
+            ], 422);
+        }
+
         $cartToken = $request->header('X-Cart-Token') ?: $request->get('cart_token');
-        $cart = $this->cartService->getOrCreateCart($cartToken, $request->user('sanctum'));
+        $cart = $this->cartService->getOrCreateCart($cartToken, $user);
 
         try {
             $order = $this->orderService->createOrderFromCart($cart, $validated, $request->user('sanctum'));

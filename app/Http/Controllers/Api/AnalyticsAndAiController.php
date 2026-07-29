@@ -26,15 +26,18 @@ class AnalyticsAndAiController extends Controller
 
     public function aiQuery(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'prompt'   => ['required', 'string', 'min:3', 'max:500'],
-            'category' => ['nullable', 'string'],
-        ]);
+        $prompt = $request->input('prompt') ?: $request->input('query') ?: $request->input('message');
 
-        $result = $this->aiAdvisorService->ask($validated['prompt'], $validated['category'] ?? 'general');
+        if (! $prompt || strlen(trim($prompt)) < 2) {
+            return response()->json(['message' => 'Please enter a valid question or message.'], 422);
+        }
+
+        $category = $request->input('category', 'general');
+        $result   = $this->aiAdvisorService->ask(trim($prompt), $category);
 
         return response()->json([
-            'data' => $result,
+            'data'    => $result,
+            'message' => $result['response'] ?? '',
         ]);
     }
 }

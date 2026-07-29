@@ -159,6 +159,13 @@ class OrderResource extends Resource
 
                         if ($nextStatus !== $record->status) {
                             $record->transitionTo($nextStatus, 'Status advanced by admin.');
+
+                            // Auto mark database notification for this order as read
+                            \Illuminate\Support\Facades\DB::table('notifications')
+                                ->where('data', 'like', "%{$record->order_number}%")
+                                ->whereNull('read_at')
+                                ->update(['read_at' => now()]);
+
                             Notification::make()
                                 ->title("Order status updated to " . ucwords(str_replace('_', ' ', $nextStatus)))
                                 ->success()

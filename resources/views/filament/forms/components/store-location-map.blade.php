@@ -11,7 +11,9 @@
         marker: null,
 
         init() {
-            this.loadLeaflet().then(() => this.initMap());
+            this.$nextTick(() => {
+                this.loadLeaflet().then(() => this.initMap());
+            });
         },
 
         loadLeaflet() {
@@ -45,8 +47,15 @@
 
         initMap() {
             const L = window.L;
+            if (!this.$refs.adminMap || !L) return;
+
             const startLat = parseFloat(this.lat) || 14.4597;
             const startLng = parseFloat(this.lng) || 120.9640;
+
+            if (this.map) {
+                try { this.map.remove(); } catch (e) {}
+                this.map = null;
+            }
 
             this.map = L.map(this.$refs.adminMap, {
                 center: [startLat, startLng],
@@ -85,6 +94,10 @@
                 this.lng = lng.toFixed(6);
                 this.reverseGeocode(lat, lng);
             });
+
+            setTimeout(() => {
+                if (this.map) this.map.invalidateSize();
+            }, 300);
         },
 
         async searchAddress() {
@@ -102,7 +115,6 @@
                 const data = await res.json();
                 if (data && data.length > 0) {
                     this.suggestions = data;
-                    // Immediately center map & move pin to the top search match
                     this.selectSuggestion(data[0]);
                 } else {
                     this.noResults = true;
@@ -127,6 +139,9 @@
             if (this.map && this.marker) {
                 this.map.setView([newLat, newLng], 16);
                 this.marker.setLatLng([newLat, newLng]);
+                setTimeout(() => {
+                    if (this.map) this.map.invalidateSize();
+                }, 100);
             }
         },
 
@@ -147,7 +162,7 @@
     <div class="flex items-center justify-between">
         <label class="text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
             <span>📍 Store Location Map Pinpoint</span>
-            <span class="text-xs text-gray-400 font-normal">(Drag the 🏪 store icon or search address below to set store GPS coords)</span>
+            <span class="text-xs text-gray-400 font-normal">(Drag the 🏪 store icon or click anywhere on the map)</span>
         </label>
         <span x-text="lat && lng ? `GPS: ${lat}, ${lng}` : 'GPS: Not Set'" class="text-xs font-mono font-bold text-amber-500 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20"></span>
     </div>
@@ -160,7 +175,7 @@
                 @keydown.enter.prevent="searchAddress"
                 type="text"
                 placeholder="Search bakery store location in Philippines (e.g. Molino Blvd, Bacoor)..."
-                class="fi-input flex-1 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs text-gray-900 dark:text-white"
+                class="fi-input flex-1 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3.5 py-2 text-xs text-gray-900 dark:text-white"
             />
             <button
                 @click.prevent="searchAddress"
@@ -197,7 +212,7 @@
     </div>
 
     <!-- Map Canvas Container -->
-    <div class="relative rounded-xl overflow-hidden border border-gray-300 dark:border-gray-700 h-64 bg-gray-100 dark:bg-gray-900 shadow-inner z-10">
-        <div x-ref="adminMap" class="w-full h-full"></div>
+    <div class="relative rounded-xl overflow-hidden border border-gray-300 dark:border-gray-700 h-72 bg-gray-100 dark:bg-gray-900 shadow-inner z-10">
+        <div x-ref="adminMap" class="w-full h-full min-h-[280px]"></div>
     </div>
 </div>

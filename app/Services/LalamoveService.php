@@ -19,10 +19,10 @@ class LalamoveService
 
     public function __construct()
     {
-        $this->apiKey = Setting::get('lalamove_api_key', '');
-        $this->apiSecret = Setting::get('lalamove_api_secret', '');
+        $this->apiKey = (string) (Setting::get('lalamove_api_key', '') ?? '');
+        $this->apiSecret = (string) (Setting::get('lalamove_api_secret', '') ?? '');
         $this->isSandbox = (bool) Setting::get('lalamove_sandbox', true);
-        $this->serviceType = Setting::get('lalamove_service_type', 'MOTORCYCLE');
+        $this->serviceType = (string) (Setting::get('lalamove_service_type', 'MOTORCYCLE') ?? 'MOTORCYCLE');
         $this->baseUrl = $this->isSandbox ? self::SANDBOX_URL : self::LIVE_URL;
     }
 

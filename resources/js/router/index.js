@@ -105,7 +105,7 @@ const router = createRouter({
   },
 })
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to) => {
   document.title = to.meta.title || 'ABCDips & Treats'
   const authStore = useAuthStore()
 
@@ -115,12 +115,11 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    return next({ name: 'login', query: { redirect: to.fullPath } })
+    return { name: 'login', query: { redirect: to.fullPath } }
   }
   if (to.meta.guestOnly && authStore.isAuthenticated) {
-    return next({ name: 'home' })
+    return { name: 'home' }
   }
-  next()
 })
 
 export default router

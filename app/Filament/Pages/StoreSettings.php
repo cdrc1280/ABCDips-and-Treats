@@ -47,9 +47,9 @@ class StoreSettings extends Page implements HasForms
             'paymongo_secret_key'   => Setting::get('paymongo_secret_key', ''),
             'paymongo_sandbox'      => (bool) Setting::get('paymongo_sandbox', true),
 
-            'bank_name'             => Setting::get('bank_name', 'BDO'),
-            'bank_account_name'     => Setting::get('bank_account_name', 'ABCDips & Treats'),
-            'bank_account_number'   => Setting::get('bank_account_number', ''),
+            'bdo_account_name'      => Setting::get('bdo_account_name', 'ABCDips & Treats'),
+            'bdo_account_number'    => Setting::get('bdo_account_number', '0012-3456-7890'),
+            'bdo_instructions'      => Setting::get('bdo_instructions', ''),
         ]);
     }
 
@@ -143,44 +143,25 @@ class StoreSettings extends Page implements HasForms
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Bank Transfer Details')
-                    ->description('Configure your preferred bank details shown to customers who choose manual bank transfer at checkout.')
+                Section::make('BDO Payment Details')
+                    ->description('Set your BDO bank transfer account name and account number shown to customers at checkout.')
                     ->columns(2)
                     ->components([
-                        Select::make('bank_name')
-                            ->label('Bank Name')
-                            ->options([
-                                'BDO' => 'BDO Unibank',
-                                'BPI' => 'Bank of the Philippine Islands (BPI)',
-                                'Metrobank' => 'Metropolitan Bank & Trust Co. (Metrobank)',
-                                'UnionBank' => 'UnionBank of the Philippines',
-                                'Landbank' => 'Land Bank of the Philippines',
-                                'Security Bank' => 'Security Bank',
-                                'RCBC' => 'RCBC',
-                                'PNB' => 'Philippine National Bank (PNB)',
-                                'Chinabank' => 'China Banking Corporation',
-                                'EastWest' => 'EastWest Bank',
-                                'GCash' => 'GCash / GSave (Bank)',
-                                'Maya Bank' => 'Maya Bank',
-                            ])
-                            ->searchable()
-                            ->required()
-                            ->default('BDO'),
+                        TextInput::make('bdo_account_name')
+                            ->label('BDO Account Name')
+                            ->placeholder('ABCDips & Treats')
+                            ->default('ABCDips & Treats')
+                            ->required(),
 
-                        TextInput::make('bank_account_name')
-                            ->label('Account Name')
-                            ->required()
-                            ->default('ABCDips & Treats'),
-
-                        TextInput::make('bank_account_number')
-                            ->label('Account Number')
-                            ->required()
+                        TextInput::make('bdo_account_number')
+                            ->label('BDO Account Number')
                             ->placeholder('0012-3456-7890')
-                            ->columnSpanFull(),
+                            ->default('0012-3456-7890')
+                            ->required(),
 
-                        Textarea::make('bank_instructions')
-                            ->label('Custom Payment Notes (Optional)')
-                            ->helperText('Additional instructions shown on checkout modal (e.g. Upload deposit slip proof in My Orders)')
+                        Textarea::make('bdo_instructions')
+                            ->label('Custom BDO Payment Instructions (Optional)')
+                            ->placeholder('e.g. Please present deposit slip or reference code upon delivery/pickup.')
                             ->rows(2)
                             ->columnSpanFull(),
                     ]),
@@ -197,7 +178,7 @@ class StoreSettings extends Page implements HasForms
                 str_starts_with($key, 'store_') => 'store',
                 str_starts_with($key, 'lalamove_') => 'lalamove',
                 str_starts_with($key, 'paymongo_') => 'paymongo',
-                str_starts_with($key, 'bank_') => 'bank',
+                str_starts_with($key, 'bdo_') => 'bdo',
                 default => 'general',
             };
 

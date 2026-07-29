@@ -18,7 +18,115 @@
     </div>
 
     <!-- Active Checkout Form -->
-    <form v-else @submit.prevent="handleCheckout" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <!-- Account Verification Required Box -->
+    <div v-if="authStore.user && !authStore.user.email_verified_at" class="max-w-7xl mx-auto mb-8">
+      <div class="bg-amber-50/90 border-2 border-amber-300 rounded-3xl p-6 md:p-8 shadow-md space-y-6">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-2xl flex-shrink-0">
+            🔐
+          </div>
+          <div>
+            <h3 class="text-xl font-extrabold text-amber-950">Account Verification Required Before Checkout</h3>
+            <p class="text-sm text-amber-900 mt-1">
+              To ensure order security, please verify your account using either your <strong>Email Address</strong> or <strong>Mobile Phone Number</strong>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Verification Method Tabs -->
+        <div class="flex items-center gap-2 border-b border-amber-200 pb-3">
+          <button
+            type="button"
+            @click="verificationTab = 'email'"
+            :class="[
+              'px-4 py-2 rounded-xl text-xs font-bold transition-all',
+              verificationTab === 'email'
+                ? 'bg-[#5C3A22] text-[#FBF3E7] shadow-xs'
+                : 'bg-white/80 text-amber-900 hover:bg-white border border-amber-200'
+            ]"
+          >✉️ Verify via Email</button>
+
+          <button
+            type="button"
+            @click="verificationTab = 'phone'"
+            :class="[
+              'px-4 py-2 rounded-xl text-xs font-bold transition-all',
+              verificationTab === 'phone'
+                ? 'bg-[#5C3A22] text-[#FBF3E7] shadow-xs'
+                : 'bg-white/80 text-amber-900 hover:bg-white border border-amber-200'
+            ]"
+          >📱 Verify via Mobile Number (SMS Code)</button>
+        </div>
+
+        <!-- Tab 1: Email Verification -->
+        <div v-if="verificationTab === 'email'" class="space-y-4 bg-white/80 rounded-2xl p-5 border border-amber-200/80">
+          <p class="text-sm text-[#1C1410]">
+            We will send a secure verification link to <strong>{{ authStore.user.email }}</strong>.
+          </p>
+          <div class="flex items-center gap-3 flex-wrap">
+            <BaseButton
+              type="button"
+              variant="primary"
+              :loading="sendingEmail"
+              @click="sendVerificationEmail"
+            >
+              ✉️ Send Verification Link to Email
+            </BaseButton>
+            <span v-if="emailSent" class="text-xs font-bold text-[#6B8F5E]">✓ Link Sent! Please check your email inbox.</span>
+          </div>
+        </div>
+
+        <!-- Tab 2: Mobile Phone Verification -->
+        <div v-else-if="verificationTab === 'phone'" class="space-y-4 bg-white/80 rounded-2xl p-5 border border-amber-200/80">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-[#1C1410] mb-1">Mobile Phone Number</label>
+              <div class="flex gap-2">
+                <input
+                  v-model="otpPhone"
+                  type="text"
+                  placeholder="0917 123 4567"
+                  class="flex-1 bg-white border border-[#C08E5D]/30 rounded-xl px-3.5 py-2 text-sm text-[#1C1410] focus:ring-2 focus:ring-[#5C3A22]"
+                />
+                <button
+                  type="button"
+                  @click="sendPhoneOtp"
+                  :disabled="sendingOtp || !otpPhone"
+                  class="px-3.5 py-2 bg-[#5C3A22] text-white text-xs font-bold rounded-xl hover:bg-[#4A2D1A] disabled:opacity-50 transition-all flex-shrink-0"
+                >
+                  {{ sendingOtp ? 'Sending...' : 'Send SMS Code' }}
+                </button>
+              </div>
+              <p v-if="otpSent" class="text-[11px] text-[#6B8F5E] font-semibold mt-1">✓ SMS Code sent! (Test Code: 123456)</p>
+            </div>
+
+            <div v-if="otpSent">
+              <label class="block text-xs font-bold text-[#1C1410] mb-1">Enter 6-Digit SMS Code</label>
+              <div class="flex gap-2">
+                <input
+                  v-model="otpCode"
+                  type="text"
+                  maxlength="6"
+                  placeholder="123456"
+                  class="w-36 bg-white border border-[#C08E5D]/30 rounded-xl px-3.5 py-2 text-sm font-extrabold text-center tracking-widest text-[#1C1410] focus:ring-2 focus:ring-[#5C3A22]"
+                />
+                <button
+                  type="button"
+                  @click="verifyPhoneOtp"
+                  :disabled="verifyingOtp || otpCode.length !== 6"
+                  class="px-4 py-2 bg-[#6B8F5E] text-white text-xs font-bold rounded-xl hover:bg-green-700 disabled:opacity-50 transition-all flex-shrink-0"
+                >
+                  {{ verifyingOtp ? 'Verifying...' : 'Verify & Unlock Checkout' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <form v-else-if="cartStore.items.length > 0" @submit.prevent="handleCheckout" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
       <!-- Form Column Left -->
       <div class="lg:col-span-7 space-y-6">
@@ -63,6 +171,9 @@
               </div>
               <div class="font-bold text-sm text-[#1C1410]">Store Pickup</div>
               <div class="text-xs text-[#6B8F5E] font-semibold mt-0.5">FREE</div>
+              <div class="text-[11px] text-[#8C7A68] mt-1 max-w-[200px] truncate" :title="storeInfo.store_address || 'Bacoor, Cavite, Philippines'">
+                📍 Store: {{ storeInfo.store_address || 'Bacoor, Cavite, Philippines' }}
+              </div>
             </label>
           </div>
         </div>
@@ -179,19 +290,19 @@
               </div>
             </label>
 
-            <!-- Bank Transfer -->
+            <!-- Bank Transfer (Static BDO) -->
             <label
-              v-tooltip="'Manual online / deposit bank transfer — account details shown upon order'"
+              v-tooltip="'Manual BDO Online Transfer / Bank Deposit'"
               class="border-2 rounded-2xl p-4 cursor-pointer flex items-center gap-3 transition-all"
               :class="form.payment_method === 'bank_transfer' ? 'border-[#5C3A22] bg-[#FBF3E7]' : 'border-[#C08E5D]/20 bg-white opacity-70 hover:opacity-100'"
             >
               <input type="radio" v-model="form.payment_method" value="bank_transfer" class="sr-only" />
-              <div class="w-10 h-10 rounded-xl bg-[#5C3A22] text-[#FBF3E7] font-bold text-xs flex items-center justify-center flex-shrink-0 uppercase truncate px-1">
-                {{ (storeInfo.bank_name || 'BANK').slice(0, 4) }}
+              <div class="w-10 h-10 rounded-xl bg-[#003366] text-white font-black text-xs flex items-center justify-center flex-shrink-0">
+                BDO
               </div>
               <div>
-                <div class="font-bold text-sm text-[#1C1410]">Bank Transfer ({{ storeInfo.bank_name || 'Bank' }})</div>
-                <div class="text-[11px] text-[#8C7A68]">Manual bank deposit</div>
+                <div class="font-bold text-sm text-[#1C1410]">BDO Bank Transfer</div>
+                <div class="text-[11px] text-[#8C7A68]">Manual BDO online transfer / deposit</div>
               </div>
             </label>
 
@@ -211,6 +322,19 @@
               </div>
             </label>
           </div>
+
+          <!-- Dynamic BDO Account Info Box (Configured via Store Settings) -->
+          <div v-if="form.payment_method === 'bank_transfer'" class="p-4 bg-[#FBF3E7] border border-[#C08E5D]/30 rounded-2xl text-xs space-y-1 text-[#1C1410]">
+            <p class="font-bold text-sm text-[#5C3A22] flex items-center gap-1.5">
+              <span>🏦 BDO Unibank Account Details</span>
+            </p>
+            <p><strong>Bank Name:</strong> BDO Unibank (Banco de Oro)</p>
+            <p><strong>Account Name:</strong> {{ storeInfo.bdo_account_name || 'ABCDips & Treats' }}</p>
+            <p><strong>Account Number:</strong> <span class="font-mono font-bold text-[#5C3A22]">{{ storeInfo.bdo_account_number || '0012-3456-7890' }}</span></p>
+            <p class="text-[11px] text-[#8C7A68] pt-1 border-t border-[#C08E5D]/20 mt-1">
+              {{ storeInfo.bdo_instructions || 'Please transfer your payment to our BDO Account and present reference code upon delivery or pickup.' }}
+            </p>
+          </div>
         </div>
 
       </div>
@@ -229,7 +353,31 @@
                 <img :src="item.image_url || '/images/placeholder-bakery.png'" class="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
                 <div class="truncate">
                   <div class="font-bold text-[#1C1410] truncate">{{ item.options?.is_custom ? item.options.custom_title : item.name }}</div>
-                  <div class="text-[#8C7A68]">Qty: {{ item.qty }}</div>
+                  
+                  <div class="flex items-center gap-2 mt-1">
+                    <div class="flex items-center border border-[#C08E5D]/30 rounded-lg overflow-hidden bg-[#FBF3E7]">
+                      <button
+                        type="button"
+                        @click.prevent="adjustItemQty(item, -1)"
+                        v-tooltip="'Decrease quantity'"
+                        class="px-2 py-0.5 text-xs font-bold text-[#5C3A22] hover:bg-[#D9A876]/40 transition-colors"
+                      >-</button>
+                      <span class="px-2 text-[11px] font-bold text-[#1C1410]">{{ item.qty }}</span>
+                      <button
+                        type="button"
+                        @click.prevent="adjustItemQty(item, 1)"
+                        v-tooltip="'Increase quantity'"
+                        class="px-2 py-0.5 text-xs font-bold text-[#5C3A22] hover:bg-[#D9A876]/40 transition-colors"
+                      >+</button>
+                    </div>
+                    <button
+                      type="button"
+                      @click.prevent="cartStore.removeItem(item.id)"
+                      v-tooltip="'Remove item'"
+                      class="text-[10px] text-red-500 hover:underline"
+                    >Remove</button>
+                  </div>
+
                 </div>
               </div>
               <span class="font-bold text-[#5C3A22] flex-shrink-0">₱{{ (item.subtotal || 0).toFixed(2) }}</span>
@@ -353,6 +501,7 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseTextarea from '@/components/ui/BaseTextarea.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseAlert from '@/components/ui/BaseAlert.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import AddressMapPicker from '@/components/checkout/AddressMapPicker.vue'
 
@@ -363,7 +512,76 @@ const authStore = useAuthStore()
 const toast = useToast()
 
 const submitting = ref(false)
+const verifyingEmail = ref(false)
+const sendingEmail = ref(false)
+const emailSent = ref(false)
+const verificationTab = ref('email')
+const otpPhone = ref(authStore.user?.phone || '')
+const otpCode = ref('')
+const sendingOtp = ref(false)
+const otpSent = ref(false)
+const verifyingOtp = ref(false)
 const errors = ref({})
+
+async function sendVerificationEmail() {
+  sendingEmail.value = true
+  try {
+    const { data } = await axios.post('/api/customer/send-verification-email')
+    emailSent.value = true
+    toast.success(data.message || 'Verification email sent to your inbox!', 'Verification Email Sent ✉️')
+  } catch (err) {
+    toast.error('Failed to send verification email.', 'Error')
+  } finally {
+    sendingEmail.value = false
+  }
+}
+
+async function sendPhoneOtp() {
+  if (!otpPhone.value) {
+    toast.error('Please enter a valid mobile phone number.', 'Validation Error')
+    return
+  }
+  sendingOtp.value = true
+  try {
+    const { data } = await axios.post('/api/customer/send-phone-otp', { phone: otpPhone.value })
+    otpSent.value = true
+    toast.success(data.message || 'SMS verification code sent! (Sandbox Code: 123456)', 'SMS Code Sent 📱')
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Failed to send SMS code.', 'Error')
+  } finally {
+    sendingOtp.value = false
+  }
+}
+
+async function verifyPhoneOtp() {
+  if (otpCode.value.length !== 6) {
+    toast.error('Please enter a 6-digit verification code.', 'Validation Error')
+    return
+  }
+  verifyingOtp.value = true
+  try {
+    const { data } = await axios.post('/api/customer/verify-phone-otp', { otp: otpCode.value })
+    authStore.user = data.data
+    toast.success('Your account has been verified successfully via mobile number!', 'Account Verified 🎉')
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Invalid verification code. Use 123456.', 'Verification Error')
+  } finally {
+    verifyingOtp.value = false
+  }
+}
+
+async function verifyEmail() {
+  verifyingEmail.value = true
+  try {
+    const { data } = await axios.post('/api/customer/verify-email')
+    authStore.user = data.data
+    toast.success('Your account email has been verified successfully!', 'Account Verified')
+  } catch (err) {
+    toast.error('Failed to verify account email.', 'Verification Error')
+  } finally {
+    verifyingEmail.value = false
+  }
+}
 
 // Store settings & quote state
 const storeInfo = ref({})
@@ -391,35 +609,6 @@ const form = ref({
   payment_method: 'gcash'
 })
 
-function populateUserData() {
-  if (authStore.user) {
-    form.value.customer_name = authStore.user.name || ''
-    form.value.customer_email = authStore.user.email || ''
-    form.value.customer_phone = authStore.user.phone || ''
-    form.value.delivery_address = authStore.user.address || ''
-  } else {
-    form.value.customer_name = ''
-    form.value.customer_email = ''
-    form.value.customer_phone = ''
-    form.value.delivery_address = ''
-  }
-}
-
-watch(() => authStore.user, (user) => {
-  if (user) {
-    populateUserData()
-    if (form.value.delivery_address && form.value.fulfillment_type === 'delivery') {
-      fetchDeliveryQuote()
-    }
-  }
-}, { immediate: true })
-
-function handleLocationPinpointed(loc) {
-  if (loc.address) form.value.delivery_address = loc.address
-  if (loc.city) form.value.city = loc.city
-  fetchDeliveryQuote()
-}
-
 // Debounced delivery quote fetcher
 let quoteTimeout = null
 function fetchDeliveryQuote() {
@@ -435,7 +624,7 @@ function fetchDeliveryQuote() {
     return
   }
 
-  clearTimeout(quoteTimeout)
+  if (quoteTimeout) clearTimeout(quoteTimeout)
   quoteTimeout = setTimeout(async () => {
     quotingDelivery.value = true
     quoteError.value = ''
@@ -460,6 +649,44 @@ function fetchDeliveryQuote() {
   }, 600)
 }
 
+function populateUserData() {
+  if (authStore.user) {
+    form.value.customer_name = authStore.user.name || ''
+    form.value.customer_email = authStore.user.email || ''
+    form.value.customer_phone = authStore.user.phone || ''
+    form.value.delivery_address = authStore.user.address || ''
+  } else {
+    form.value.customer_name = ''
+    form.value.customer_email = ''
+    form.value.customer_phone = ''
+    form.value.delivery_address = ''
+  }
+}
+
+watch(() => authStore.user, (user) => {
+  if (user) {
+    populateUserData()
+    if (form.value.delivery_address && form.value.fulfillment_type === 'delivery') {
+      fetchDeliveryQuote()
+    }
+  }
+}, { immediate: true })
+
+function adjustItemQty(item, delta) {
+  const newQty = (item.qty || 1) + delta
+  if (newQty <= 0) {
+    cartStore.removeItem(item.id)
+  } else {
+    cartStore.updateItemQty(item.id, newQty)
+  }
+}
+
+function handleLocationPinpointed(loc) {
+  if (loc.address) form.value.delivery_address = loc.address
+  if (loc.city) form.value.city = loc.city
+  fetchDeliveryQuote()
+}
+
 watch(() => [form.value.delivery_address, form.value.city, form.value.fulfillment_type], () => {
   if (form.value.fulfillment_type === 'delivery') {
     fetchDeliveryQuote()
@@ -481,6 +708,9 @@ onMounted(async () => {
   try {
     const { data } = await axios.get('/api/settings/store')
     storeInfo.value = data || {}
+    if (data.store_address && (form.value.city === 'Bacoor, Cavite' || !form.value.city)) {
+      form.value.city = data.store_address
+    }
   } catch {}
 
   if (form.value.delivery_address) {

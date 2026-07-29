@@ -15,47 +15,48 @@ class OrderService
 {
     public function __construct(
         private readonly PaymentManager $paymentManager
-    ) {}
+    ) {
+    }
 
     public function createOrderFromCart(Cart $cart, array $data, ?User $user = null): Order
     {
-        $cart->load(['items.product', 'items' => fn ($q) => $q->whereNull('deleted_at')]);
+        $cart->load(['items.product', 'items' => fn($q) => $q->whereNull('deleted_at')]);
 
         if ($cart->items->isEmpty()) {
             throw new \RuntimeException('Cannot create an order from an empty cart.');
         }
 
-        $orderNumber   = 'ABCD-' . date('Ymd') . '-' . strtoupper(Str::random(4));
+        $orderNumber = 'ABCD-' . date('Ymd') . '-' . strtoupper(Str::random(4));
         $trackingToken = Str::random(40);
-        $fulfillment   = $data['fulfillment_type'] ?? 'delivery';
-        $deliveryFee   = $fulfillment === 'delivery' ? 120.00 : 0.00;
+        $fulfillment = $data['fulfillment_type'] ?? 'delivery';
+        $deliveryFee = $fulfillment === 'delivery' ? 120.00 : 0.00;
 
         $subtotal = $cart->subtotal;
         $discount = (float) $cart->discount_amount;
-        $total    = max(0.0, round($subtotal - $discount + $deliveryFee, 2));
+        $total = max(0.0, round($subtotal - $discount + $deliveryFee, 2));
 
         // Create Order with default PENDING status
         $order = Order::create([
-            'order_number'      => $orderNumber,
-            'tracking_token'    => $trackingToken,
-            'user_id'           => $user?->id ?? $cart->user_id,
-            'customer_name'     => $data['customer_name'],
-            'customer_email'    => $data['customer_email'],
-            'customer_phone'    => $data['customer_phone'],
-            'fulfillment_type'  => $fulfillment,
-            'delivery_address'  => $data['delivery_address'] ?? null,
-            'city'              => $data['city'] ?? null,
-            'postal_code'       => $data['postal_code'] ?? null,
-            'scheduled_time'    => $data['scheduled_time'] ?? null,
-            'notes'             => $data['notes'] ?? null,
-            'subtotal'          => $subtotal,
-            'discount_amount'   => $discount,
-            'coupon_code'       => $cart->coupon_code,
-            'delivery_fee'      => $deliveryFee,
-            'total'             => $total,
-            'payment_method'    => $data['payment_method'],
-            'payment_status'    => 'pending',
-            'status'            => Order::STATUS_PENDING,
+            'order_number' => $orderNumber,
+            'tracking_token' => $trackingToken,
+            'user_id' => $user?->id ?? $cart->user_id,
+            'customer_name' => $data['customer_name'],
+            'customer_email' => $data['customer_email'],
+            'customer_phone' => $data['customer_phone'],
+            'fulfillment_type' => $fulfillment,
+            'delivery_address' => $data['delivery_address'] ?? null,
+            'city' => $data['city'] ?? null,
+            'postal_code' => $data['postal_code'] ?? null,
+            'scheduled_time' => $data['scheduled_time'] ?? null,
+            'notes' => $data['notes'] ?? null,
+            'subtotal' => $subtotal,
+            'discount_amount' => $discount,
+            'coupon_code' => $cart->coupon_code,
+            'delivery_fee' => $deliveryFee,
+            'total' => $total,
+            'payment_method' => $data['payment_method'],
+            'payment_status' => 'pending',
+            'status' => Order::STATUS_PENDING,
         ]);
 
         // Copy Cart Items -> Order Items
@@ -69,14 +70,14 @@ class OrderService
                 : $item->product->sku;
 
             OrderItem::create([
-                'order_id'     => $order->id,
-                'product_id'   => $item->product_id,
+                'order_id' => $order->id,
+                'product_id' => $item->product_id,
                 'product_name' => $productName,
-                'product_sku'  => $productSku,
-                'qty'          => $item->qty,
-                'unit_price'   => $item->unit_price,
-                'subtotal'     => $item->subtotal,
-                'options'      => $item->options,
+                'product_sku' => $productSku,
+                'qty' => $item->qty,
+                'unit_price' => $item->unit_price,
+                'subtotal' => $item->subtotal,
+                'options' => $item->options,
             ]);
 
             // Deduct stock quantity
@@ -92,9 +93,9 @@ class OrderService
         if ($payResult['success']) {
             $order->update([
                 'payment_reference' => $payResult['reference'],
-                'payment_status'    => $payResult['status'] === 'paid' ? 'paid' : 'pending',
-                'paid_at'           => $payResult['status'] === 'paid' ? now() : null,
-                'status'            => Order::STATUS_PENDING,
+                'payment_status' => $payResult['status'] === 'paid' ? 'paid' : 'pending',
+                'paid_at' => $payResult['status'] === 'paid' ? now() : null,
+                'status' => Order::STATUS_PENDING,
             ]);
         }
 
@@ -105,11 +106,53 @@ class OrderService
 
         // Log initial pipeline status
         $order->statusHistories()->create([
-            'from_status'        => null,
-            'to_status'          => Order::STATUS_PENDING,
-            'comment'            => 'Order placed via online checkout (Pending approval/baking).',
+            'from_status' => null,
+            'to_status' => Order::STATUS_PENDING,
+            'comment' => 'Order placed via online checkout (Pending approval/baking).',
             'changed_by_user_id' => $user?->id,
         ]);
+
+        // Audit Log entry
+        \App\Services\AuditLogger::log('created', "Order #{$order->order_number} placed by {$order->customer_name} (₱" . number_format($order->total, 2) . ")", $order);
+
+        // Seller Notification (Filament Database Notification)
+        try {
+            $admins = User::whereHas('roles', fn ($q) => $q->whereIn('name', ['admin', 'super_admin']))
+                ->orWhere('email', 'like', '%admin%')
+                ->orWhere('id', 1)
+                ->get();
+
+            if ($admins->isEmpty()) {
+                $admins = User::all();
+            }
+
+            $orderUrl = \App\Filament\Resources\OrderResource::getUrl('edit', ['record' => $order]);
+            $itemCount = $order->items->count();
+            $firstItems = $order->items->take(2)->map(fn ($i) => "{$i->qty}x {$i->product_name}")->implode(', ');
+            if ($itemCount > 2) {
+                $firstItems .= ' + more';
+            }
+            $fulfillmentLabel = ucfirst($order->fulfillment_type);
+
+            foreach ($admins as $admin) {
+                \Filament\Notifications\Notification::make()
+                    ->title("🛍️ New Order #{$order->order_number}")
+                    ->body("👤 Customer: **{$order->customer_name}**\n💰 Total: **₱" . number_format($order->total, 2) . "** ({$fulfillmentLabel})\n📦 Items: {$firstItems}")
+                    ->icon('heroicon-o-shopping-bag')
+                    ->iconColor('success')
+                    ->actions([
+                        \Filament\Actions\Action::make('mark_settled')
+                            ->label('✓ Mark as Settled')
+                            ->button()
+                            ->color('success')
+                            ->markAsRead()
+                            ->url($orderUrl),
+                    ])
+                    ->sendToDatabase($admin);
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         // Clear cart items
         $cart->items()->delete();
@@ -150,7 +193,7 @@ class OrderService
     {
         return Order::where('tracking_token', $token)
             ->orWhere('order_number', $token)
-            ->orWhere('id', is_numeric($token) ? (int)$token : 0)
+            ->orWhere('id', is_numeric($token) ? (int) $token : 0)
             ->with(['items.product', 'statusHistories.changedBy'])
             ->first();
     }

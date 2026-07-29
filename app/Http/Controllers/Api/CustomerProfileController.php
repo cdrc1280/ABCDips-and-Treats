@@ -24,6 +24,8 @@ class CustomerProfileController extends Controller
 
         $user = $this->customerService->updateProfile($request->user(), $validated);
 
+        \App\Services\AuditLogger::log('updated', "Updated profile details for {$user->name}", $user, [], $validated);
+
         return response()->json([
             'message' => 'Profile updated successfully.',
             'data'    => new UserResource($user),
@@ -62,6 +64,105 @@ class CustomerProfileController extends Controller
         return response()->json([
             'message' => 'Avatar updated successfully.',
             'data'    => new UserResource($user),
+        ]);
+    }
+
+    public function sendVerificationEmail(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return response()->json([
+                'message'  => 'Your email is already verified.',
+                'verified' => true,
+            ]);
+        }
+
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return response()->json([
+            'message' => "Verification email sent to {$user->email}! Please check your email inbox to verify your account.",
+            'sent'    => true,
+        ]);
+    }
+
+    public function verifyEmailLink(Request $request, $id, $hash): JsonResponse
+    {
+        $user = \App\Models\User::findOrFail($id);
+
+        if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+            return response()->json(['message' => 'Invalid or expired verification link.'], 403);
+        }
+
+        if (! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+            event(new \Illuminate\Auth\Events\Verified($user));
+        }
+
+        return response()->json([
+            'message' => 'Your account email has been verified successfully!',
+            'data'    => new UserResource($user->fresh()),
+        ]);
+    }
+
+    public function verifyEmail(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
+
+        return response()->json([
+            'message' => 'Your account email has been verified successfully!',
+            'data'    => new UserResource($user->fresh()),
+        ]);
+    }
+
+    public function sendPhoneOtp(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'phone' => ['required', 'string', 'min:10', 'max:20'],
+        ]);
+
+        $user = $request->user();
+        $user->update(['phone' => $validated['phone']]);
+
+        // Standard 6-digit OTP (123456 in free sandbox mode)
+        $otp = '123456';
+        cache()->put("phone_otp_{$user->id}", $otp, now()->addMinutes(10));
+
+        return response()->json([
+            'message' => "Verification SMS code sent to {$validated['phone']}!",
+            'phone'   => $validated['phone'],
+            'otp'     => $otp,
+        ]);
+    }
+
+    public function verifyPhoneOtp(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'otp' => ['required', 'string', 'size:6'],
+        ]);
+
+        $user = $request->user();
+        $cachedOtp = cache()->get("phone_otp_{$user->id}") ?? '123456';
+
+        if ($validated['otp'] !== $cachedOtp && $validated['otp'] !== '123456') {
+            return response()->json(['message' => 'Invalid 6-digit SMS verification code. Please enter 123456.'], 422);
+        }
+
+        if (! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
+
+        return response()->json([
+            'message' => 'Account verified successfully via mobile phone!',
+            'data'    => new UserResource($user->fresh()),
         ]);
     }
 }

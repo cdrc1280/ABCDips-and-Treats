@@ -38,13 +38,38 @@
           required
         />
 
-        <BaseInput
-          v-model="profileForm.email"
-          type="email"
-          label="Email Address (Account ID)"
-          disabled
-          hint="Email address cannot be changed."
-        />
+        <div class="space-y-1">
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-sm font-semibold text-[#1C1410]">Email Address (Account ID)</label>
+            <span
+              v-if="authStore.user?.email_verified_at"
+              class="text-xs font-bold text-[#6B8F5E] bg-[#6B8F5E]/15 px-2.5 py-0.5 rounded-full flex items-center gap-1"
+            >✓ Verified</span>
+            <span
+              v-else
+              class="text-xs font-bold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full flex items-center gap-1"
+            >⚠️ Unverified</span>
+          </div>
+
+          <input
+            v-model="profileForm.email"
+            type="email"
+            disabled
+            class="w-full bg-gray-100 border border-[#C08E5D]/20 rounded-xl px-3.5 py-2.5 text-sm text-[#8C7A68] cursor-not-allowed opacity-80"
+          />
+
+          <div v-if="!authStore.user?.email_verified_at" class="pt-1.5">
+            <button
+              type="button"
+              @click="sendVerificationEmail"
+              :disabled="sendingEmail"
+              class="text-xs font-bold text-[#5C3A22] bg-[#FBF3E7] hover:bg-[#D9A876]/30 px-3.5 py-2 rounded-lg border border-[#C08E5D]/30 transition-all flex items-center gap-1.5"
+            >
+              <span v-if="sendingEmail" class="w-3 h-3 border-2 border-[#5C3A22] border-t-transparent rounded-full animate-spin"></span>
+              <span>✉️ Send Verification Email</span>
+            </button>
+          </div>
+        </div>
 
         <BaseInput
           v-model="profileForm.phone"
@@ -187,7 +212,34 @@ const passwordForm = ref({
 
 const updatingProfile = ref(false)
 const changingPassword = ref(false)
+const verifyingEmail = ref(false)
+const sendingEmail = ref(false)
 const passwordErrors = ref({})
+
+async function sendVerificationEmail() {
+  sendingEmail.value = true
+  try {
+    const { data } = await axios.post('/api/customer/send-verification-email')
+    toast.success(data.message || 'Verification email sent to your inbox!', 'Verification Email Sent ✉️')
+  } catch (err) {
+    toast.error('Failed to send verification email.', 'Error')
+  } finally {
+    sendingEmail.value = false
+  }
+}
+
+async function verifyEmail() {
+  verifyingEmail.value = true
+  try {
+    const { data } = await axios.post('/api/customer/verify-email')
+    authStore.user = data.data
+    toast.success('Your account email has been verified successfully!', 'Account Verified')
+  } catch (err) {
+    toast.error('Failed to verify account email.', 'Verification Error')
+  } finally {
+    verifyingEmail.value = false
+  }
+}
 
 const rules = computed(() => {
   const p = passwordForm.value.new_password || ''

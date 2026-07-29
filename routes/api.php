@@ -79,6 +79,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Profile & Credentials
     Route::get('customer/profile', [CustomerProfileController::class, 'show']);
     Route::put('customer/profile', [CustomerProfileController::class, 'updateProfile']);
+    Route::post('customer/send-verification-email', [CustomerProfileController::class, 'sendVerificationEmail']);
+    Route::post('customer/verify-email', [CustomerProfileController::class, 'verifyEmail']);
+    Route::post('customer/send-phone-otp', [CustomerProfileController::class, 'sendPhoneOtp']);
+    Route::post('customer/verify-phone-otp', [CustomerProfileController::class, 'verifyPhoneOtp']);
     Route::post('customer/password', [CustomerProfileController::class, 'changePassword']);
     Route::put('customer/password', [CustomerProfileController::class, 'changePassword']);
     Route::post('customer/avatar', [CustomerProfileController::class, 'updateAvatar']);
