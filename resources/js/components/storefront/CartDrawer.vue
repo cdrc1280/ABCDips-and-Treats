@@ -22,6 +22,7 @@
             <p class="text-xs text-[#8C7A68]">{{ cartStore.itemCount }} {{ cartStore.itemCount === 1 ? 'item' : 'items' }}</p>
           </div>
           <button
+            v-tooltip="'Close basket drawer'"
             class="p-2 rounded-xl text-[#8C7A68] hover:text-[#5C3A22] hover:bg-[#D9A876]/20 transition-all"
             @click="cartStore.openDrawer = false"
           >
@@ -78,6 +79,7 @@
               <!-- Quantity selector -->
               <div class="flex items-center gap-2 mt-2">
                 <button
+                  v-tooltip="'Decrease quantity'"
                   class="w-6 h-6 rounded bg-[#FBF3E7] text-[#5C3A22] font-bold text-xs flex items-center justify-center hover:bg-[#D9A876]/30"
                   @click="cartStore.updateItem(item.id, item.qty - 1)"
                 >
@@ -85,6 +87,7 @@
                 </button>
                 <span class="text-xs font-bold w-6 text-center text-[#1C1410]">{{ item.qty }}</span>
                 <button
+                  v-tooltip="'Increase quantity'"
                   class="w-6 h-6 rounded bg-[#FBF3E7] text-[#5C3A22] font-bold text-xs flex items-center justify-center hover:bg-[#D9A876]/30"
                   @click="cartStore.updateItem(item.id, item.qty + 1)"
                 >
@@ -96,6 +99,7 @@
             <div class="text-right flex-shrink-0">
               <div class="font-extrabold text-sm text-[#5C3A22]">₱{{ item.subtotal.toFixed(2) }}</div>
               <button
+                v-tooltip="'Remove this item from your basket'"
                 class="text-xs text-[#B84C3C] hover:underline mt-1 block"
                 @click="cartStore.removeItem(item.id)"
               >
@@ -123,10 +127,10 @@
           </div>
 
           <div class="grid grid-cols-2 gap-3">
-            <RouterLink to="/cart" @click="cartStore.openDrawer = false">
+            <RouterLink to="/cart" @click="cartStore.openDrawer = false" v-tooltip="'See full cart with pricing, coupon codes &amp; order notes'">
               <BaseButton variant="outline" full-width>View Cart</BaseButton>
             </RouterLink>
-            <RouterLink to="/checkout" @click="cartStore.openDrawer = false">
+            <RouterLink to="/checkout" @click="cartStore.openDrawer = false" v-tooltip="'Proceed to payment &amp; shipping details'">
               <BaseButton variant="primary" full-width>Checkout</BaseButton>
             </RouterLink>
           </div>

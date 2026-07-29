@@ -67,7 +67,7 @@ const faqs = [
     { cat: 'Delivery', q: 'How much is the delivery fee?', a: 'Delivery fees vary depending on your location within Cavite. The exact fee will be shown at checkout before you confirm your order.' },
     { cat: 'Products', q: 'Are your products freshly baked?', a: 'Yes! Everything is baked fresh the same day or evening of delivery. We never sell day-old pastries. Our products use 100% real creamery butter and premium ingredients.' },
     { cat: 'Products', q: 'Do you have allergen information?', a: 'Yes. Each product page lists all allergens including gluten, dairy, eggs, nuts, and soy. If you have a specific allergy, please contact us before ordering.' },
-    { cat: 'Payments', q: 'What payment methods do you accept?', a: 'We accept GCash, Maya (PayMaya), Bank Transfer (BPI, BDO), and Cash on Delivery within select areas.' },
+    { cat: 'Payments', q: 'What payment methods do you accept?', a: 'We accept GCash, Maya (PayMaya), Bank Transfer (BDO, BPI, Metrobank, UnionBank, etc.), and Cash on Delivery.' },
     { cat: 'Payments', q: 'Is my payment information secure?', a: 'Absolutely. All transactions are processed through secure payment channels. We never store your payment card details on our servers.' },
     { cat: 'Custom Orders', q: 'How do I order a custom cake?', a: 'Visit our Custom Orders page and fill out the inquiry form with your requirements (size, flavor, design theme). We\'ll get back to you within 24 hours with a quote.' },
     { cat: 'Custom Orders', q: 'How far in advance should I order a custom cake?', a: 'We recommend placing custom cake orders at least 5-7 days in advance. For large or complex designs, 2 weeks\'s notice ensures the best result.' },

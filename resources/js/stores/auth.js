@@ -24,9 +24,13 @@ export const useAuthStore = defineStore('auth', () => {
       loading.value = true
       const { data } = await axios.get('/api/me')
       user.value = data.data
+      const { useCartStore } = await import('@/stores/cart')
+      const cartStore = useCartStore()
+      await cartStore.fetchCart()
     } catch {
       user.value = null
       localStorage.removeItem('auth_token')
+      localStorage.removeItem('cart_token')
       delete axios.defaults.headers.common['Authorization']
     } finally {
       loading.value = false
@@ -47,6 +51,9 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       await mergeCart()
+      const { useCartStore } = await import('@/stores/cart')
+      const cartStore = useCartStore()
+      await cartStore.fetchCart()
       return data.data
     } catch (err) {
       error.value = err.response?.data?.message ?? 'Login failed. Please try again.'
@@ -69,6 +76,10 @@ export const useAuthStore = defineStore('auth', () => {
         axios.defaults.headers.common['Authorization'] = `Bearer ${data.data.token}`
       }
 
+      const { useCartStore } = await import('@/stores/cart')
+      const cartStore = useCartStore()
+      await cartStore.fetchCart()
+
       return data.data
     } catch (err) {
       error.value = err.response?.data?.message ?? 'Registration failed.'
@@ -87,7 +98,11 @@ export const useAuthStore = defineStore('auth', () => {
     } finally {
       user.value = null
       localStorage.removeItem('auth_token')
+      localStorage.removeItem('cart_token')
       delete axios.defaults.headers.common['Authorization']
+      const { useCartStore } = await import('@/stores/cart')
+      const cartStore = useCartStore()
+      cartStore.clearCart()
       loading.value = false
     }
   }

@@ -32,6 +32,7 @@
               Removed "{{ lastRemovedItem.name }}" from your basket.
             </span>
             <button
+              v-tooltip="'Restore this item back to your basket'"
               class="text-xs font-bold text-[#5C3A22] underline hover:text-[#4A2D1A]"
               @click="undoRemove"
             >
@@ -78,13 +79,15 @@
               <!-- Quantity Controls -->
               <div class="flex items-center border border-[#C08E5D]/30 rounded-xl bg-[#FBF3E7]/40 p-1">
                 <button
+                  v-tooltip="'Decrease quantity'"
                   class="w-8 h-8 rounded-lg flex items-center justify-center text-[#5C3A22] font-bold hover:bg-[#FBF3E7]"
                   @click="cartStore.updateItem(item.id, item.qty - 1)"
                 >
                   -
                 </button>
-                <span class="w-8 text-center font-bold text-sm text-[#1C1410]">{{ item.qty }}</span>
+                <span v-tooltip="`${item.qty} item${item.qty > 1 ? 's' : ''} selected`" class="w-8 text-center font-bold text-sm text-[#1C1410] cursor-help">{{ item.qty }}</span>
                 <button
+                  v-tooltip="'Increase quantity'"
                   class="w-8 h-8 rounded-lg flex items-center justify-center text-[#5C3A22] font-bold hover:bg-[#FBF3E7]"
                   @click="cartStore.updateItem(item.id, item.qty + 1)"
                 >
@@ -95,6 +98,7 @@
               <div class="text-right">
                 <div class="font-extrabold text-base text-[#5C3A22]">₱{{ item.subtotal.toFixed(2) }}</div>
                 <button
+                  v-tooltip="'Remove from basket (you can undo this right after)'"
                   class="text-xs text-[#B84C3C] hover:underline mt-0.5"
                   @click="handleRemove(item)"
                 >
@@ -121,7 +125,7 @@
                 <span class="font-bold text-xs text-[#2D4525]">{{ cartStore.couponCode }}</span>
                 <span class="text-xs text-[#6B8F5E] block">Coupon Applied!</span>
               </div>
-              <button class="text-xs text-[#B84C3C] font-bold hover:underline" @click="cartStore.removeCoupon">Remove</button>
+              <button v-tooltip="'Remove discount coupon from this order'" class="text-xs text-[#B84C3C] font-bold hover:underline" @click="cartStore.removeCoupon">Remove</button>
             </div>
 
             <div v-else class="flex gap-2">
@@ -129,8 +133,9 @@
                 v-model="couponCode"
                 placeholder="Enter coupon code..."
                 size="sm"
+                v-tooltip="'Enter a valid discount or promo code'"
               />
-              <BaseButton size="sm" variant="secondary" :loading="applyingCoupon" @click="applyCoupon">
+              <BaseButton size="sm" variant="secondary" :loading="applyingCoupon" v-tooltip="'Validate and apply coupon to order total'" @click="applyCoupon">
                 Apply
               </BaseButton>
             </div>
@@ -149,7 +154,7 @@
             </div>
 
             <div class="flex justify-between text-[#8C7A68]">
-              <span>Estimated Delivery Fee</span>
+              <span v-tooltip="'Standard delivery fee for Metro areas. Free pickup option available at checkout.'" class="cursor-help">Estimated Delivery Fee</span>
               <span class="text-xs text-[#5C3A22]">Calculated at Checkout</span>
             </div>
 
@@ -159,7 +164,7 @@
             </div>
           </div>
 
-          <RouterLink to="/checkout" class="block">
+          <RouterLink to="/checkout" class="block" v-tooltip="'Finalize your order: shipping, payment &amp; confirmation'">
             <BaseButton variant="primary" full-width size="lg">
               Proceed to Checkout →
             </BaseButton>
@@ -172,17 +177,28 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
+import { useAuthStore } from '@/stores/auth'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 
 const cartStore = useCartStore()
+const authStore = useAuthStore()
+const router = useRouter()
+
 const couponCode = ref('')
 const applyingCoupon = ref(false)
 const lastRemovedItem = ref(null)
+
+onMounted(() => {
+  if (!authStore.isAuthenticated) {
+    router.push({ name: 'login', query: { redirect: '/cart' } })
+  }
+})
 
 async function handleRemove(item) {
   lastRemovedItem.value = item

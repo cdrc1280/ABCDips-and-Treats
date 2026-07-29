@@ -101,8 +101,8 @@
                     Sign In
                 </RouterLink>
 
-                <!-- Basket Button -->
-                <button @click="cartStore.openDrawer = true" v-tooltip="'View your selected treats &amp; cart subtotal'"
+                <!-- Basket Button (Only shown when authenticated) -->
+                <button v-if="authStore.isAuthenticated" @click="cartStore.openDrawer = true" v-tooltip="'View your selected treats &amp; cart subtotal'"
                     class="relative flex items-center gap-1.5 bg-[#5C3A22] text-[#FBF3E7] px-3.5 py-2 rounded-xl hover:bg-[#4A2D1A] transition-all duration-200 shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

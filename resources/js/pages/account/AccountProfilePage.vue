@@ -59,6 +59,14 @@
           placeholder="Enter your primary delivery address..."
         />
 
+        <!-- Interactive Address Map Picker -->
+        <AddressMapPicker
+          v-model:address="profileForm.address"
+          :store-lat="parseFloat(storeInfo.store_lat) || 14.4597"
+          :store-lng="parseFloat(storeInfo.store_lng) || 120.9640"
+          @location-selected="handleLocationSelected"
+        />
+
         <div class="pt-2">
           <BaseButton type="submit" variant="primary" :loading="updatingProfile">
             Save Profile Changes
@@ -138,16 +146,37 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseTextarea from '@/components/ui/BaseTextarea.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import AddressMapPicker from '@/components/checkout/AddressMapPicker.vue'
 
 const axios = inject('axios')
 const authStore = useAuthStore()
 const toast = useToast()
+const storeInfo = ref({})
 
 const profileForm = ref({
   name: authStore.user?.name || '',
   email: authStore.user?.email || '',
   phone: authStore.user?.phone || '',
   address: authStore.user?.address || ''
+})
+
+async function fetchStoreSettings() {
+  try {
+    const { data } = await axios.get('/api/settings/store')
+    storeInfo.value = data || {}
+  } catch (err) {
+    console.warn('Failed to load store settings', err)
+  }
+}
+
+function handleLocationSelected(loc) {
+  if (loc.address) {
+    profileForm.value.address = loc.address
+  }
+}
+
+onMounted(() => {
+  fetchStoreSettings()
 })
 
 const passwordForm = ref({

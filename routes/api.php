@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\CustomOrderController;
 use App\Http\Controllers\Api\PosController;
 use App\Http\Controllers\Api\AnalyticsAndAiController;
+use App\Http\Controllers\Api\DeliveryController;
+use App\Http\Controllers\Api\PaymentController;
 
 // ─── Auth Routes ──────────────────────────────────────────────
 Route::prefix('auth')->group(function () {
@@ -43,9 +45,16 @@ Route::prefix('cart')->group(function () {
     Route::delete('coupon', [CartController::class, 'removeCoupon']);
 });
 
-// ─── Checkout & Tracking (Public) ────────────────────────────
+// ─── Checkout & Tracking (Public) ─────────────────────────────────────
 Route::post('checkout', [OrderController::class, 'checkout']);
 Route::get('orders/track/{token}', [OrderController::class, 'track']);
+
+// ─── Delivery & Payment (Public) ─────────────────────────────────────
+Route::post('delivery/quote',            [DeliveryController::class, 'quote']);
+Route::post('payments/create-source',    [PaymentController::class, 'createSource']);
+Route::get('payments/success',           [PaymentController::class, 'success']);
+Route::get('payments/failed',            [PaymentController::class, 'failed']);
+Route::get('settings/store',             [PaymentController::class, 'storeSettings']);
 
 // ─── Reviews & Custom Orders (Public) ─────────────────────────
 Route::get('store/reviews', [ReviewController::class, 'storeReviews']);

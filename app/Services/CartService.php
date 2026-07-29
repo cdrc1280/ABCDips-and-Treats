@@ -15,27 +15,35 @@ class CartService
     {
         $cart = null;
 
-        if ($token) {
-            $cart = Cart::where('token', $token)->with(['items.product'])->first();
+        // 1. If user is authenticated, prioritize finding their active user cart in DB
+        if ($user) {
+            $cart = Cart::where('user_id', $user->id)
+                ->latest('updated_at')
+                ->first();
         }
 
-        if (! $cart && $user) {
-            $cart = Cart::where('user_id', $user->id)->with(['items.product'])->first();
+        // 2. If no user cart found yet, search by token
+        if (! $cart && $token) {
+            $cart = Cart::where('token', $token)
+                ->first();
         }
 
+        // 3. Create new cart if none exists
         if (! $cart) {
             $cart = Cart::create([
                 'token'          => Str::random(32),
                 'user_id'        => $user?->id,
                 'last_active_at' => now(),
-                'expires_at'     => now()->addDays(7),
+                'expires_at'     => now()->addDays(30),
             ]);
         } else {
-            // Update activity & user linkage
+            // Update user linkage & expiration
+            if ($user && ! $cart->user_id) {
+                $cart->update(['user_id' => $user->id]);
+            }
             $cart->update([
-                'user_id'        => $cart->user_id ?? $user?->id,
                 'last_active_at' => now(),
-                'expires_at'     => now()->addDays(7),
+                'expires_at'     => now()->addDays(30),
             ]);
         }
 
@@ -193,6 +201,10 @@ class CartService
 
     public function mergeCarts(Cart $guestCart, Cart $userCart): Cart
     {
+        if ($guestCart->id === $userCart->id) {
+            return $this->recalculateCartTotals($userCart);
+        }
+
         foreach ($guestCart->items as $gItem) {
             $this->addItem($userCart, $gItem->product_id, $gItem->qty, $gItem->options);
         }

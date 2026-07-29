@@ -60,6 +60,7 @@
           <div v-if="product.gallery_images && product.gallery_images.length > 0" class="flex items-center gap-3 overflow-x-auto pb-2">
             <button
               type="button"
+              v-tooltip="'View main product photo'"
               class="w-20 h-20 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0"
               :class="activeImage === product.primary_image_url ? 'border-[#5C3A22] scale-95' : 'border-[#C08E5D]/20 opacity-70 hover:opacity-100'"
               @click="activeImage = product.primary_image_url"
@@ -70,6 +71,7 @@
               v-for="(img, idx) in product.gallery_images"
               :key="idx"
               type="button"
+              v-tooltip="`View gallery photo ${idx + 2}`"
               class="w-20 h-20 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0"
               :class="activeImage === img ? 'border-[#5C3A22] scale-95' : 'border-[#C08E5D]/20 opacity-70 hover:opacity-100'"
               @click="activeImage = img"
@@ -89,6 +91,7 @@
               <a
                 v-if="product.reviews_count && product.reviews_count > 0"
                 href="#reviews"
+                v-tooltip="`Read all ${product.reviews_count} verified customer reviews`"
                 class="inline-flex items-center gap-1 bg-[#FBF3E7] border border-[#C08E5D]/30 px-2.5 py-0.5 rounded-full text-xs font-extrabold text-[#5C3A22] hover:bg-[#D9A876]/30 transition-colors"
               >
                 <span>⭐ {{ product.avg_rating }}</span>
@@ -148,7 +151,8 @@
               <span
                 v-for="(alg, idx) in product.allergens"
                 :key="idx"
-                class="px-2.5 py-1 rounded-lg bg-[#C98A3A]/10 text-[#C98A3A] text-xs font-semibold border border-[#C98A3A]/20"
+                v-tooltip="`May contain ${alg.name} allergen — ${alg.type}. Please inform us of any dietary restrictions before ordering.`"
+                class="px-2.5 py-1 rounded-lg bg-[#C98A3A]/10 text-[#C98A3A] text-xs font-semibold border border-[#C98A3A]/20 cursor-help"
               >
                 ⚠️ {{ alg.name }} ({{ alg.type }})
               </span>
@@ -161,15 +165,17 @@
               <div class="flex items-center border border-[#C08E5D]/30 rounded-xl bg-white p-1">
                 <button
                   type="button"
+                  v-tooltip="'Decrease quantity'"
                   class="w-9 h-9 rounded-lg flex items-center justify-center text-[#5C3A22] hover:bg-[#FBF3E7] font-bold text-lg disabled:opacity-30"
                   :disabled="quantity <= 1"
                   @click="quantity--"
                 >
                   -
                 </button>
-                <span class="w-10 text-center font-bold text-[#1C1410]">{{ quantity }}</span>
+                <span v-tooltip="`Ordering ${quantity} of this item`" class="w-10 text-center font-bold text-[#1C1410] cursor-help">{{ quantity }}</span>
                 <button
                   type="button"
+                  v-tooltip="'Increase quantity'"
                   class="w-9 h-9 rounded-lg flex items-center justify-center text-[#5C3A22] hover:bg-[#FBF3E7] font-bold text-lg"
                   @click="quantity++"
                 >
@@ -184,6 +190,7 @@
                   size="lg"
                   :loading="adding"
                   :disabled="!product.is_in_stock"
+                  v-tooltip="product.is_in_stock ? 'Add to your bakery basket — review before checkout' : 'Currently out of stock — check back soon!'"
                   @click="addToCart"
                 >
                   Add {{ quantity }} to Order • ₱{{ ((product.sale_price || product.price) * quantity).toFixed(2) }}
@@ -201,6 +208,7 @@
         <div class="flex border-b border-[#C08E5D]/20 gap-8">
           <button
             type="button"
+            v-tooltip="'Full product backstory, ingredients &amp; artisan baking details'"
             class="pb-4 text-base font-bold transition-all border-b-2"
             :class="activeTab === 'description' ? 'border-[#5C3A22] text-[#5C3A22]' : 'border-transparent text-[#8C7A68] hover:text-[#5C3A22]'"
             @click="activeTab = 'description'"
@@ -211,6 +219,7 @@
           <button
             v-if="product.nutrition"
             type="button"
+            v-tooltip="'Calories, macros, serving size &amp; dietary info'"
             class="pb-4 text-base font-bold transition-all border-b-2"
             :class="activeTab === 'nutrition' ? 'border-[#5C3A22] text-[#5C3A22]' : 'border-transparent text-[#8C7A68] hover:text-[#5C3A22]'"
             @click="activeTab = 'nutrition'"

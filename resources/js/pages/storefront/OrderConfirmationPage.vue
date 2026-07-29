@@ -42,8 +42,9 @@
       </div>
 
       <!-- Payment Method Notice -->
-      <BaseAlert v-if="order.payment_method === 'bank_transfer'" variant="info" title="BDO Bank Transfer Instructions">
-        Please transfer <strong>₱{{ order.total.toFixed(2) }}</strong> to BDO Account <strong>0012-3456-7890 (ABCDips &amp; Treats)</strong>. Reference number: <strong>{{ order.order_number }}</strong>.
+      <BaseAlert v-if="order.payment_method === 'bank_transfer'" variant="info" :title="`${storeInfo.bank_name || 'Bank'} Transfer Instructions`">
+        Please transfer <strong>₱{{ order.total.toFixed(2) }}</strong> to {{ storeInfo.bank_name || 'Bank' }} Account <strong>{{ storeInfo.bank_account_number || '' }} ({{ storeInfo.bank_account_name || 'ABCDips & Treats' }})</strong>. Reference number: <strong>{{ order.order_number }}</strong>.
+        <span v-if="storeInfo.bank_instructions" class="block mt-1 text-xs opacity-90">{{ storeInfo.bank_instructions }}</span>
       </BaseAlert>
 
       <BaseAlert v-else-if="order.payment_method === 'gcash' || order.payment_method === 'maya'" variant="success" title="E-Wallet Payment Received">
@@ -101,16 +102,19 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 const axios = inject('axios')
 const route = useRoute()
 const order = ref(null)
+const storeInfo = ref({})
 const loading = ref(true)
 
 async function fetchOrder() {
   loading.value = true
   try {
     const token = route.params.token || route.query.token
-    if (token) {
-      const { data } = await axios.get(`/api/orders/track/${token}`)
-      order.value = data.data
-    }
+    const [ordRes, setRes] = await Promise.all([
+      token ? axios.get(`/api/orders/track/${token}`) : Promise.resolve(null),
+      axios.get('/api/settings/store')
+    ])
+    if (ordRes) order.value = ordRes.data.data
+    storeInfo.value = setRes.data || {}
   } catch (err) {
     console.error('Failed to load order confirmation', err)
   } finally {

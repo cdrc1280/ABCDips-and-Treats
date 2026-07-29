@@ -17,6 +17,7 @@ const NewArrivalsPage       = () => import('@/pages/storefront/NewArrivalsPage.v
 const CustomOrderPage       = () => import('@/pages/storefront/CustomOrderPage.vue')
 const CartPage              = () => import('@/pages/storefront/CartPage.vue')
 const CheckoutPage          = () => import('@/pages/storefront/CheckoutPage.vue')
+const PaymentSuccessPage    = () => import('@/pages/storefront/PaymentSuccessPage.vue')
 const OrderConfirmationPage = () => import('@/pages/storefront/OrderConfirmationPage.vue')
 const OrderTrackingPage     = () => import('@/pages/storefront/OrderTrackingPage.vue')
 const AboutPage             = () => import('@/pages/storefront/AboutPage.vue')
@@ -56,6 +57,7 @@ const routes = [
       { path: 'custom-orders',  name: 'custom-orders',      component: CustomOrderPage,       meta: { title: 'Custom Cake Orders — ABCDips & Treats' } },
       { path: 'cart',           name: 'cart',               component: CartPage,              meta: { title: 'Your Cart — ABCDips & Treats' } },
       { path: 'checkout',       name: 'checkout',           component: CheckoutPage,          meta: { title: 'Checkout — ABCDips & Treats', requiresAuth: true } },
+      { path: 'checkout/payment-success', name: 'payment-success', component: PaymentSuccessPage, meta: { title: 'Payment Confirmed — ABCDips & Treats' } },
       { path: 'orders/:token/confirmation', name: 'order-confirmation', component: OrderConfirmationPage, meta: { title: 'Order Confirmed — ABCDips & Treats' } },
       { path: 'track/:token',   name: 'order-tracking',     component: OrderTrackingPage,     alias: ['/orders/track/:token', 'orders/track/:token'], meta: { title: 'Track Order — ABCDips & Treats' } },
       { path: 'about',          name: 'about',              component: AboutPage,             meta: { title: 'About Us — ABCDips & Treats' } },
