@@ -130,11 +130,19 @@ class CustomerProfileController extends Controller
         ]);
 
         $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
         $user->update(['phone' => $validated['phone']]);
 
         // Standard 6-digit OTP (123456 in free sandbox mode)
         $otp = '123456';
-        cache()->put("phone_otp_{$user->id}", $otp, now()->addMinutes(10));
+        try {
+            cache()->put("phone_otp_{$user->id}", $otp, now()->addMinutes(10));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return response()->json([
             'message' => "Verification SMS code sent to {$validated['phone']}!",
