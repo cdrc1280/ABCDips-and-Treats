@@ -30,7 +30,7 @@ class CouponResource extends Resource
     {
         return $schema->components([
             Section::make('Coupon Details')->components([
-                TextInput::make('code')->required()->uppercase()->unique(Coupon::class, 'code', ignoreRecord: true),
+                TextInput::make('code')->required()->unique(Coupon::class, 'code', ignoreRecord: true),
                 Select::make('type')
                     ->options(['fixed' => 'Fixed Amount (₱)', 'percent' => 'Percentage (%)'])
                     ->required(),
