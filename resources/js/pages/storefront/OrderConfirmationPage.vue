@@ -26,13 +26,18 @@
           Thank you, <strong class="text-[#1C1410]">{{ order.customer_name }}</strong>! We have received your pastry order <strong class="text-[#5C3A22]">{{ order.order_number }}</strong>.
         </p>
 
-        <!-- Live Track Order Button & History Links -->
+        <!-- Live Track Order Button, Invoice & History Links -->
         <div class="pt-4 flex flex-wrap gap-4 justify-center">
           <RouterLink :to="`/track/${order.tracking_token}`">
             <BaseButton variant="primary" size="lg">
               Track Order Progress Live →
             </BaseButton>
           </RouterLink>
+
+          <BaseButton variant="secondary" size="lg" @click="showInvoiceModal = true">
+            📄 View / Download Invoice
+          </BaseButton>
+
           <RouterLink to="/account/orders">
             <BaseButton variant="outline" size="lg">
               View Order History
@@ -53,8 +58,15 @@
 
       <!-- Order Items Breakdown -->
       <div class="bg-white rounded-3xl p-6 md:p-8 border border-[#C08E5D]/20 shadow-sm space-y-4">
-        <h3 class="font-extrabold text-xl text-[#1C1410] border-b border-[#C08E5D]/20 pb-3">
-          Order Summary ({{ order.order_number }})
+        <h3 class="font-extrabold text-xl text-[#1C1410] border-b border-[#C08E5D]/20 pb-3 flex justify-between items-center">
+          <span>Order Summary ({{ order.order_number }})</span>
+          <button
+            type="button"
+            class="text-xs text-[#5C3A22] font-bold hover:underline cursor-pointer flex items-center gap-1"
+            @click="showInvoiceModal = true"
+          >
+            <span>📄 Official Invoice</span>
+          </button>
         </h3>
 
         <div class="divide-y divide-[#C08E5D]/15">
@@ -87,6 +99,9 @@
         </div>
       </div>
 
+      <!-- Invoice Modal -->
+      <InvoiceModal v-model="showInvoiceModal" :order="order" />
+
     </div>
   </div>
 </template>
@@ -98,12 +113,14 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseAlert from '@/components/ui/BaseAlert.vue'
 import SkeletonBlock from '@/components/ui/SkeletonBlock.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import InvoiceModal from '@/components/storefront/InvoiceModal.vue'
 
 const axios = inject('axios')
 const route = useRoute()
 const order = ref(null)
 const storeInfo = ref({})
 const loading = ref(true)
+const showInvoiceModal = ref(false)
 
 async function fetchOrder() {
   loading.value = true

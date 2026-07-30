@@ -2,80 +2,148 @@
   <div class="space-y-8">
     <PageHeader
       tagline="order history"
-      title="My Orders"
-      subtitle="Track your active pastry orders in real-time or review past purchases."
+      title="My Complete Order History"
+      subtitle="Track active pastry orders, view kitchen progress, review past purchases, or re-order your favorite treats."
     />
 
+    <!-- Filter Tabs -->
+    <div class="flex flex-wrap items-center gap-2 border-b border-[#C08E5D]/20 pb-4">
+      <button
+        v-for="tab in filterTabs"
+        :key="tab.id"
+        @click="activeFilter = tab.id"
+        :class="[
+          'px-4 py-2 rounded-2xl text-xs font-extrabold transition-all duration-200 flex items-center gap-2',
+          activeFilter === tab.id
+            ? 'bg-[#5C3A22] text-[#FBF3E7] shadow-sm'
+            : 'bg-white text-[#1C1410] border border-[#C08E5D]/20 hover:bg-[#FBF3E7]'
+        ]"
+      >
+        <span>{{ tab.icon }}</span>
+        <span>{{ tab.label }}</span>
+        <span
+          :class="[
+            'px-2 py-0.5 rounded-full text-[10px] font-black',
+            activeFilter === tab.id ? 'bg-[#D9A876] text-[#1C1410]' : 'bg-[#FBF3E7] text-[#5C3A22]'
+          ]"
+        >
+          {{ getFilteredCount(tab.id) }}
+        </span>
+      </button>
+    </div>
+
+    <!-- Loading Skeleton -->
     <div v-if="loading" class="space-y-4">
       <SkeletonCard v-for="n in 3" :key="n" />
     </div>
 
-    <div v-else-if="orders.length === 0">
+    <!-- Empty State -->
+    <div v-else-if="filteredOrders.length === 0">
       <EmptyState
-        title="No Orders Yet"
-        description="When you place your first bakery order, you will be able to track its progress here."
+        title="No Orders Found"
+        description="We couldn't find any orders matching the selected filter option."
       >
         <template #action>
-          <RouterLink to="/shop"><BaseButton variant="primary">Explore Menu</BaseButton></RouterLink>
+          <RouterLink to="/shop"><BaseButton variant="primary">Explore Pastry Menu 🥐</BaseButton></RouterLink>
         </template>
       </EmptyState>
     </div>
 
+    <!-- Orders List -->
     <div v-else class="space-y-6">
       <div
-        v-for="order in orders"
+        v-for="order in filteredOrders"
         :key="order.id"
-        class="bg-white rounded-3xl p-6 border border-[#C08E5D]/20 shadow-sm space-y-4"
+        class="bg-white rounded-3xl p-6 border border-[#C08E5D]/20 shadow-sm space-y-6 transition-all"
       >
         <!-- Header Row -->
-        <div class="flex flex-wrap justify-between items-center gap-3 pb-3 border-b border-[#C08E5D]/15">
+        <div class="flex flex-wrap justify-between items-center gap-3 pb-4 border-b border-[#C08E5D]/15">
           <div>
-            <span class="font-extrabold text-[#1C1410] text-lg">Order #{{ order.order_number }}</span>
-            <span class="text-xs text-[#8C7A68] block">Placed on {{ new Date(order.created_at).toLocaleDateString() }}</span>
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-[#1C1410] text-xl">Order #{{ order.order_number }}</span>
+              <BaseBadge :variant="getStatusVariant(order.status)" size="sm">
+                {{ order.status_label || order.status }}
+              </BaseBadge>
+            </div>
+            <span class="text-xs text-[#8C7A68] block mt-1">
+              📅 Placed on {{ formatDate(order.created_at) }} • {{ order.fulfillment_type === 'pickup' ? '🏪 Store Pickup' : '🛵 Doorstep Delivery' }}
+            </span>
           </div>
 
-          <div class="flex items-center gap-3">
-            <BaseBadge :variant="getStatusVariant(order.status)" size="sm">
-              {{ order.status_label || order.status }}
-            </BaseBadge>
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Invoice Button -->
+            <BaseButton
+              size="sm"
+              variant="secondary"
+              v-tooltip="'View & download printable official bakery invoice'"
+              @click="openInvoiceModal(order)"
+            >
+              📄 Invoice
+            </BaseButton>
 
-            <!-- Cancel Action Button (Restricted strictly to Pending status) -->
+            <!-- Re-order button -->
+            <BaseButton
+              size="sm"
+              variant="outline"
+              v-tooltip="'Add all items from this order directly back into your shopping cart'"
+              @click="reorderItems(order)"
+            >
+              🔄 Re-order Treats
+            </BaseButton>
+
+            <!-- Cancel Button (Only available when status is Pending) -->
             <BaseButton
               v-if="order.status === 'pending' || order.status === 'Pending'"
               size="sm"
               variant="outline"
-              v-tooltip="'Cancel order (only available while status is Pending)'"
+              v-tooltip="'Cancel pending order'"
               class="!text-[#B84C3C] !border-[#B84C3C]/40 hover:!bg-red-50"
               @click="openCancelModal(order)"
             >
               🚫 Cancel Order
             </BaseButton>
 
-            <RouterLink :to="`/orders/track/${order.tracking_token}`" v-tooltip="'Watch live kitchen baking &amp; delivery progress'">
-              <BaseButton size="sm" variant="outline">Track Order →</BaseButton>
+            <!-- Track Order Link -->
+            <RouterLink :to="`/orders/track/${order.tracking_token || order.order_number}`" v-tooltip="'Watch live kitchen baking & delivery status'">
+              <BaseButton size="sm" variant="primary">Track Order →</BaseButton>
             </RouterLink>
           </div>
         </div>
 
-        <!-- Order Items List -->
+        <!-- Sleek Compact Status Summary (Non-redundant) -->
+        <div v-if="!['cancelled', 'Cancelled', 'refunded', 'Refunded'].includes(order.status)" class="bg-[#FBF3E7]/80 dark:bg-[#1E130B] rounded-2xl px-4 py-3 border border-[#C08E5D]/30 dark:border-[#C08E5D]/40 flex items-center justify-between flex-wrap gap-2 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full" :class="order.status === 'completed' || order.status === 'Completed' ? 'bg-[#6B8F5E]' : 'bg-[#D9A876] animate-pulse'"></span>
+            <span class="font-extrabold text-[#5C3A22] dark:text-[#E2C08A]">Kitchen &amp; Delivery Status:</span>
+            <span class="font-semibold text-[#1C1410] dark:text-[#FBF3E7]">{{ getProgressStepText(order.status) }}</span>
+          </div>
+          <RouterLink :to="`/orders/track/${order.tracking_token || order.order_number}`" class="text-xs font-extrabold text-[#C08E5D] hover:text-[#5C3A22] dark:hover:text-[#FBF3E7] transition-colors flex items-center gap-1">
+            <span>View Full Timeline</span>
+            <span>→</span>
+          </RouterLink>
+        </div>
+
+        <!-- Items Breakdown -->
         <div class="divide-y divide-[#C08E5D]/10">
           <div
             v-for="item in order.items"
             :key="item.id"
-            class="py-2.5 flex justify-between items-center text-xs"
+            class="py-3 flex justify-between items-center text-xs"
           >
             <div class="flex items-center gap-3">
               <img
                 v-if="item.image_url"
                 :src="item.image_url"
-                class="w-9 h-9 rounded-xl object-cover flex-shrink-0 border border-[#C08E5D]/20"
+                :alt="item.product_name"
+                class="w-11 h-11 rounded-xl object-cover flex-shrink-0 border border-[#C08E5D]/20 shadow-xs"
               />
               <div>
-                <span class="font-bold text-[#1C1410]">{{ item.qty }}x {{ item.product_name }}</span>
-                <div v-if="item.product_slug" class="mt-0.5">
+                <span class="font-extrabold text-[#1C1410] text-sm block">{{ item.product_name }}</span>
+                <span class="text-[#8C7A68] text-xs">Qty: {{ item.qty }} × ₱{{ (item.price || item.unit_price || 0).toFixed(2) }}</span>
+                <div v-if="item.product_slug" class="mt-1">
                   <RouterLink
                     :to="`/products/${item.product_slug}#reviews`"
-                    v-tooltip="'Share your review &amp; feedback for this pastry'"
+                    v-tooltip="'Share your review &amp; rating for this treat'"
                     class="inline-flex items-center gap-1 text-[11px] font-bold text-[#C08E5D] hover:text-[#5C3A22] transition-colors"
                   >
                     ⭐ Write Review
@@ -83,18 +151,71 @@
                 </div>
               </div>
             </div>
-            <span class="font-bold text-[#5C3A22]">₱{{ item.subtotal.toFixed(2) }}</span>
+            <span class="font-black text-[#5C3A22] text-sm">₱{{ item.subtotal.toFixed(2) }}</span>
           </div>
         </div>
 
-        <div class="pt-2 border-t border-[#C08E5D]/15 flex justify-between items-center text-sm font-extrabold text-[#5C3A22]">
-          <span>Total</span>
-          <span>₱{{ order.total.toFixed(2) }}</span>
+        <!-- Details Accordion / Footer -->
+        <div class="pt-3 border-t border-[#C08E5D]/15 flex flex-wrap justify-between items-center gap-3">
+          <button
+            type="button"
+            @click="toggleDetails(order.id)"
+            class="text-xs font-bold text-[#C08E5D] hover:text-[#5C3A22] flex items-center gap-1 transition-colors"
+          >
+            <span>{{ expandedOrders.includes(order.id) ? 'Hide Order Details ▲' : 'View Full Details & Address ▼' }}</span>
+          </button>
+
+          <div class="text-right">
+            <span class="text-xs text-[#8C7A68] block">Total Amount Paid</span>
+            <span class="text-lg font-black text-[#5C3A22]">₱{{ order.total.toFixed(2) }}</span>
+          </div>
         </div>
+
+        <!-- Expanded Details Drawer -->
+        <Transition
+          enter-active-class="transition-all duration-200 ease-out"
+          enter-from-class="opacity-0 max-h-0"
+          enter-to-class="opacity-100 max-h-[400px]"
+          leave-active-class="transition-all duration-150 ease-in"
+          leave-from-class="opacity-100 max-h-[400px]"
+          leave-to-class="opacity-0 max-h-0"
+        >
+          <div v-if="expandedOrders.includes(order.id)" class="bg-[#FBF3E7]/60 rounded-2xl p-4 border border-[#C08E5D]/20 space-y-3 text-xs">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <span class="text-[#8C7A68] font-bold block mb-0.5">Contact Details:</span>
+                <p class="font-bold text-[#1C1410]">{{ order.customer_name }}</p>
+                <p class="text-[#8C7A68]">{{ order.customer_email }} • {{ order.customer_phone }}</p>
+              </div>
+
+              <div>
+                <span class="text-[#8C7A68] font-bold block mb-0.5">Fulfillment &amp; Payment:</span>
+                <p class="font-bold text-[#1C1410] capitalize">{{ order.fulfillment_type || 'delivery' }} ({{ order.payment_method?.toUpperCase() || 'GCASH' }})</p>
+                <p class="text-[#8C7A68] truncate">{{ order.delivery_address || 'Store Pickup' }}</p>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-[#C08E5D]/15 flex justify-between items-center text-[#8C7A68]">
+              <span>Items Subtotal:</span>
+              <span class="font-bold text-[#1C1410]">₱{{ (order.subtotal || order.total - (order.delivery_fee || 0)).toFixed(2) }}</span>
+            </div>
+            <div class="flex justify-between items-center text-[#8C7A68]">
+              <span>Delivery Shipping Fee:</span>
+              <span class="font-bold text-[#1C1410]">₱{{ (order.delivery_fee || 0).toFixed(2) }}</span>
+            </div>
+            <div v-if="order.notes" class="pt-1 text-[#8C7A68]">
+              <span class="font-bold">Order Note:</span> {{ order.notes }}
+            </div>
+          </div>
+        </Transition>
+
       </div>
     </div>
 
-    <!-- Uniform Premium Order Cancellation Modal -->
+    <!-- Invoice Modal -->
+    <InvoiceModal v-model="showInvoiceModal" :order="activeInvoiceOrder" />
+
+    <!-- Cancellation Modal -->
     <BaseModal
       v-model="showModal"
       :title="selectedOrder ? `Cancel Order #${selectedOrder.order_number}` : 'Cancel Order'"
@@ -107,56 +228,28 @@
       </template>
 
       <div v-if="selectedOrder" class="space-y-4">
-        <!-- Alert Box -->
         <div class="p-4 rounded-2xl bg-red-50 border border-red-200/60 text-xs text-[#B84C3C] leading-relaxed space-y-1">
-          <div class="font-extrabold flex items-center gap-1.5 text-sm">
-            <span>Notice:</span>
-          </div>
+          <p class="font-extrabold text-sm">Notice:</p>
           <p>Order cancellation cannot be undone once confirmed. Reserved stock items will be automatically returned to our bakery inventory.</p>
         </div>
 
-        <!-- Order Summary Detail Box -->
-        <div class="bg-[#FBF3E7]/70 p-4 rounded-2xl border border-[#C08E5D]/20 space-y-2.5">
-          <div class="flex justify-between items-center text-xs text-[#8C7A68]">
-            <span>Order Reference:</span>
+        <div class="bg-[#FBF3E7]/70 p-4 rounded-2xl border border-[#C08E5D]/20 space-y-2.5 text-xs">
+          <div class="flex justify-between items-center">
+            <span class="text-[#8C7A68]">Order Reference:</span>
             <span class="font-bold text-[#1C1410]">{{ selectedOrder.order_number }}</span>
           </div>
-
-          <div class="flex justify-between items-center text-xs text-[#8C7A68]">
-            <span>Fulfillment Type:</span>
-            <span class="font-bold text-[#1C1410] capitalize">{{ selectedOrder.fulfillment_type || 'Delivery' }}</span>
-          </div>
-
-          <div class="flex justify-between items-center text-xs text-[#8C7A68]">
-            <span>Total Amount:</span>
+          <div class="flex justify-between items-center">
+            <span class="text-[#8C7A68]">Total Amount:</span>
             <span class="font-black text-[#5C3A22]">₱{{ selectedOrder.total.toFixed(2) }}</span>
-          </div>
-
-          <div class="pt-2 border-t border-[#C08E5D]/15 space-y-1">
-            <span class="text-[11px] font-bold text-[#8C7A68] uppercase tracking-wider block mb-1">Items to be cancelled:</span>
-            <div
-              v-for="item in selectedOrder.items"
-              :key="item.id"
-              class="flex justify-between text-xs text-[#1C1410]"
-            >
-              <span>{{ item.qty }}x {{ item.product_name }}</span>
-              <span class="font-semibold text-[#5C3A22]">₱{{ item.subtotal.toFixed(2) }}</span>
-            </div>
           </div>
         </div>
       </div>
 
       <template #footer>
         <div class="flex items-center justify-end gap-3">
-          <BaseButton
-            variant="outline"
-            size="md"
-            :disabled="cancelling"
-            @click="showModal = false"
-          >
+          <BaseButton variant="outline" size="md" :disabled="cancelling" @click="showModal = false">
             Keep My Order
           </BaseButton>
-
           <BaseButton
             variant="primary"
             size="md"
@@ -173,7 +266,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
+import { useCartStore } from '@/stores/cart'
 import { useToast } from '@/composables/useToast'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import BaseBadge from '@/components/ui/BaseBadge.vue'
@@ -181,24 +275,159 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import SkeletonCard from '@/components/ui/SkeletonCard.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import InvoiceModal from '@/components/storefront/InvoiceModal.vue'
 
 const axios = inject('axios')
 const toast = useToast()
+const cartStore = useCartStore()
 
 const orders = ref([])
 const loading = ref(true)
+const activeFilter = ref('all')
+const expandedOrders = ref([])
 const showModal = ref(false)
+const showInvoiceModal = ref(false)
+const activeInvoiceOrder = ref(null)
 const selectedOrder = ref(null)
 const cancelling = ref(false)
+
+function openInvoiceModal(order) {
+  activeInvoiceOrder.value = order
+  showInvoiceModal.value = true
+}
+
+const filterTabs = [
+  { id: 'all', label: 'All Orders', icon: '📋' },
+  { id: 'active', label: 'Active', icon: '🧁' },
+  { id: 'completed', label: 'Completed', icon: '✅' },
+  { id: 'cancelled', label: 'Cancelled', icon: '🚫' },
+  { id: 'refunded', label: 'Refunded', icon: '💸' },
+]
+
+const pipelineSteps = [
+  { key: 'confirmed', label: 'Order Placed', desc: 'Received & queued' },
+  { key: 'preparing', label: 'Baking', desc: 'Active in kitchen' },
+  { key: 'packaging', label: 'Packaging', desc: 'Sealed & boxed' },
+  { key: 'transit', label: 'Out for Delivery / Pickup', desc: 'On the way' },
+  { key: 'completed', label: 'Completed', desc: 'Delivered' }
+]
+
+const statusOrder = ['pending', 'confirmed', 'preparing', 'packaging', 'out_for_delivery', 'ready_for_pickup', 'completed']
+
+const filteredOrders = computed(() => {
+  if (activeFilter.value === 'all') return orders.value
+  if (activeFilter.value === 'active') {
+    return orders.value.filter(o => !['completed', 'cancelled', 'refunded', 'Completed', 'Cancelled', 'Refunded'].includes(o.status))
+  }
+  if (activeFilter.value === 'completed') {
+    return orders.value.filter(o => ['completed', 'Completed'].includes(o.status))
+  }
+  if (activeFilter.value === 'cancelled') {
+    return orders.value.filter(o => ['cancelled', 'Cancelled'].includes(o.status))
+  }
+  if (activeFilter.value === 'refunded') {
+    return orders.value.filter(o => ['refunded', 'Refunded'].includes(o.status))
+  }
+  return orders.value
+})
+
+function getFilteredCount(filterId) {
+  if (filterId === 'all') return orders.value.length
+  if (filterId === 'active') {
+    return orders.value.filter(o => !['completed', 'cancelled', 'refunded', 'Completed', 'Cancelled', 'Refunded'].includes(o.status)).length
+  }
+  if (filterId === 'completed') {
+    return orders.value.filter(o => ['completed', 'Completed'].includes(o.status)).length
+  }
+  if (filterId === 'cancelled') {
+    return orders.value.filter(o => ['cancelled', 'Cancelled'].includes(o.status)).length
+  }
+  if (filterId === 'refunded') {
+    return orders.value.filter(o => ['refunded', 'Refunded'].includes(o.status)).length
+  }
+  return 0
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
 
 function getStatusVariant(status) {
   switch (status?.toLowerCase()) {
     case 'completed': return 'success'
     case 'pending': return 'warning'
     case 'confirmed': case 'preparing': case 'out_for_delivery': return 'brand'
-    case 'cancelled': return 'error'
+    case 'cancelled': case 'refunded': return 'error'
     default: return 'neutral'
   }
+}
+
+function getProgressStepText(status) {
+  switch (status?.toLowerCase()) {
+    case 'pending': return 'Order placed & awaiting confirmation'
+    case 'confirmed': return 'Payment verified & order queued in kitchen'
+    case 'preparing': return 'Freshly baking in our oven 🧁'
+    case 'packaging': return 'Pastries packaged & sealed 🎁'
+    case 'out_for_delivery': return 'On its way to your doorstep 🛵'
+    case 'ready_for_pickup': return 'Ready for store pickup 🏪'
+    case 'completed': return 'Delivered & completed 🎉'
+    case 'refunded': return 'Order payment refunded 💸'
+    case 'cancelled': return 'Order cancelled 🚫'
+    default: return 'Processing'
+  }
+}
+
+function isStepComplete(status, stepKey) {
+  const s = status?.toLowerCase()
+  if (s === 'completed') return true
+  const currentIdx = statusOrder.indexOf(s)
+  if (stepKey === 'confirmed') return currentIdx >= 1
+  if (stepKey === 'preparing') return currentIdx >= 2
+  if (stepKey === 'packaging') return currentIdx >= 3
+  if (stepKey === 'transit') return currentIdx >= 4
+  return false
+}
+
+function isStepActive(status, stepKey) {
+  const s = status?.toLowerCase()
+  if (stepKey === 'confirmed' && (s === 'confirmed' || s === 'pending')) return true
+  if (stepKey === 'preparing' && s === 'preparing') return true
+  if (stepKey === 'packaging' && s === 'packaging') return true
+  if (stepKey === 'transit' && (s === 'out_for_delivery' || s === 'ready_for_pickup')) return true
+  if (stepKey === 'completed' && s === 'completed') return true
+  return false
+}
+
+function toggleDetails(orderId) {
+  if (expandedOrders.value.includes(orderId)) {
+    expandedOrders.value = expandedOrders.value.filter(id => id !== orderId)
+  } else {
+    expandedOrders.value.push(orderId)
+  }
+}
+
+function reorderItems(order) {
+  if (!order.items || order.items.length === 0) return
+  
+  order.items.forEach(item => {
+    cartStore.addItem({
+      id: item.product_id || item.id,
+      name: item.product_name,
+      price: item.price || item.unit_price || 0,
+      image: item.image_url,
+      qty: item.qty || 1
+    })
+  })
+
+  toast.success(`Re-added ${order.items.length} pastry treats to your shopping basket!`, 'Basket Updated 🧺')
+  cartStore.openDrawer = true
 }
 
 async function fetchOrders() {

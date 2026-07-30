@@ -93,6 +93,11 @@ class Product extends Model implements HasMedia
         return $this->hasMany(Review::class);
     }
 
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
     public function getEffectivePriceAttribute(): float
     {
         return (float) ($this->sale_price ?? $this->price);
@@ -101,6 +106,31 @@ class Product extends Model implements HasMedia
     public function getIsOnSaleAttribute(): bool
     {
         return $this->sale_price !== null && $this->sale_price < $this->price;
+    }
+
+    /**
+     * Best seller status: Admin force override OR high sales volume
+     */
+    public function getIsBestSellerAttribute(): bool
+    {
+        if (!empty($this->attributes['is_best_seller'])) {
+            return true;
+        }
+        if ($this->relationLoaded('orderItems')) {
+            return $this->orderItems->sum('qty') > 0;
+        }
+        return (int) $this->orderItems()->sum('qty') > 0;
+    }
+
+    /**
+     * New arrival status: Admin force override OR created within the last 30 days (1 month auto-expiry)
+     */
+    public function getIsNewArrivalAttribute(): bool
+    {
+        if (!empty($this->attributes['is_new_arrival'])) {
+            return true;
+        }
+        return $this->created_at && $this->created_at->gte(now()->subDays(30));
     }
 
     public function getPrimaryImageUrlAttribute(): string

@@ -1,30 +1,56 @@
 <template>
   <div
     :class="[
-      'rounded-xl p-4 border flex items-start gap-3 transition-all duration-200',
-      variantClasses
+      'rounded-2xl p-4 border flex items-center gap-3.5 transition-all duration-300 shadow-xl backdrop-blur-md relative overflow-hidden group',
+      containerClasses
     ]"
   >
-    <div class="flex-shrink-0 mt-0.5">
+    <!-- Left Accent Status Indicator Bar -->
+    <div :class="['absolute left-0 top-0 bottom-0 w-1.5', accentBarClass]" />
+
+    <!-- Status Icon Bubble -->
+    <div :class="['w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110 shadow-xs', iconBubbleClass]">
       <slot name="icon">
-        <svg v-if="variant === 'success'" class="w-5 h-5 text-[#6B8F5E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        <svg v-else-if="variant === 'error'" class="w-5 h-5 text-[#B84C3C]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        <svg v-else-if="variant === 'warning'" class="w-5 h-5 text-[#C98A3A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-        <svg v-else class="w-5 h-5 text-[#5C3A22]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <!-- Success Icon -->
+        <svg v-if="variant === 'success'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+        </svg>
+        <!-- Error Icon -->
+        <svg v-else-if="variant === 'error'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <!-- Warning Icon -->
+        <svg v-else-if="variant === 'warning'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <!-- Info Icon -->
+        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
       </slot>
     </div>
 
-    <div class="flex-1 text-sm">
-      <h4 v-if="title" class="font-bold mb-0.5 text-current">{{ title }}</h4>
-      <div class="text-current/90"><slot /></div>
+    <!-- Notification Message Text -->
+    <div class="flex-1 min-w-0 pr-2">
+      <h4 v-if="title" class="font-extrabold text-sm text-[#1C1410] dark:text-[#FBF3E7] tracking-wide mb-0.5">
+        {{ title }}
+      </h4>
+      <div class="text-xs font-semibold text-[#5C3A22] dark:text-[#E2C08A] leading-relaxed break-words">
+        <slot />
+      </div>
     </div>
 
+    <!-- Dismiss Button -->
     <button
       v-if="dismissible"
-      class="flex-shrink-0 text-current/60 hover:text-current p-1 rounded-lg transition-colors"
+      type="button"
+      class="flex-shrink-0 text-[#8C7A68] hover:text-[#1C1410] dark:text-[#C5B4A4] dark:hover:text-white p-1.5 rounded-xl transition-all duration-200 hover:bg-[#D9A876]/20 active:scale-95 cursor-pointer"
       @click="$emit('dismiss')"
+      aria-label="Close notification"
     >
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+      </svg>
     </button>
   </div>
 </template>
@@ -44,17 +70,35 @@ const props = defineProps({
 
 defineEmits(['dismiss'])
 
-const variantClasses = computed(() => {
+const containerClasses = computed(() => {
+  return 'bg-white/95 dark:bg-[#1E1510]/95 border-[#C08E5D]/25 dark:border-[#C08E5D]/40 shadow-2xl shadow-[#5C3A22]/10 pl-5'
+})
+
+const accentBarClass = computed(() => {
   switch (props.variant) {
     case 'success':
-      return 'bg-[#6B8F5E]/10 border-[#6B8F5E]/30 text-[#2D4525]'
+      return 'bg-emerald-500'
     case 'error':
-      return 'bg-[#B84C3C]/10 border-[#B84C3C]/30 text-[#692117]'
+      return 'bg-rose-500'
     case 'warning':
-      return 'bg-[#C98A3A]/10 border-[#C98A3A]/30 text-[#59390D]'
+      return 'bg-amber-500'
     case 'info':
     default:
-      return 'bg-[#D9A876]/20 border-[#C08E5D]/40 text-[#5C3A22]'
+      return 'bg-[#5C3A22] dark:bg-[#D9A876]'
+  }
+})
+
+const iconBubbleClass = computed(() => {
+  switch (props.variant) {
+    case 'success':
+      return 'bg-emerald-500/15 text-emerald-600 dark:bg-emerald-500/25 dark:text-emerald-400'
+    case 'error':
+      return 'bg-rose-500/15 text-rose-600 dark:bg-rose-500/25 dark:text-rose-400'
+    case 'warning':
+      return 'bg-amber-500/15 text-amber-600 dark:bg-amber-500/25 dark:text-amber-400'
+    case 'info':
+    default:
+      return 'bg-[#5C3A22]/15 text-[#5C3A22] dark:bg-[#D9A876]/25 dark:text-[#E2C08A]'
   }
 })
 </script>

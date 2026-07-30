@@ -52,6 +52,7 @@ class ProductResource extends Resource
 
                         TextInput::make('slug')
                             ->required()
+                            ->readOnly()
                             ->unique(Product::class, 'slug', ignoreRecord: true)
                             ->maxLength(255),
 
@@ -89,12 +90,14 @@ class ProductResource extends Resource
                         TextInput::make('sku')
                             ->label('SKU (Auto-generated)')
                             ->default(fn() => 'SKU-' . strtoupper(Str::random(6)))
+                            ->readOnly()
                             ->required()
                             ->unique(Product::class, 'sku', ignoreRecord: true),
 
                         TextInput::make('barcode')
                             ->label('Barcode (Auto-generated)')
                             ->default(fn() => '200' . sprintf('%09d', rand(100000000, 999999999)))
+                            ->readOnly()
                             ->nullable(),
 
                         TextInput::make('price')
@@ -143,11 +146,13 @@ class ProductResource extends Resource
                             ->default(false),
 
                         Toggle::make('is_best_seller')
-                            ->label('Best Seller Badge')
+                            ->label('Best Seller (Force Override)')
+                            ->helperText('Auto-detected via top sales volume. Turn ON to forcefully set as Best Seller.')
                             ->default(false),
 
                         Toggle::make('is_new_arrival')
-                            ->label('New Arrival')
+                            ->label('New Arrival (Force Override)')
+                            ->helperText('Auto-expires after 1 month from creation date. Turn ON to force keep as New Arrival.')
                             ->default(false),
 
                         Toggle::make('is_seasonal')

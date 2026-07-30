@@ -52,6 +52,7 @@ class CategoryResource extends Resource
 
                         TextInput::make('slug')
                             ->required()
+                            ->readOnly()
                             ->unique(ProductCategory::class, 'slug', ignoreRecord: true)
                             ->maxLength(255),
 
@@ -69,6 +70,7 @@ class CategoryResource extends Resource
                         TextInput::make('sort_order')
                             ->label('Sort Order (Auto)')
                             ->numeric()
+                            ->readOnly()
                             ->default(fn() => (ProductCategory::max('sort_order') ?? 0) + 1),
 
                         Toggle::make('is_active')

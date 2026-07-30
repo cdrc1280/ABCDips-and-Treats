@@ -110,9 +110,30 @@
         </div>
 
         <!-- Footer Summary -->
-        <div v-if="cartStore.items.length > 0" class="p-6 border-t border-[#C08E5D]/20 bg-[#FBF3E7] space-y-4">
+        <div v-if="cartStore.items.length > 0" class="p-6 border-t border-[#C08E5D]/20 bg-[#FBF3E7] dark:bg-[#1E130B] space-y-4">
+          <!-- Coupon Box inside Drawer -->
+          <div class="space-y-2">
+            <div v-if="cartStore.couponCode" class="flex items-center justify-between bg-[#6B8F5E]/15 border border-[#6B8F5E]/30 p-2 rounded-xl text-xs">
+              <div class="flex items-center gap-1">
+                <span>🎟️</span>
+                <span class="font-bold text-[#2D4525] dark:text-[#E2C08A]">{{ cartStore.couponCode }}</span>
+              </div>
+              <button type="button" class="text-xs text-[#B84C3C] font-bold hover:underline" @click="cartStore.removeCoupon">Remove</button>
+            </div>
+            <div v-else class="flex gap-2">
+              <input
+                v-model="drawerCouponCode"
+                type="text"
+                placeholder="Voucher code..."
+                class="flex-1 px-3 py-1.5 text-xs rounded-xl border border-[#C08E5D]/30 bg-white dark:bg-[#271C15] text-[#1C1410] dark:text-[#FBF3E7] focus:outline-none"
+                @keyup.enter="applyDrawerCoupon"
+              />
+              <BaseButton size="sm" variant="secondary" :loading="applyingDrawerCoupon" @click="applyDrawerCoupon">Apply</BaseButton>
+            </div>
+          </div>
+
           <div class="space-y-1 text-sm">
-            <div class="flex justify-between text-[#8C7A68]">
+            <div class="flex justify-between text-[#8C7A68] dark:text-[#C5B4A4]">
               <span>Subtotal</span>
               <span>₱{{ cartStore.subtotal.toFixed(2) }}</span>
             </div>
@@ -120,7 +141,7 @@
               <span>Discount</span>
               <span>-₱{{ cartStore.discount.toFixed(2) }}</span>
             </div>
-            <div class="flex justify-between text-base font-extrabold text-[#5C3A22] pt-2 border-t border-[#C08E5D]/20">
+            <div class="flex justify-between text-base font-extrabold text-[#5C3A22] dark:text-[#E2C08A] pt-2 border-t border-[#C08E5D]/20">
               <span>Estimated Total</span>
               <span>₱{{ cartStore.total.toFixed(2) }}</span>
             </div>
@@ -142,11 +163,30 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useCartStore } from '@/stores/cart'
+import { useToast } from '@/composables/useToast'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 
 const cartStore = useCartStore()
+const toast = useToast()
+
+const drawerCouponCode = ref('')
+const applyingDrawerCoupon = ref(false)
+
+async function applyDrawerCoupon() {
+  if (!drawerCouponCode.value.trim()) return
+  applyingDrawerCoupon.value = true
+  const res = await cartStore.applyCoupon(drawerCouponCode.value)
+  applyingDrawerCoupon.value = false
+  if (res.success) {
+    toast.success('Discount coupon applied!', 'Voucher Applied 🎟️')
+    drawerCouponCode.value = ''
+  } else {
+    toast.error(res.error || 'Invalid or expired coupon code.', 'Coupon Error')
+  }
+}
 </script>
 
 <style scoped>

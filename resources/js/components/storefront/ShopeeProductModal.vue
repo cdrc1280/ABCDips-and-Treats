@@ -1,0 +1,418 @@
+<template>
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="modalStore.isOpen && modalStore.product"
+        class="fixed inset-0 z-50 overflow-y-auto bg-[#1C1410]/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 md:p-6"
+        @click.self="modalStore.closeModal"
+      >
+        <Transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="opacity-0 scale-95 translate-y-4"
+          enter-to-class="opacity-100 scale-100 translate-y-0"
+          leave-active-class="transition-all duration-200 ease-in"
+          leave-from-class="opacity-100 scale-100 translate-y-0"
+          leave-to-class="opacity-0 scale-95 translate-y-4"
+        >
+          <div
+            v-if="modalStore.isOpen && modalStore.product"
+            class="bg-[#FBF3E7] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#C08E5D]/30 overflow-hidden w-full max-w-5xl relative max-h-[92vh] flex flex-col text-[#1C1410]"
+          >
+            <!-- Close Button -->
+            <button
+              type="button"
+              class="absolute top-3 right-3 z-30 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[#5C3A22] shadow-sm flex items-center justify-center transition-all cursor-pointer border border-[#C08E5D]/20 font-bold"
+              @click="modalStore.closeModal"
+            >
+              ✕
+            </button>
+
+            <!-- Scrollable Container -->
+            <div class="overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6">
+
+              <!-- Top Breadcrumb Bar -->
+              <nav class="flex items-center gap-1.5 text-xs text-[#8C7A68] flex-wrap pb-1 font-semibold">
+                <span class="hover:text-[#5C3A22] cursor-pointer" @click="$router.push('/')">Home</span>
+                <span>/</span>
+                <span class="hover:text-[#5C3A22] cursor-pointer" @click="$router.push('/shop')">Shop</span>
+                <template v-if="modalStore.product.category?.name">
+                  <span>/</span>
+                  <span class="text-[#5C3A22] font-bold">{{ modalStore.product.category.name }}</span>
+                </template>
+                <span>/</span>
+                <span class="text-[#5C3A22] font-bold truncate max-w-xs">{{ modalStore.product.name }}</span>
+              </nav>
+
+              <!-- Main Product Card Layout (2-Column Grid) -->
+              <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-[#C08E5D]/20 grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-start">
+
+                <!-- Left Column: Main Image Showcase + Thumbnails -->
+                <div class="md:col-span-5 space-y-4">
+                  <!-- Main Image -->
+                  <div class="aspect-square rounded-2xl overflow-hidden bg-[#FBF3E7]/50 border border-[#C08E5D]/20 relative">
+                    <img
+                      :src="activeImage || modalStore.product.primary_image_url || '/images/placeholder-bakery.png'"
+                      :alt="modalStore.product.name"
+                      class="w-full h-full object-cover object-center transition-all duration-300"
+                    />
+
+                    <!-- Badges -->
+                    <div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start z-10">
+                      <BaseBadge v-if="modalStore.product.is_best_seller" variant="brand">Best Seller</BaseBadge>
+                      <BaseBadge v-else-if="modalStore.product.is_highly_rated" variant="warning">⭐ Highly Rated</BaseBadge>
+                      <BaseBadge v-else-if="modalStore.product.is_featured" variant="neutral">Featured</BaseBadge>
+                      <BaseBadge v-else-if="modalStore.product.is_new_arrival" variant="success">New</BaseBadge>
+                      <BaseBadge v-if="modalStore.product.is_on_sale" variant="error">Sale</BaseBadge>
+                    </div>
+                  </div>
+
+                  <!-- Thumbnails Carousel (Only if gallery images exist) -->
+                  <div
+                    v-if="allImages.length > 1"
+                    class="relative flex items-center"
+                  >
+                    <button
+                      v-if="allImages.length > 4"
+                      type="button"
+                      class="absolute -left-2 z-10 w-6 h-10 bg-[#5C3A22]/70 hover:bg-[#5C3A22] text-white flex items-center justify-center rounded-r cursor-pointer text-xs"
+                      @click="scrollThumbnails('left')"
+                    >
+                      ‹
+                    </button>
+
+                    <div
+                      ref="thumbContainer"
+                      class="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth w-full px-1"
+                    >
+                      <button
+                        v-for="(img, idx) in allImages"
+                        :key="idx"
+                        type="button"
+                        class="w-16 h-16 rounded-xl border-2 transition-all flex-shrink-0 overflow-hidden cursor-pointer"
+                        :class="activeImage === img ? 'border-[#5C3A22] scale-95' : 'border-[#C08E5D]/20 opacity-70 hover:opacity-100'"
+                        @click="activeImage = img"
+                      >
+                        <img :src="img" :alt="`Thumb ${idx}`" class="w-full h-full object-cover" />
+                      </button>
+                    </div>
+
+                    <button
+                      v-if="allImages.length > 4"
+                      type="button"
+                      class="absolute -right-2 z-10 w-6 h-10 bg-[#5C3A22]/70 hover:bg-[#5C3A22] text-white flex items-center justify-center rounded-l cursor-pointer text-xs"
+                      @click="scrollThumbnails('right')"
+                    >
+                      ›
+                    </button>
+                  </div>
+
+                  <!-- Wishlist Button -->
+                  <div class="flex items-center justify-end pt-2 border-t border-[#C08E5D]/15 text-xs">
+                    <button
+                      type="button"
+                      class="flex items-center gap-1.5 cursor-pointer transition-colors font-semibold"
+                      :class="wishlistStore.isInWishlist(modalStore.product.id) ? 'text-red-500 font-bold' : 'text-[#8C7A68] hover:text-red-500'"
+                      @click="wishlistStore.toggleWishlist(modalStore.product)"
+                    >
+                      <svg class="w-4 h-4" :fill="wishlistStore.isInWishlist(modalStore.product.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                      <span>{{ wishlistStore.isInWishlist(modalStore.product.id) ? 'Saved to Wishlist' : 'Save to Wishlist' }}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Right Column: Product Info, Price, Quantity & Add to Cart -->
+                <div class="md:col-span-7 space-y-5">
+                  <div>
+                    <div class="flex items-center gap-3 mb-1">
+                      <span v-if="modalStore.product.category?.name" class="text-xs font-bold uppercase tracking-wider text-[#C08E5D]">
+                        {{ modalStore.product.category.name }}
+                      </span>
+
+                      <span
+                        v-if="modalStore.product.reviews_count && modalStore.product.reviews_count > 0"
+                        class="inline-flex items-center gap-1 bg-[#FBF3E7] border border-[#C08E5D]/30 px-2.5 py-0.5 rounded-full text-xs font-extrabold text-[#5C3A22]"
+                      >
+                        <span>⭐ {{ modalStore.product.avg_rating }}</span>
+                        <span class="text-[#8C7A68] font-normal">({{ modalStore.product.reviews_count }} reviews)</span>
+                      </span>
+                    </div>
+
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1C1410] tracking-tight leading-snug">
+                      {{ modalStore.product.name }}
+                    </h1>
+                  </div>
+
+                  <!-- Price Container -->
+                  <div class="bg-[#FBF3E7] p-4 rounded-xl border border-[#C08E5D]/20 flex flex-wrap items-baseline gap-3">
+                    <span class="text-3xl font-extrabold text-[#5C3A22]">
+                      ₱{{ (modalStore.product.sale_price || modalStore.product.price).toFixed(2) }}
+                    </span>
+                    <span v-if="modalStore.product.is_on_sale" class="text-base text-[#8C7A68] line-through">
+                      ₱{{ modalStore.product.price.toFixed(2) }}
+                    </span>
+                    <BaseBadge v-if="modalStore.product.is_on_sale" variant="error">
+                      Save ₱{{ (modalStore.product.price - modalStore.product.sale_price).toFixed(2) }}
+                    </BaseBadge>
+                  </div>
+
+                  <p class="text-xs sm:text-sm text-[#8C7A68] leading-relaxed">
+                    {{ modalStore.product.short_description }}
+                  </p>
+
+                  <!-- Prep & Stock Quick Stats -->
+                  <div class="grid grid-cols-2 gap-4 py-3 border-y border-[#C08E5D]/20">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-[#D9A876]/20 flex items-center justify-center text-[#5C3A22]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      </div>
+                      <div>
+                        <div class="text-[11px] text-[#8C7A68]">Baking Prep Time</div>
+                        <div class="text-xs font-bold text-[#1C1410]">{{ modalStore.product.prep_time_minutes || 20 }} minutes</div>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-[#D9A876]/20 flex items-center justify-center text-[#5C3A22]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1H5zm0 0v9a2 2 0 002 2h10a2 2 0 002-2V8M9 12h6" /></svg>
+                      </div>
+                      <div>
+                        <div class="text-[11px] text-[#8C7A68]">Stock Status</div>
+                        <div class="text-xs font-bold" :class="modalStore.product.is_in_stock ? 'text-[#6B8F5E]' : 'text-[#B84C3C]'">
+                          {{ modalStore.product.is_in_stock ? 'In Stock' : 'Out of Stock' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Allergen Chips (Only if product has allergens) -->
+                  <div v-if="modalStore.product.allergens && modalStore.product.allergens.length > 0" class="space-y-1.5">
+                    <span class="block text-xs font-bold uppercase tracking-wider text-[#5C3A22]">Allergen Information</span>
+                    <div class="flex flex-wrap gap-2">
+                      <span
+                        v-for="(alg, idx) in modalStore.product.allergens"
+                        :key="idx"
+                        class="px-2.5 py-1 rounded-lg bg-[#C98A3A]/10 text-[#C98A3A] text-xs font-semibold border border-[#C98A3A]/20"
+                      >
+                        ⚠️ {{ alg.name }} ({{ alg.type }})
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Quantity Selector & Action Buttons -->
+                  <div class="space-y-4 pt-1">
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs text-[#8C7A68] font-bold uppercase tracking-wider">Quantity:</span>
+                      <div class="flex items-center border border-[#C08E5D]/30 rounded-xl bg-white p-0.5">
+                        <button
+                          type="button"
+                          class="w-8 h-8 rounded-lg flex items-center justify-center text-[#5C3A22] hover:bg-[#FBF3E7] font-extrabold text-sm disabled:opacity-30 cursor-pointer"
+                          :disabled="quantity <= 1"
+                          @click="quantity--"
+                        >
+                          -
+                        </button>
+                        <span class="w-10 text-center font-bold text-[#1C1410] text-sm">{{ quantity }}</span>
+                        <button
+                          type="button"
+                          class="w-8 h-8 rounded-lg flex items-center justify-center text-[#5C3A22] hover:bg-[#FBF3E7] font-extrabold text-sm cursor-pointer"
+                          @click="quantity++"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span v-if="modalStore.product.stock_qty" class="text-xs text-[#8C7A68]">
+                        ({{ modalStore.product.stock_qty }} available)
+                      </span>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                      <button
+                        type="button"
+                        class="flex-1 px-5 py-3 rounded-xl border-2 border-[#5C3A22] bg-[#FBF3E7] hover:bg-[#D9A876]/20 text-[#5C3A22] font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                        :disabled="adding || !modalStore.product.is_in_stock"
+                        @click="handleAddToCart"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 0a2 2 0 100 4 2 2 0 000-4z" /></svg>
+                        <span>Add To Cart</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        class="flex-1 px-6 py-3 rounded-xl bg-[#5C3A22] hover:bg-[#442917] text-[#FBF3E7] font-extrabold text-sm flex items-center justify-center transition-all cursor-pointer shadow-sm disabled:opacity-50"
+                        :disabled="adding || !modalStore.product.is_in_stock"
+                        @click="handleBuyNow"
+                      >
+                        Buy Now &bull; ₱{{ ((modalStore.product.sale_price || modalStore.product.price) * quantity).toFixed(2) }}
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <!-- Product Details / Description Section -->
+              <div
+                v-if="modalStore.product.description || modalStore.product.nutrition"
+                class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-[#C08E5D]/20 space-y-4"
+              >
+                <div class="flex border-b border-[#C08E5D]/20 gap-6">
+                  <button
+                    type="button"
+                    class="pb-3 text-sm font-bold transition-all border-b-2"
+                    :class="activeTab === 'description' ? 'border-[#5C3A22] text-[#5C3A22]' : 'border-transparent text-[#8C7A68] hover:text-[#5C3A22]'"
+                    @click="activeTab = 'description'"
+                  >
+                    Product Description
+                  </button>
+
+                  <button
+                    v-if="modalStore.product.nutrition"
+                    type="button"
+                    class="pb-3 text-sm font-bold transition-all border-b-2"
+                    :class="activeTab === 'nutrition' ? 'border-[#5C3A22] text-[#5C3A22]' : 'border-transparent text-[#8C7A68] hover:text-[#5C3A22]'"
+                    @click="activeTab = 'nutrition'"
+                  >
+                    Nutrition Facts
+                  </button>
+                </div>
+
+                <!-- Description Tab Content -->
+                <div v-if="activeTab === 'description'" class="text-xs sm:text-sm text-[#1C1410]/90 leading-relaxed space-y-2">
+                  <div v-html="modalStore.product.description || modalStore.product.short_description"></div>
+                </div>
+
+                <!-- Nutrition Tab Content -->
+                <div v-else-if="activeTab === 'nutrition' && modalStore.product.nutrition" class="max-w-xs">
+                  <div class="border border-[#1C1410] p-3 rounded-xl space-y-1.5 text-[#1C1410] text-xs">
+                    <h4 class="font-extrabold text-base border-b-2 border-[#1C1410] pb-1">Nutrition Facts</h4>
+                    <p class="text-[11px] font-semibold">Serving Size: {{ modalStore.product.nutrition.serving_size }}</p>
+                    <div class="border-t-4 border-[#1C1410] my-1 pt-1 flex justify-between font-extrabold text-sm">
+                      <span>Calories</span>
+                      <span>{{ modalStore.product.nutrition.calories }}</span>
+                    </div>
+                    <div class="border-t border-[#1C1410] pt-1 text-[11px] space-y-1">
+                      <div class="flex justify-between font-semibold">
+                        <span>Total Fat</span>
+                        <span>{{ modalStore.product.nutrition.fat_g }}g</span>
+                      </div>
+                      <div class="flex justify-between font-semibold">
+                        <span>Carbohydrates</span>
+                        <span>{{ modalStore.product.nutrition.carbs_g }}g</span>
+                      </div>
+                      <div class="flex justify-between font-semibold">
+                        <span>Protein</span>
+                        <span>{{ modalStore.product.nutrition.protein_g }}g</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ratings & Customer Reviews Component -->
+              <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-[#C08E5D]/20">
+                <ProductReviews :product-id="modalStore.product.id" />
+              </div>
+
+            </div>
+          </div>
+        </Transition>
+      </div>
+    </Transition>
+  </Teleport>
+</template>
+
+<script setup>
+import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useProductModalStore } from '@/stores/productModal'
+import { useCartStore } from '@/stores/cart'
+import { useWishlistStore } from '@/stores/wishlist'
+import { useToast } from '@/composables/useToast'
+import BaseBadge from '@/components/ui/BaseBadge.vue'
+import ProductReviews from '@/components/storefront/ProductReviews.vue'
+
+const modalStore = useProductModalStore()
+const cartStore = useCartStore()
+const wishlistStore = useWishlistStore()
+const toast = useToast()
+const router = useRouter()
+
+const activeImage = ref('')
+const activeTab = ref('description')
+const quantity = ref(1)
+const adding = ref(false)
+const thumbContainer = ref(null)
+
+const allImages = computed(() => {
+  if (!modalStore.product) return []
+  const list = []
+  if (modalStore.product.primary_image_url) {
+    list.push(modalStore.product.primary_image_url)
+  }
+  if (modalStore.product.gallery_images && Array.isArray(modalStore.product.gallery_images)) {
+    modalStore.product.gallery_images.forEach(img => {
+      if (!list.includes(img)) list.push(img)
+    })
+  }
+  return list.length > 0 ? list : ['/images/placeholder-bakery.png']
+})
+
+watch(() => modalStore.product, (newVal) => {
+  if (newVal) {
+    activeImage.value = newVal.primary_image_url || '/images/placeholder-bakery.png'
+    quantity.value = 1
+    activeTab.value = 'description'
+  }
+}, { immediate: true })
+
+function scrollThumbnails(direction) {
+  if (!thumbContainer.value) return
+  const scrollAmount = direction === 'left' ? -150 : 150
+  thumbContainer.value.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+}
+
+async function handleAddToCart() {
+  if (!modalStore.product) return
+  adding.value = true
+  const res = await cartStore.addItem(modalStore.product.id, quantity.value)
+  adding.value = false
+
+  if (res.success) {
+    toast.success(`Added ${quantity.value}x ${modalStore.product.name} to your basket!`, 'Freshly Baked')
+    modalStore.closeModal()
+  }
+}
+
+async function handleBuyNow() {
+  if (!modalStore.product) return
+  adding.value = true
+  const res = await cartStore.addItem(modalStore.product.id, quantity.value)
+  adding.value = false
+
+  if (res.success) {
+    toast.success(`Added to basket! Redirecting to checkout...`, 'Instant Purchase')
+    modalStore.closeModal()
+    router.push('/checkout')
+  }
+}
+</script>
+
+<style scoped>
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>

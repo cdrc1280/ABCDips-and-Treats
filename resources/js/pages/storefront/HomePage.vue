@@ -72,8 +72,8 @@
                     <!-- Hero Right Showcase Card -->
                     <div class="lg:col-span-5 flex justify-center">
                         <div
-                            class="w-full max-w-sm bg-[#FBF3E7] rounded-3xl p-6 shadow-2xl text-center border border-[#C08E5D]/30">
-                            <div class="bg-white rounded-2xl p-6 mb-4 shadow-inner flex items-center justify-center">
+                            class="w-full max-w-sm bg-[#FBF3E7] hero-showcase-card rounded-3xl p-6 shadow-2xl text-center border border-[#C08E5D]/30">
+                            <div class="bg-white hero-showcase-inner rounded-2xl p-6 mb-4 shadow-inner flex items-center justify-center">
                                 <img src="/images/logo.png" alt="ABCDips & Treats Signature Pastries"
                                     class="h-44 sm:h-52 w-auto object-contain" />
                             </div>
@@ -106,7 +106,7 @@
                 <RouterLink v-for="cat in categories" :key="cat.id" :to="`/shop?category=${cat.slug}`"
                     class="group bg-white p-4 rounded-2xl border border-[#C08E5D]/20 text-center hover:shadow-md hover:border-[#5C3A22] transition-all duration-200">
                     <div
-                        class="w-12 h-12 rounded-xl bg-[#D9A876]/20 mx-auto mb-3 flex items-center justify-center text-[#5C3A22] group-hover:scale-110 transition-transform">
+                        class="w-12 h-12 rounded-xl bg-[#D9A876]/20 category-card-icon mx-auto mb-3 flex items-center justify-center text-[#5C3A22] group-hover:scale-110 transition-transform">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />

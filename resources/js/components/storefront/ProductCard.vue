@@ -1,7 +1,8 @@
 <template>
   <div
-    class="group bg-white rounded-2xl border border-[#C08E5D]/20 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+    class="group bg-white rounded-2xl border border-[#C08E5D]/20 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer"
     style="box-shadow: var(--shadow-sm);"
+    @click="openModal"
   >
     <!-- Image & Badge Overlay -->
     <div class="relative aspect-square overflow-hidden bg-[#FBF3E7]/60">
@@ -27,24 +28,23 @@
         class="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-white/90 backdrop-blur-md shadow-sm flex items-center justify-center transition-all hover:scale-110"
         :class="wishlistStore.isInWishlist(product.id) ? 'text-red-500 bg-red-50' : 'text-[#8C7A68] hover:text-red-500'"
         v-tooltip="wishlistStore.isInWishlist(product.id) ? 'Remove from saved wishlist' : 'Save to wishlist for later'"
-        @click.prevent="wishlistStore.toggleWishlist(product)"
+        @click.stop.prevent="wishlistStore.toggleWishlist(product)"
       >
         <svg class="w-4 h-4" :fill="wishlistStore.isInWishlist(product.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
       </button>
 
-      <!-- Quick Add Overlay Button -->
-      <div class="absolute inset-x-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+      <!-- Quick Add / View Overlay Button -->
+      <div class="absolute inset-x-3 bottom-3 opacity-90 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 z-10">
         <BaseButton
           variant="primary"
           full-width
           size="sm"
-          :loading="adding"
-          v-tooltip="'Quickly add this treat to your basket'"
-          @click.prevent="addToCart"
+          v-tooltip="'View options & add to basket'"
+          @click.stop.prevent="openModal"
         >
-          Add to Order • ₱{{ (product.sale_price || product.price).toFixed(2) }}
+          View &amp; Add to Order • ₱{{ (product.sale_price || product.price).toFixed(2) }}
         </BaseButton>
       </div>
     </div>
@@ -62,6 +62,7 @@
             v-if="product.reviews_count && product.reviews_count > 0"
             v-tooltip="`Rated ${product.avg_rating} stars based on ${product.reviews_count} verified review${product.reviews_count > 1 ? 's' : ''}`"
             class="text-[11px] font-extrabold text-[#5C3A22] flex items-center gap-1 bg-[#FBF3E7] px-2 py-0.5 rounded-full border border-[#C08E5D]/20 cursor-pointer"
+            @click.stop="openModal"
           >
             <span class="text-amber-500">⭐</span>
             <span>{{ product.avg_rating }}</span>
@@ -69,11 +70,9 @@
           </div>
         </div>
 
-        <RouterLink :to="`/products/${product.slug}`" class="group-hover:text-[#5C3A22] transition-colors">
-          <h3 class="font-bold text-[#1C1410] text-base leading-snug line-clamp-1 mb-1.5">
-            {{ product.name }}
-          </h3>
-        </RouterLink>
+        <h3 class="font-bold text-[#1C1410] text-base leading-snug line-clamp-1 mb-1.5 group-hover:text-[#5C3A22] transition-colors">
+          {{ product.name }}
+        </h3>
 
         <p class="text-xs text-[#8C7A68] line-clamp-2 mb-4 leading-relaxed">
           {{ product.short_description }}
@@ -104,10 +103,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useCartStore } from '@/stores/cart'
 import { useWishlistStore } from '@/stores/wishlist'
-import { useToast } from '@/composables/useToast'
+import { useProductModalStore } from '@/stores/productModal'
 import BaseBadge from '@/components/ui/BaseBadge.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 
@@ -115,17 +112,10 @@ const props = defineProps({
   product: { type: Object, required: true }
 })
 
-const cartStore = useCartStore()
 const wishlistStore = useWishlistStore()
-const toast = useToast()
-const adding = ref(false)
+const productModalStore = useProductModalStore()
 
-async function addToCart() {
-  adding.value = true
-  const res = await cartStore.addItem(props.product.id, 1)
-  adding.value = false
-  if (res.success) {
-    toast.success(`Added ${props.product.name} to your basket!`, 'Freshly Baked')
-  }
+function openModal() {
+  productModalStore.openModal(props.product)
 }
 </script>

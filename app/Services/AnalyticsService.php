@@ -49,9 +49,9 @@ class AnalyticsService
         }
 
         if (empty($labels)) {
-            $labels = [date('Y-m')];
-            $revenue = [(float) Order::where('status', Order::STATUS_COMPLETED)->sum('total')];
-            $orders = [Order::where('status', Order::STATUS_COMPLETED)->count()];
+            $labels = [date('M Y')];
+            $revenue = [0.0];
+            $orders = [0];
         }
 
         return [

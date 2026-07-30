@@ -39,11 +39,13 @@ class ProductRepository
         }
 
         if (!empty($filters['best_seller'])) {
-            $query->where('is_best_seller', true);
+            $query->withSum('orderItems', 'qty')
+                  ->orderByDesc('order_items_sum_qty')
+                  ->orderByDesc('is_best_seller');
         }
 
         if (!empty($filters['new_arrival'])) {
-            $query->where('is_new_arrival', true);
+            $query->where('created_at', '>=', now()->subDays(30));
         }
 
         // Sorting
@@ -64,7 +66,9 @@ class ProductRepository
                 break;
             case 'latest':
             default:
-                $query->latest();
+                if (empty($filters['best_seller'])) {
+                    $query->latest();
+                }
                 break;
         }
 
@@ -94,8 +98,14 @@ class ProductRepository
     {
         return Product::query()
             ->with(['category', 'tags', 'media'])
+            ->withSum('orderItems', 'qty')
             ->where('is_active', true)
-            ->where('is_best_seller', true)
+            ->where(function ($q) {
+                $q->where('is_best_seller', true)
+                  ->orWhereHas('orderItems');
+            })
+            ->orderByDesc('is_best_seller')
+            ->orderByDesc('order_items_sum_qty')
             ->take($limit)
             ->get();
     }
@@ -105,7 +115,12 @@ class ProductRepository
         return Product::query()
             ->with(['category', 'tags', 'media'])
             ->where('is_active', true)
-            ->where('is_new_arrival', true)
+            ->where(function ($q) {
+                $q->where('is_new_arrival', true)
+                  ->orWhere('created_at', '>=', now()->subDays(30));
+            })
+            ->orderByDesc('is_new_arrival')
+            ->latest()
             ->take($limit)
             ->get();
     }

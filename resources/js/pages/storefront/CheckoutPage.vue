@@ -384,8 +384,30 @@
             </div>
           </div>
 
+          <!-- Promo Coupon / Voucher Box -->
+          <div class="border-t border-b border-[#C08E5D]/20 py-3 space-y-2">
+            <div v-if="cartStore.couponCode" class="flex items-center justify-between bg-[#6B8F5E]/15 border border-[#6B8F5E]/30 p-2.5 rounded-xl text-xs">
+              <div class="flex items-center gap-1.5">
+                <span>🎟️</span>
+                <span class="font-bold text-[#2D4525]">{{ cartStore.couponCode }}</span>
+                <span class="text-[10px] text-[#6B8F5E]">(Applied)</span>
+              </div>
+              <button type="button" class="text-xs text-[#B84C3C] font-bold hover:underline" @click="cartStore.removeCoupon">Remove</button>
+            </div>
+            <div v-else class="flex gap-2">
+              <input
+                v-model="couponCode"
+                type="text"
+                placeholder="Coupon / Voucher code..."
+                class="flex-1 px-3 py-1.5 text-xs rounded-xl border border-[#C08E5D]/30 bg-[#FBF3E7]/50 text-[#1C1410] focus:outline-none focus:border-[#5C3A22]"
+                @keyup.enter="handleApplyCoupon"
+              />
+              <BaseButton size="sm" variant="secondary" :loading="applyingCoupon" @click="handleApplyCoupon">Apply</BaseButton>
+            </div>
+          </div>
+
           <!-- Price Calculation -->
-          <div class="space-y-3 text-sm border-t border-[#C08E5D]/20 pt-4">
+          <div class="space-y-3 text-sm pt-2">
             <div class="flex justify-between text-[#8C7A68]">
               <span>Subtotal</span>
               <span class="font-semibold text-[#1C1410]">₱{{ cartStore.subtotal.toFixed(2) }}</span>
@@ -518,6 +540,21 @@ const emailSent = ref(false)
 const verificationTab = ref('email')
 const otpPhone = ref(authStore.user?.phone || '')
 const otpCode = ref('')
+const couponCode = ref('')
+const applyingCoupon = ref(false)
+
+async function handleApplyCoupon() {
+  if (!couponCode.value.trim()) return
+  applyingCoupon.value = true
+  const res = await cartStore.applyCoupon(couponCode.value)
+  applyingCoupon.value = false
+  if (res.success) {
+    toast.success('Discount coupon applied successfully!', 'Voucher Applied 🎟️')
+    couponCode.value = ''
+  } else {
+    toast.error(res.error || 'Invalid or expired coupon code.', 'Coupon Error')
+  }
+}
 const sendingOtp = ref(false)
 const otpSent = ref(false)
 const verifyingOtp = ref(false)

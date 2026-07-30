@@ -8,6 +8,8 @@
 
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ─── Tailwind v4 theme tokens ──────────────────────────────── */
 @theme {
   /* § 2 Color Palette */
@@ -267,3 +269,171 @@ h1, h2, h3, h4, h5, h6 {
 @source '../../vendor/filament/**/*.blade.php';
 @source '../../vendor/filament/**/*.php';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+/* ─── Premium Bakery Dark Mode System ──────────────────────── */
+html.dark {
+  --color-surface:       #140D09;
+  --color-ink:           #FBF3E7;
+  --color-warm-gray:     #C5B4A4;
+  --surface:             #140D09;
+  --ink:                 #FBF3E7;
+  --warm-gray:           #C5B4A4;
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #140D09 !important;
+  color: #FBF3E7 !important;
+}
+
+html.dark .bg-\[\#FBF3E7\],
+html.dark .bg-surface {
+  background-color: #140D09 !important;
+}
+
+html.dark .bg-white {
+  background-color: #1E1510 !important;
+  color: #FBF3E7 !important;
+  border-color: rgba(192, 142, 93, 0.25) !important;
+}
+
+/* Ensure form controls are readable */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #271C15 !important;
+  color: #FBF3E7 !important;
+  border-color: rgba(192, 142, 93, 0.4) !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #A89686 !important;
+}
+
+/* Primary Ink text in Dark Mode */
+html.dark .text-\[\#1C1410\],
+html.dark .text-ink {
+  color: #FBF3E7 !important;
+}
+
+/* Brand Choco text — map to warm golden caramel in dark mode for readable contrast */
+html.dark .text-\[\#5C3A22\] {
+  color: #E2C08A !important;
+}
+
+/* Secondary muted text */
+html.dark .text-\[\#8C7A68\],
+html.dark .text-warm-gray {
+  color: #C5B4A4 !important;
+}
+
+/* Borders */
+html.dark .border-\[\#C08E5D\]\/20,
+html.dark .border-\[\#C08E5D\]\/30,
+html.dark .border-\[\#C08E5D\]\/10,
+html.dark .border-\[\#C08E5D\]\/15,
+html.dark .border-\[\#C08E5D\]\/40 {
+  border-color: rgba(192, 142, 93, 0.3) !important;
+}
+
+/* Translucent surfaces */
+html.dark .bg-\[\#FBF3E7\]\/80,
+html.dark .bg-\[\#FBF3E7\]\/90,
+html.dark .bg-\[\#FBF3E7\]\/95,
+html.dark .bg-\[\#FBF3E7\]\/98,
+html.dark .bg-\[\#FBF3E7\]\/60 {
+  background-color: rgba(26, 18, 12, 0.95) !important;
+}
+
+html.dark .bg-\[\#FBF3E7\]\/70,
+html.dark .bg-\[\#FBF3E7\]\/50 {
+  background-color: rgba(38, 25, 17, 0.85) !important;
+}
+
+/* Choco backgrounds in dark mode */
+html.dark .bg-\[\#5C3A22\] {
+  background-color: #362215 !important;
+  color: #FBF3E7 !important;
+  border: 1px solid rgba(192, 142, 93, 0.3) !important;
+}
+
+/* Soft gold background pills in dark mode */
+html.dark .bg-\[\#D9A876\]\/20,
+html.dark .bg-\[\#D9A876\]\/35 {
+  background-color: rgba(217, 168, 118, 0.18) !important;
+  color: #FBF3E7 !important;
+}
+
+/* Hero card nested light box fix */
+html.dark .hero-showcase-card {
+  background-color: #2A1C13 !important;
+  border-color: rgba(192, 142, 93, 0.35) !important;
+}
+
+html.dark .hero-showcase-inner {
+  background-color: #1E130B !important;
+}
+
+/* Shadows in dark mode */
+html.dark .shadow-xl,
+html.dark .shadow-2xl,
+html.dark .shadow-lg,
+html.dark .shadow-md {
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Category cards hover & icons */
+html.dark .category-card-icon {
+  background-color: rgba(217, 168, 118, 0.2) !important;
+  color: #E2C08A !important;
+}
+
+/* Smooth global theme transition */
+html, body {
+  transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+}
+
+/* Micro-animations for icons on hover */
+.hover-icon-animate {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
+}
+.hover-icon-animate:hover {
+  transform: scale(1.2) rotate(6deg) translateY(-2px);
+}
+
+.hover-icon-bounce:hover {
+  animation: icon-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-icon-pulse:hover {
+  animation: icon-pulse 0.8s ease-in-out infinite alternate;
+}
+
+.theme-toggle-btn {
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.theme-toggle-btn:hover {
+  transform: rotate(45deg) scale(1.12);
+}
+.theme-toggle-btn:active {
+  transform: rotate(180deg) scale(0.92);
+}
+
+@keyframes icon-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px) scale(1.15); }
+}
+
+@keyframes icon-pulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.18) rotate(4deg); }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.92; transform: scale(1.03); }
+}
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

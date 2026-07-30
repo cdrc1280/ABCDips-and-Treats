@@ -26,6 +26,9 @@
     <!-- Cart Drawer -->
     <CartDrawer />
 
+    <!-- Shopee Product Quick View Modal -->
+    <ShopeeProductModal />
+
     <!-- Toast Notifications -->
     <ToastContainer />
 
@@ -39,6 +42,7 @@ import { onMounted } from 'vue'
 import StorefrontNav from '@/components/storefront/StorefrontNav.vue'
 import StorefrontFooter from '@/components/storefront/StorefrontFooter.vue'
 import CartDrawer from '@/components/storefront/CartDrawer.vue'
+import ShopeeProductModal from '@/components/storefront/ShopeeProductModal.vue'
 import ToastContainer from '@/components/ui/ToastContainer.vue'
 import AiChatWidget from '@/components/storefront/AiChatWidget.vue'
 import { useCartStore } from '@/stores/cart'

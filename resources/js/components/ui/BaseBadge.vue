@@ -1,12 +1,12 @@
 <template>
   <span
     :class="[
-      'inline-flex items-center gap-1 font-semibold rounded-full select-none transition-colors duration-150',
+      'inline-flex items-center gap-1 font-extrabold rounded-full select-none transition-all duration-300 transform hover:scale-105 shadow-xs',
       sizeClasses,
       variantClasses
     ]"
   >
-    <span v-if="dot" class="w-1.5 h-1.5 rounded-full bg-current" />
+    <span v-if="dot" class="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
     <slot />
   </span>
 </template>
@@ -29,24 +29,24 @@ const props = defineProps({
 })
 
 const sizeClasses = computed(() => {
-  return props.size === 'sm' ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-1 text-xs'
+  return props.size === 'sm' ? 'px-2.5 py-0.5 text-[11px]' : 'px-3 py-1 text-xs'
 })
 
 const variantClasses = computed(() => {
   switch (props.variant) {
     case 'brand':
-      return 'bg-[#5C3A22] text-[#FBF3E7]'
+      return 'bg-gradient-to-r from-[#5C3A22] to-[#8C522B] text-white shadow-md shadow-[#5C3A22]/25 tracking-wide ring-1 ring-white/20'
     case 'success':
-      return 'bg-[#6B8F5E]/15 text-[#37522D]'
+      return 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/25 tracking-wide ring-1 ring-white/20'
     case 'warning':
-      return 'bg-[#C98A3A]/15 text-[#6E4612]'
+      return 'bg-gradient-to-r from-amber-500 to-yellow-600 text-white shadow-md shadow-amber-500/25 tracking-wide ring-1 ring-white/20'
     case 'error':
-      return 'bg-[#B84C3C]/15 text-[#73261C]'
+      return 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-500/25 tracking-wide ring-1 ring-white/20'
     case 'outline':
-      return 'border border-[#C08E5D]/40 text-[#5C3A22] bg-transparent'
+      return 'border-2 border-[#5C3A22] text-[#5C3A22] dark:border-[#E2C08A] dark:text-[#E2C08A] bg-transparent font-bold'
     case 'neutral':
     default:
-      return 'bg-[#D9A876]/25 text-[#5C3A22]'
+      return 'bg-gradient-to-r from-[#8C7A68] to-[#5C3A22] text-white shadow-md tracking-wide'
   }
 })
 </script>

@@ -19,6 +19,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
+use Illuminate\Support\Str;
+
 class PackagingMaterialResource extends Resource
 {
     protected static ?string $model = PackagingMaterial::class;
@@ -31,7 +33,12 @@ class PackagingMaterialResource extends Resource
         return $schema->components([
             Section::make('Material Details')->components([
                 TextInput::make('name')->required(),
-                TextInput::make('sku')->required()->unique(PackagingMaterial::class, 'sku', ignoreRecord: true),
+                TextInput::make('sku')
+                    ->label('SKU (Auto-generated)')
+                    ->default(fn() => 'PKG-' . strtoupper(Str::random(6)))
+                    ->readOnly()
+                    ->required()
+                    ->unique(PackagingMaterial::class, 'sku', ignoreRecord: true),
                 Select::make('type')
                     ->options(['box' => 'Box', 'bag' => 'Bag', 'board' => 'Board', 'container' => 'Container', 'ribbon' => 'Ribbon', 'label' => 'Label', 'sticker' => 'Sticker', 'tape' => 'Tape', 'wrap' => 'Wrap', 'other' => 'Other'])
                     ->required(),

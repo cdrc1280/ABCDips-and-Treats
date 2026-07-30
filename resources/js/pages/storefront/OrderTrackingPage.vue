@@ -53,15 +53,15 @@
               :class="isStepComplete(step.key)
                 ? 'bg-[#6B8F5E] text-white shadow-md scale-105'
                 : isStepActive(step.key)
-                ? 'bg-[#D9A876] text-[#1C1410] ring-4 ring-[#D9A876]/30 animate-bounce'
-                : 'bg-[#FBF3E7] text-[#8C7A68] border border-[#C08E5D]/30'"
+                ? 'bg-[#D9A876] dark:bg-[#E2C08A] text-[#1C1410] ring-4 ring-[#D9A876]/30 animate-bounce'
+                : 'bg-[#FBF3E7] dark:bg-[#2A1C13] text-[#8C7A68] dark:text-[#C5B4A4] border border-[#C08E5D]/30'"
             >
               <svg v-if="isStepComplete(step.key)" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
               <span v-else>{{ idx + 1 }}</span>
             </div>
 
-            <div class="font-bold text-xs text-[#1C1410]">{{ step.label }}</div>
-            <div class="text-[10px] text-[#8C7A68] line-clamp-1">{{ step.desc }}</div>
+            <div class="font-bold text-xs text-[#1C1410] dark:text-[#FBF3E7]">{{ step.label }}</div>
+            <div class="text-[10px] text-[#8C7A68] dark:text-[#C5B4A4] line-clamp-1">{{ step.desc }}</div>
           </div>
         </div>
       </div>

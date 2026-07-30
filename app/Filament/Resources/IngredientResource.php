@@ -16,6 +16,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 
+use Illuminate\Support\Str;
+
 class IngredientResource extends Resource
 {
     protected static ?string $model = Ingredient::class;
@@ -33,7 +35,12 @@ class IngredientResource extends Resource
                 Section::make('Ingredient Details')
                     ->columnSpanFull()
                     ->components([
-                        TextInput::make('sku')->label('SKU')->required()->unique(Ingredient::class, 'sku', ignoreRecord: true),
+                        TextInput::make('sku')
+                            ->label('SKU (Auto-generated)')
+                            ->default(fn() => 'ING-' . strtoupper(Str::random(6)))
+                            ->readOnly()
+                            ->required()
+                            ->unique(Ingredient::class, 'sku', ignoreRecord: true),
                         TextInput::make('name')->required(),
                         Select::make('unit')
                             ->options(['kg' => 'Kilograms (kg)', 'g' => 'Grams (g)', 'L' => 'Liters (L)', 'ml' => 'Milliliters (ml)', 'pcs' => 'Pieces (pcs)', 'box' => 'Box'])

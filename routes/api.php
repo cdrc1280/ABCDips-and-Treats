@@ -45,9 +45,11 @@ Route::prefix('cart')->group(function () {
     Route::delete('coupon', [CartController::class, 'removeCoupon']);
 });
 
-// ─── Checkout & Tracking (Public) ─────────────────────────────────────
+// ─── Checkout, Tracking & Invoices (Public & Admin) ────────────────────
 Route::post('checkout', [OrderController::class, 'checkout']);
 Route::get('orders/track/{token}', [OrderController::class, 'track']);
+Route::get('orders/{id}/invoice', [OrderController::class, 'adminInvoice']);
+Route::get('orders/{id}/invoice/download', [OrderController::class, 'downloadInvoice']);
 
 // ─── Delivery & Payment (Public) ─────────────────────────────────────
 Route::post('delivery/quote',            [DeliveryController::class, 'quote']);

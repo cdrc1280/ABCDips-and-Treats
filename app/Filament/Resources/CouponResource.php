@@ -19,6 +19,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
+use Illuminate\Support\Str;
+
 class CouponResource extends Resource
 {
     protected static ?string $model = Coupon::class;
@@ -30,7 +32,12 @@ class CouponResource extends Resource
     {
         return $schema->components([
             Section::make('Coupon Details')->components([
-                TextInput::make('code')->required()->unique(Coupon::class, 'code', ignoreRecord: true),
+                TextInput::make('code')
+                    ->label('Coupon Code (Auto-generated)')
+                    ->default(fn() => 'ABCD-' . strtoupper(Str::random(6)))
+                    ->readOnly()
+                    ->required()
+                    ->unique(Coupon::class, 'code', ignoreRecord: true),
                 Select::make('type')
                     ->options(['fixed' => 'Fixed Amount (₱)', 'percent' => 'Percentage (%)'])
                     ->required(),

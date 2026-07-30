@@ -36,7 +36,7 @@ class BlogPostResource extends Resource
             Section::make('Post Details')->components([
                 TextInput::make('title')->required()->live(onBlur: true)
                     ->afterStateUpdated(fn($state, callable $set) => $set('slug', Str::slug($state))),
-                TextInput::make('slug')->required()->unique(BlogPost::class, 'slug', ignoreRecord: true),
+                TextInput::make('slug')->required()->readOnly()->unique(BlogPost::class, 'slug', ignoreRecord: true),
                 Textarea::make('excerpt')->rows(3)->columnSpanFull(),
                 RichEditor::make('body')->required()->columnSpanFull(),
                 FileUpload::make('cover_image')->image()->disk('public')->directory('blog')->columnSpanFull(),

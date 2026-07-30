@@ -172,6 +172,12 @@ class OrderResource extends Resource
                                 ->send();
                         }
                     }),
+                Action::make('download_invoice')
+                    ->label('Invoice')
+                    ->icon('heroicon-o-document-text')
+                    ->color('info')
+                    ->url(fn (Order $record) => url("/order-invoice/{$record->id}"))
+                    ->openUrlInNewTab(),
                 EditAction::make(),
             ]);
     }
