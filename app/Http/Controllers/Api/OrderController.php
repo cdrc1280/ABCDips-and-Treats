@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\CheckoutRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Services\CartService;
@@ -15,28 +16,18 @@ class OrderController extends Controller
     public function __construct(
         private readonly OrderService $orderService,
         private readonly CartService $cartService
-    ) {}
+    ) {
+    }
 
-    public function checkout(Request $request): JsonResponse
+    public function checkout(CheckoutRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'customer_name'    => ['required', 'string', 'max:255'],
-            'customer_email'   => ['required', 'email', 'max:255'],
-            'customer_phone'   => ['required', 'string', 'max:20'],
-            'fulfillment_type' => ['required', 'in:delivery,pickup'],
-            'delivery_address' => ['required_if:fulfillment_type,delivery', 'nullable', 'string'],
-            'city'             => ['nullable', 'string'],
-            'postal_code'      => ['nullable', 'string'],
-            'scheduled_time'   => ['nullable', 'date'],
-            'notes'            => ['nullable', 'string'],
-            'payment_method'   => ['required', 'in:gcash,maya,bank_transfer,cod'],
-        ]);
+        $validated = $request->validated();
 
         $user = $request->user('sanctum');
 
-        if ($user && ! $user->hasVerifiedEmail()) {
+        if ($user && !$user->hasVerifiedEmail()) {
             return response()->json([
-                'message'    => 'Email verification required. Please verify your account email before placing an order.',
+                'message' => 'Email verification required. Please verify your account email before placing an order.',
                 'unverified' => true,
             ], 422);
         }
@@ -52,7 +43,7 @@ class OrderController extends Controller
 
         return response()->json([
             'message' => 'Order placed successfully!',
-            'data'    => new OrderResource($order),
+            'data' => new OrderResource($order),
         ], 201);
     }
 
@@ -60,7 +51,7 @@ class OrderController extends Controller
     {
         $order = $this->orderService->getOrderByTrackingToken($token);
 
-        if (! $order) {
+        if (!$order) {
             return response()->json(['message' => 'Order tracking information not found.'], 404);
         }
 
@@ -86,7 +77,7 @@ class OrderController extends Controller
             ->with(['items.product', 'statusHistories'])
             ->first();
 
-        if (! $order) {
+        if (!$order) {
             return response()->json(['message' => 'Order not found.'], 404);
         }
 
@@ -98,7 +89,7 @@ class OrderController extends Controller
         $user = $request->user();
         $order = Order::where('id', $id)->where('user_id', $user->id)->first();
 
-        if (! $order) {
+        if (!$order) {
             return response()->json(['message' => 'Order not found.'], 404);
         }
 
@@ -106,7 +97,7 @@ class OrderController extends Controller
             $cancelledOrder = $this->orderService->cancelCustomerOrder($order, $user);
             return response()->json([
                 'message' => "Order #{$order->order_number} has been cancelled successfully.",
-                'data'    => new OrderResource($cancelledOrder),
+                'data' => new OrderResource($cancelledOrder),
             ]);
         } catch (\DomainException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
@@ -119,7 +110,7 @@ class OrderController extends Controller
     {
         $order = Order::with(['items.product'])->find($id);
 
-        if (! $order) {
+        if (!$order) {
             abort(404, 'Order transaction invoice not found.');
         }
 
@@ -142,7 +133,7 @@ class OrderController extends Controller
     {
         $order = Order::with(['items.product'])->find($id);
 
-        if (! $order) {
+        if (!$order) {
             abort(404, 'Order transaction invoice not found.');
         }
 
@@ -406,7 +397,7 @@ HTML;
 
         <div style="border-left: 4px solid #5C3A22; padding-left: 12px; margin-bottom: 20px;">
             <h1 class="main-title">INVOICE</h1>
-            <div class="brand-sub">ABCDips & Treats — Artisanal Bakery & Specialty Pastries</div>
+            <div class="brand-sub">ABCDips & Treats — Baked with love</div>
         </div>
 
         <table class="meta-table">

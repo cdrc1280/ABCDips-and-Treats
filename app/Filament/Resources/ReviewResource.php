@@ -50,6 +50,7 @@ class ReviewResource extends Resource
                         Toggle::make('is_approved')->default(true),
                         Toggle::make('is_featured')->default(false),
                         Toggle::make('is_verified_buyer')->default(false),
+                        Toggle::make('is_anonymous')->label('Post Anonymously')->default(false),
                     ])->columns(2),
             ]);
     }
@@ -64,7 +65,8 @@ class ReviewResource extends Resource
                     ->weight('bold'),
 
                 TextColumn::make('reviewer_name')
-                    ->searchable(),
+                    ->searchable()
+                    ->formatStateUsing(fn($state, Review $record) => $record->is_anonymous ? "{$state} (Anonymous)" : $state),
 
                 TextColumn::make('rating')
                     ->sortable()
@@ -72,6 +74,10 @@ class ReviewResource extends Resource
 
                 TextColumn::make('title')
                     ->limit(30),
+
+                IconColumn::make('is_anonymous')
+                    ->boolean()
+                    ->label('Anonymous'),
 
                 IconColumn::make('is_approved')
                     ->boolean()

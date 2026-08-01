@@ -24,7 +24,7 @@
 
                         <p class="text-[#FBF3E7]/90 text-base sm:text-lg max-w-xl leading-relaxed">
                             From our famous Classic Banana Bread Loaves and ultra-fudgy Belgian chocolate brownies to
-                            artisanal cheesecakes and fresh cinnamon rolls.
+                            cheesecakes and fresh cinnamon rolls.
                         </p>
 
                         <div class="flex flex-wrap gap-4 pt-2">
@@ -72,12 +72,14 @@
                     <!-- Hero Right Showcase Card -->
                     <div class="lg:col-span-5 flex justify-center">
                         <div
-                            class="w-full max-w-sm bg-[#FBF3E7] hero-showcase-card rounded-3xl p-6 shadow-2xl text-center border border-[#C08E5D]/30">
-                            <div class="bg-white hero-showcase-inner rounded-2xl p-6 mb-4 shadow-inner flex items-center justify-center">
-                                <img src="/images/logo.png" alt="ABCDips & Treats Signature Pastries"
-                                    class="h-44 sm:h-52 w-auto object-contain" />
+                            class="w-full max-w-sm bg-[#FBF3E7] dark:bg-[#2A1C13] hero-showcase-card rounded-3xl p-6 shadow-2xl text-center border border-[#C08E5D]/30">
+                            <div
+                                class="bg-white dark:bg-[#1E130B] hero-showcase-inner rounded-2xl p-2 mb-4 shadow-inner flex items-center justify-center overflow-hidden aspect-4/3">
+                                <img src="/images/blog-banana-bread.jpg" alt="Classic Banana Bread"
+                                    class="w-full h-full object-cover rounded-xl transition-transform duration-500 hover:scale-105" />
                             </div>
-                            <div class="bg-[#5C3A22] text-[#FBF3E7] p-4 rounded-2xl text-left shadow-sm">
+                            <div
+                                class="bg-[#5C3A22] text-[#FBF3E7] p-4 rounded-2xl text-left shadow-sm border border-[#D9A876]/30">
                                 <div class="text-[11px] font-bold text-[#D9A876] uppercase tracking-wider">Signature
                                     Treat</div>
                                 <div class="text-base font-bold text-white">Classic Banana Bread</div>
@@ -145,7 +147,7 @@
         <!-- 4. Baker's Spotlight Banner -->
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div
-                class="bg-[#1C1410] rounded-3xl p-8 md:p-12 text-[#FBF3E7] relative overflow-hidden shadow-xl border border-[#C08E5D]/30">
+                class="bg-[#5C3A22] rounded-3xl p-8 md:p-12 text-[#FBF3E7] relative overflow-hidden shadow-xl border border-[#C08E5D]/30">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10">
                     <div class="space-y-4">
                         <span class="font-['Caveat'] text-[#D9A876] text-2xl">weekly special spotlight</span>
@@ -167,9 +169,9 @@
 
                     <div class="flex justify-center">
                         <div
-                            class="w-64 h-64 md:w-80 md:h-80 rounded-2xl bg-[#FBF3E7] border border-[#D9A876]/40 p-6 flex items-center justify-center shadow-lg">
-                            <img src="/images/logo.png" alt="Signature Ube Cheesecake"
-                                class="max-h-full object-contain" />
+                            class="w-64 h-64 md:w-80 md:h-80 rounded-2xl bg-[#2D1B10] dark:bg-[#120B07] border border-[#D9A876]/40 p-3 flex items-center justify-center shadow-lg overflow-hidden">
+                            <img src="/images/blog-custom-cake.jpg" alt="Signature Ube Cheesecake"
+                                class="w-full h-full object-cover rounded-xl shadow-md transition-transform duration-500 hover:scale-105" />
                         </div>
                     </div>
                 </div>

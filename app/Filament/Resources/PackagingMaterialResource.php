@@ -25,7 +25,8 @@ class PackagingMaterialResource extends Resource
 {
     protected static ?string $model = PackagingMaterial::class;
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-archive-box';
-    protected static string|\UnitEnum|null $navigationGroup = 'Operations';
+    protected static string|\UnitEnum|null $navigationGroup = 'Inventory';
+    protected static ?string $navigationLabel = 'Packaging Materials';
     protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema

@@ -79,6 +79,7 @@ class ReviewService
             'rating'            => (int) $data['rating'],
             'title'             => $data['title'] ?? null,
             'comment'           => $data['comment'],
+            'is_anonymous'      => (bool) ($data['is_anonymous'] ?? false),
             'is_verified_buyer' => $isVerified,
             'is_approved'       => true,
         ]);

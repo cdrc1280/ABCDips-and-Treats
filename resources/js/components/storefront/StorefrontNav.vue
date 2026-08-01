@@ -13,10 +13,11 @@
                 <img src="/images/logo.png" alt="ABCDips &amp; Treats"
                     class="h-10 sm:h-11 w-auto transition-transform duration-300 group-hover:scale-105" />
                 <div class="hidden xl:block">
-                    <span class="font-extrabold text-base text-[#1C1410] dark:text-[#FBF3E7] tracking-tight block leading-none">ABCDips
+                    <span
+                        class="font-extrabold text-base text-[#1C1410] dark:text-[#FBF3E7] tracking-tight block leading-none">ABCDips
                         &amp;
                         Treats</span>
-                    <span class="font-['Caveat'] text-[#C08E5D] text-xs leading-none">lovely bakery</span>
+                    <span class="font-['Caveat'] text-[#C08E5D] text-xs leading-none">Bake wth love</span>
                 </div>
             </RouterLink>
 
@@ -43,9 +44,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        <span class="hidden sm:inline max-w-[85px] md:max-w-[120px] xl:max-w-[150px] truncate whitespace-nowrap">{{ authStore.userName || 'Account' }}</span>
-                        <svg class="w-3 h-3 flex-shrink-0 transition-transform duration-200" :class="userMenuOpen ? 'rotate-180' : ''"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <span
+                            class="hidden sm:inline max-w-[85px] md:max-w-[120px] xl:max-w-[150px] truncate whitespace-nowrap">{{
+                                authStore.userName || 'Account' }}</span>
+                        <svg class="w-3 h-3 flex-shrink-0 transition-transform duration-200"
+                            :class="userMenuOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
@@ -62,7 +66,8 @@
                             <!-- User Profile Header -->
                             <div class="px-4 py-3 bg-[#FBF3E7] dark:bg-[#140D09] border-b border-[#C08E5D]/20">
                                 <p class="text-xs text-[#8C7A68]">Signed in as</p>
-                                <p class="text-sm font-bold text-[#1C1410] dark:text-[#FBF3E7] truncate">{{ authStore.userEmail }}</p>
+                                <p class="text-sm font-bold text-[#1C1410] dark:text-[#FBF3E7] truncate">{{
+                                    authStore.userEmail }}</p>
                             </div>
 
                             <!-- Links -->
@@ -101,18 +106,18 @@
                 </RouterLink>
 
                 <!-- Dark Mode Toggle Button -->
-                <button
-                  @click="toggleDarkMode"
-                  v-tooltip="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-                  class="p-2 sm:p-2.5 rounded-xl text-[#5C3A22] bg-[#D9A876]/20 hover:bg-[#D9A876]/35 theme-toggle-btn shadow-xs cursor-pointer select-none flex-shrink-0"
-                  aria-label="Toggle Dark Mode"
-                >
-                  <span v-if="isDark" class="text-sm sm:text-base inline-block transform hover:rotate-90 transition-transform duration-500">☀️</span>
-                  <span v-else class="text-sm sm:text-base inline-block transform hover:-rotate-45 transition-transform duration-500">🌙</span>
+                <button @click="toggleDarkMode" v-tooltip="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center p-0 text-[#5C3A22] dark:text-[#E2C08A] bg-[#D9A876]/20 hover:bg-[#D9A876]/35 theme-toggle-btn shadow-xs cursor-pointer select-none flex-shrink-0"
+                    aria-label="Toggle Dark Mode">
+                    <span v-if="isDark"
+                        class="text-sm sm:text-base leading-none flex items-center justify-center transform hover:rotate-90 transition-transform duration-500">☀️</span>
+                    <span v-else
+                        class="text-sm sm:text-base leading-none flex items-center justify-center transform hover:-rotate-45 transition-transform duration-500">🌙</span>
                 </button>
 
                 <!-- Basket Button (Only shown when authenticated) -->
-                <button v-if="authStore.isAuthenticated" @click="cartStore.openDrawer = true" v-tooltip="'View your selected treats &amp; cart subtotal'"
+                <button v-if="authStore.isAuthenticated" @click="cartStore.openDrawer = true"
+                    v-tooltip="'View your selected treats &amp; cart subtotal'"
                     class="relative flex items-center gap-1.5 bg-[#5C3A22] text-[#FBF3E7] px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl hover:bg-[#4A2D1A] transition-all duration-200 shadow-sm flex-shrink-0 whitespace-nowrap">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -128,7 +133,8 @@
                 <button @click="mobileOpen = !mobileOpen" v-tooltip="'Toggle navigation menu'"
                     class="lg:hidden p-2 rounded-xl hover:bg-[#D9A876]/20 transition-colors"
                     aria-label="Toggle Navigation">
-                    <svg class="w-5 h-5 text-[#1C1410] dark:text-[#FBF3E7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-[#1C1410] dark:text-[#FBF3E7]" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path v-if="!mobileOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16M4 18h16" />
                         <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -143,7 +149,8 @@
             enter-from-class="opacity-0 -translate-y-2" enter-to-class="opacity-100 translate-y-0"
             leave-active-class="transition-all duration-150 ease-in" leave-from-class="opacity-100 translate-y-0"
             leave-to-class="opacity-0 -translate-y-2">
-            <div v-if="mobileOpen" class="lg:hidden border-t border-[#C08E5D]/20 bg-[#FBF3E7]/98 dark:bg-[#1C1410]/98 pb-4 shadow-xl">
+            <div v-if="mobileOpen"
+                class="lg:hidden border-t border-[#C08E5D]/20 bg-[#FBF3E7]/98 dark:bg-[#1C1410]/98 pb-4 shadow-xl">
                 <div class="max-w-7xl mx-auto px-4 pt-3 flex flex-col gap-1">
                     <RouterLink v-for="link in navLinks" :key="link.to" :to="link.to" @click="mobileOpen = false"
                         :class="[
@@ -155,7 +162,8 @@
 
                     <div class="border-t border-[#C08E5D]/20 mt-2 pt-2">
                         <RouterLink v-if="!authStore.isAuthenticated" to="/auth/login" @click="mobileOpen = false"
-                            class="block px-4 py-3 text-sm font-bold text-[#5C3A22] dark:text-[#E2C08A]">Sign In / Create Account
+                            class="block px-4 py-3 text-sm font-bold text-[#5C3A22] dark:text-[#E2C08A]">Sign In /
+                            Create Account
                         </RouterLink>
                         <template v-else>
                             <RouterLink v-for="item in accountLinks" :key="item.to" :to="item.to"

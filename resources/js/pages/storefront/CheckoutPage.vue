@@ -84,8 +84,11 @@
               <div class="flex gap-2">
                 <input
                   v-model="otpPhone"
-                  type="text"
-                  placeholder="0917 123 4567"
+                  type="tel"
+                  inputmode="tel"
+                  placeholder="09171234567"
+                  @keydown="onNumericKeydown"
+                  @input="otpPhone = $event.target.value.replace(/(?!^\+)[^\d]/g, '')"
                   class="flex-1 bg-white border border-[#C08E5D]/30 rounded-xl px-3.5 py-2 text-sm text-[#1C1410] focus:ring-2 focus:ring-[#5C3A22]"
                 />
                 <button
@@ -106,8 +109,11 @@
                 <input
                   v-model="otpCode"
                   type="text"
+                  inputmode="numeric"
                   maxlength="6"
                   placeholder="123456"
+                  @keydown="onNumericKeydown"
+                  @input="otpCode = $event.target.value.replace(/\D/g, '')"
                   class="w-36 bg-white border border-[#C08E5D]/30 rounded-xl px-3.5 py-2 text-sm font-extrabold text-center tracking-widest text-[#1C1410] focus:ring-2 focus:ring-[#5C3A22]"
                 />
                 <button
@@ -187,7 +193,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <BaseInput v-model="form.customer_name" label="Full Name" placeholder="e.g. Maria Santos" required :error="errors.customer_name?.[0]" />
             <BaseInput v-model="form.customer_email" type="email" label="Email Address" placeholder="maria@example.com" required :error="errors.customer_email?.[0]" />
-            <BaseInput v-model="form.customer_phone" label="Mobile Number" placeholder="0917 123 4567" required :error="errors.customer_phone?.[0]" />
+            <BaseInput v-model="form.customer_phone" type="tel" numeric-only maxlength="13" label="Mobile Number" placeholder="09171234567" required :error="errors.customer_phone?.[0]" />
             <BaseInput v-model="form.city" label="City / District" placeholder="e.g. Bacoor, Cavite" required />
           </div>
 
@@ -846,6 +852,20 @@ async function handleCheckout() {
     }
   } finally {
     submitting.value = false
+  }
+}
+
+function onNumericKeydown(event) {
+  const allowedControlKeys = [
+    'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+    'Home', 'End'
+  ]
+  if (allowedControlKeys.includes(event.key) || event.ctrlKey || event.metaKey) {
+    return
+  }
+  if (!/^\d$/.test(event.key) && event.key !== '+') {
+    event.preventDefault()
   }
 }
 </script>

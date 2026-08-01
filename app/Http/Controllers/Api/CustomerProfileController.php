@@ -18,8 +18,8 @@ class CustomerProfileController extends Controller
     {
         $validated = $request->validate([
             'name'    => ['sometimes', 'string', 'max:255'],
-            'phone'   => ['sometimes', 'nullable', 'string', 'max:20'],
-            'address' => ['sometimes', 'nullable', 'string'],
+            'phone'   => ['sometimes', 'nullable', new \App\Rules\PhilippinePhone],
+            'address' => ['sometimes', 'nullable', 'string', 'max:1000'],
         ]);
 
         $user = $this->customerService->updateProfile($request->user(), $validated);
@@ -56,7 +56,7 @@ class CustomerProfileController extends Controller
     public function updateAvatar(Request $request): JsonResponse
     {
         $request->validate([
-            'avatar' => ['required', 'image', 'max:2048'],
+            'avatar' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
         ]);
 
         $user = $this->customerService->updateAvatar($request->user(), $request->file('avatar'));
@@ -126,7 +126,7 @@ class CustomerProfileController extends Controller
     public function sendPhoneOtp(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'phone' => ['required', 'string', 'min:10', 'max:20'],
+            'phone' => ['required', new \App\Rules\PhilippinePhone],
         ]);
 
         $user = $request->user();

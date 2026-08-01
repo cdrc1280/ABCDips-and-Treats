@@ -13,7 +13,8 @@ class AiAdvisorService
 {
     public function __construct(
         private readonly AnalyticsService $analyticsService
-    ) {}
+    ) {
+    }
 
     public function ask(string $prompt, ?string $category = 'general'): array
     {
@@ -30,7 +31,7 @@ class AiAdvisorService
             . "- Low Stock Ingredients Count: " . $lowStock->count() . "\n";
 
         if ($lowStock->isNotEmpty()) {
-            $contextSummary .= "- Low Stock Items: " . $lowStock->map(fn ($i) => "{$i->name} ({$i->stock_qty} {$i->unit} left, min {$i->min_stock_qty})")->implode(', ') . "\n";
+            $contextSummary .= "- Low Stock Items: " . $lowStock->map(fn($i) => "{$i->name} ({$i->stock_qty} {$i->unit} left, min {$i->min_stock_qty})")->implode(', ') . "\n";
         }
 
         // Call OpenAI API if API key is provided
@@ -38,25 +39,25 @@ class AiAdvisorService
             try {
                 $response = Http::withHeaders([
                     'Authorization' => "Bearer {$apiKey}",
-                    'Content-Type'  => 'application/json',
+                    'Content-Type' => 'application/json',
                 ])->post('https://api.openai.com/v1/chat/completions', [
-                    'model'    => 'gpt-4o-mini',
-                    'messages' => [
-                        [
-                            'role'    => 'system',
-                            'content' => "You are Antigravity AI, the chief AI Operations Advisor for ABCDips & Treats bakery. Provide concise, expert, practical baking business advice in warm bakery tone. {$contextSummary}"
-                        ],
-                        ['role' => 'user', 'content' => $prompt]
-                    ],
-                    'max_tokens' => 500,
-                ]);
+                            'model' => 'gpt-4o-mini',
+                            'messages' => [
+                                [
+                                    'role' => 'system',
+                                    'content' => "You are Antigravity AI, the chief AI Operations Advisor for ABCDips & Treats bakery. Provide concise, expert, practical baking business advice in warm bakery tone. {$contextSummary}"
+                                ],
+                                ['role' => 'user', 'content' => $prompt]
+                            ],
+                            'max_tokens' => 500,
+                        ]);
 
                 if ($response->successful()) {
                     $aiText = $response->json('choices.0.message.content');
                     return [
-                        'prompt'   => $prompt,
+                        'prompt' => $prompt,
                         'response' => $aiText,
-                        'source'   => 'OpenAI GPT-4o-mini',
+                        'source' => 'OpenAI GPT-4o-mini',
                     ];
                 }
             } catch (\Throwable $e) {
@@ -68,9 +69,9 @@ class AiAdvisorService
         $aiText = $this->generateLocalAiResponse($prompt, $lowStock, $kpis, $topProducts);
 
         return [
-            'prompt'   => $prompt,
+            'prompt' => $prompt,
             'response' => $aiText,
-            'source'   => 'ABCDips Bakery AI Engine',
+            'source' => 'ABCDips Bakery AI Engine',
         ];
     }
 
@@ -79,7 +80,7 @@ class AiAdvisorService
         $promptLower = strtolower($prompt);
 
         if (str_contains($promptLower, 'best') || str_contains($promptLower, 'popular') || str_contains($promptLower, 'recommend')) {
-            return "🧁 **ABCDips Best Sellers:**\nOur customer favorites are:\n1. **Cheesy Ube Pandesal** (Soft, filled with real ube halaya & cheese)\n2. **Fudge Chocolate Brownies** (Rich Belgian chocolate fudge)\n3. **Artisan Banana Bread** (Moist loaf topped with walnuts & chocolate chips)\n4. **Custom Celebration Cakes** (Bespoke multi-tier designs)\n\nCheck out our Shop page to place an order today!";
+            return "🧁 **ABCDips Best Sellers:**\nOur customer favorites are:\n1. **Cheesy Ube Pandesal** (Soft, filled with real ube halaya & cheese)\n2. **Fudge Chocolate Brownies** (Rich Belgian chocolate fudge)\n3. **Banana Bread** (Moist loaf topped with walnuts & chocolate chips)\n4. **Custom Celebration Cakes** (Bespoke multi-tier designs)\n\nCheck out our Shop page to place an order today!";
         }
 
         if (str_contains($promptLower, 'custom') || str_contains($promptLower, 'cake') || str_contains($promptLower, 'wedding') || str_contains($promptLower, 'birthday')) {
@@ -103,7 +104,7 @@ class AiAdvisorService
                 return "🥐 **Inventory Advisory:** All raw ingredients are currently above minimum stock thresholds. No immediate reorders are required today!";
             }
 
-            $itemsList = $lowStock->map(fn ($i) => "• **{$i->name}**: Only {$i->stock_qty} {$i->unit} remaining (Reorder threshold: {$i->min_stock_qty} {$i->unit})")->implode("\n");
+            $itemsList = $lowStock->map(fn($i) => "• **{$i->name}**: Only {$i->stock_qty} {$i->unit} remaining (Reorder threshold: {$i->min_stock_qty} {$i->unit})")->implode("\n");
             return "⚠️ **Inventory Alert & Reorder Advisory:**\nThe following raw ingredients have dropped below safe threshold levels and should be reordered from suppliers immediately:\n\n{$itemsList}";
         }
 

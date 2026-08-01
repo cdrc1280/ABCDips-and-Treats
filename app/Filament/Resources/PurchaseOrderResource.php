@@ -51,9 +51,9 @@ class PurchaseOrderResource extends Resource
                             ])
                             ->required(),
                         DatePicker::make('expected_delivery_date'),
-                        TextInput::make('subtotal')->numeric()->prefix('₱'),
-                        TextInput::make('tax')->numeric()->prefix('₱'),
-                        TextInput::make('total')->numeric()->prefix('₱'),
+                        TextInput::make('subtotal')->numeric()->minValue(0)->prefix('₱')->extraInputAttributes(['inputmode' => 'decimal']),
+                        TextInput::make('tax')->numeric()->minValue(0)->prefix('₱')->extraInputAttributes(['inputmode' => 'decimal']),
+                        TextInput::make('total')->numeric()->minValue(0)->prefix('₱')->extraInputAttributes(['inputmode' => 'decimal']),
                         Textarea::make('notes')->columnSpanFull(),
                     ])->columns(2),
 
@@ -67,8 +67,8 @@ class PurchaseOrderResource extends Resource
                                     ->relationship('ingredient', 'name')
                                     ->required()
                                     ->searchable(),
-                                TextInput::make('qty_ordered')->numeric()->required(),
-                                TextInput::make('unit_cost')->numeric()->prefix('₱')->required(),
+                                TextInput::make('qty_ordered')->numeric()->minValue(0)->required()->extraInputAttributes(['inputmode' => 'decimal']),
+                                TextInput::make('unit_cost')->numeric()->minValue(0)->prefix('₱')->required()->extraInputAttributes(['inputmode' => 'decimal']),
                             ])
                             ->columns(3)
                             ->columnSpanFull(),

@@ -19,7 +19,7 @@ use App\Http\Controllers\Api\PaymentController;
 // ─── Auth Routes ──────────────────────────────────────────────
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
-    Route::post('login',    [AuthController::class, 'login']);
+    Route::post('login', [AuthController::class, 'login']);
 });
 
 // ─── Product Catalog & Store Stats (Public) ───────────────────
@@ -52,11 +52,11 @@ Route::get('orders/{id}/invoice', [OrderController::class, 'adminInvoice']);
 Route::get('orders/{id}/invoice/download', [OrderController::class, 'downloadInvoice']);
 
 // ─── Delivery & Payment (Public) ─────────────────────────────────────
-Route::post('delivery/quote',            [DeliveryController::class, 'quote']);
-Route::post('payments/create-source',    [PaymentController::class, 'createSource']);
-Route::get('payments/success',           [PaymentController::class, 'success']);
-Route::get('payments/failed',            [PaymentController::class, 'failed']);
-Route::get('settings/store',             [PaymentController::class, 'storeSettings']);
+Route::post('delivery/quote', [DeliveryController::class, 'quote']);
+Route::post('payments/create-source', [PaymentController::class, 'createSource']);
+Route::get('payments/success', [PaymentController::class, 'success']);
+Route::get('payments/failed', [PaymentController::class, 'failed']);
+Route::get('settings/store', [PaymentController::class, 'storeSettings']);
 
 // ─── Reviews & Custom Orders (Public) ─────────────────────────
 Route::get('store/reviews', [ReviewController::class, 'storeReviews']);
@@ -104,9 +104,9 @@ Route::middleware('auth:sanctum')->group(function () {
 // ─── Contact Form (Public) ───────────────────────────────────
 Route::post('contact', function (Request $request) {
     $data = $request->validate([
-        'name'    => 'required|string|max:100',
-        'email'   => 'required|email|max:255',
-        'phone'   => 'nullable|string|max:20',
+        'name' => 'required|string|max:100',
+        'email' => 'required|email|max:255',
+        'phone' => 'nullable|string|max:20',
         'subject' => 'required|string|max:255',
         'message' => 'required|string|max:3000',
     ]);
@@ -126,42 +126,43 @@ Route::prefix('blog')->group(function () {
             if ($posts->total() > 0) {
                 return response()->json(['data' => $posts->items()]);
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         return response()->json([
             'data' => [
                 [
-                    'id'           => 1,
-                    'title'        => 'The Secret Behind Our Signature Banana Bread',
-                    'slug'         => 'secret-behind-our-signature-banana-bread',
-                    'category'     => 'Baking Tips',
-                    'excerpt'      => 'Discover how we use caramelized ripe bananas and pure creamery butter to achieve that unmatched moist texture.',
-                    'content'      => "At ABCDips & Treats, banana bread is not just a recipe; it is our foundation!\n\nWe select naturally ripened Cavendish bananas at peak sweetness, folding them with brown butter, cinnamon, and farm-fresh eggs before baking in small artisanal batches.\n\nPro Tip: Try serving warm with a scoop of vanilla ice cream or a drizzle of salted caramel!",
+                    'id' => 1,
+                    'title' => 'The Secret Behind Our Signature Banana Bread',
+                    'slug' => 'secret-behind-our-signature-banana-bread',
+                    'category' => 'Baking Tips',
+                    'excerpt' => 'Discover how we use caramelized ripe bananas and pure creamery butter to achieve that unmatched moist texture.',
+                    'content' => "At ABCDips & Treats, banana bread is not just a recipe; it is our foundation!\n\nWe select naturally ripened Cavendish bananas at peak sweetness, folding them with brown butter, cinnamon, and farm-fresh eggs before baking in small batches.\n\nPro Tip: Try serving warm with a scoop of vanilla ice cream or a drizzle of salted caramel!",
                     'published_at' => now()->subDays(2)->toIso8601String(),
-                    'author'       => ['name' => 'Chef Head Baker'],
-                    'cover_image'  => '/images/blog-banana-bread.jpg',
+                    'author' => ['name' => 'Chef Head Baker'],
+                    'cover_image' => '/images/blog-banana-bread.jpg',
                 ],
                 [
-                    'id'           => 2,
-                    'title'        => 'How to Design Your Dream Custom Celebration Cake',
-                    'slug'         => 'how-to-design-your-dream-custom-celebration-cake',
-                    'category'     => 'Custom Cakes & Vlogs',
-                    'excerpt'      => 'A behind-the-scenes look at how we turn your theme inspirations into edible works of cake art.',
-                    'content'      => "Planning a wedding or 30th birthday?\n\nFrom choosing tiers and guest servings to selecting buttercream finishes and flavor pairings like Signature Ube Halaya or Dark Belgian Chocolate, here is your complete guide to ordering with ABCDips.\n\nOur head pastry chef works directly with your budget range and theme vision to create unforgettable celebration centerpieces.",
+                    'id' => 2,
+                    'title' => 'How to Design Your Dream Custom Celebration Cake',
+                    'slug' => 'how-to-design-your-dream-custom-celebration-cake',
+                    'category' => 'Custom Cakes & Vlogs',
+                    'excerpt' => 'A behind-the-scenes look at how we turn your theme inspirations into edible works of cake art.',
+                    'content' => "Planning a wedding or 30th birthday?\n\nFrom choosing tiers and guest servings to selecting buttercream finishes and flavor pairings like Signature Ube Halaya or Dark Belgian Chocolate, here is your complete guide to ordering with ABCDips.\n\nOur head pastry chef works directly with your budget range and theme vision to create unforgettable celebration centerpieces.",
                     'published_at' => now()->subDays(5)->toIso8601String(),
-                    'author'       => ['name' => 'Pastry Design Team'],
-                    'cover_image'  => '/images/blog-custom-cake.jpg',
+                    'author' => ['name' => 'Pastry Design Team'],
+                    'cover_image' => '/images/blog-custom-cake.jpg',
                 ],
                 [
-                    'id'           => 3,
-                    'title'        => '5 Pairing Ideas for Fudgy Dark Chocolate Brownies',
-                    'slug'         => '5-pairing-ideas-for-fudgy-dark-chocolate-brownies',
-                    'category'     => 'Treats & Pairings',
-                    'excerpt'      => 'Elevate your coffee break with these decadent brownie and dip combinations.',
-                    'content'      => "Our Belgian dark chocolate brownies feature crackly tops and dense, gooey centers.\n\nPair them with iced sea-salt latte, fresh strawberry compote, or melted dulce de leche for an indulgent afternoon treat!",
+                    'id' => 3,
+                    'title' => '5 Pairing Ideas for Fudgy Dark Chocolate Brownies',
+                    'slug' => '5-pairing-ideas-for-fudgy-dark-chocolate-brownies',
+                    'category' => 'Treats & Pairings',
+                    'excerpt' => 'Elevate your coffee break with these decadent brownie and dip combinations.',
+                    'content' => "Our Belgian dark chocolate brownies feature crackly tops and dense, gooey centers.\n\nPair them with iced sea-salt latte, fresh strawberry compote, or melted dulce de leche for an indulgent afternoon treat!",
                     'published_at' => now()->subDays(8)->toIso8601String(),
-                    'author'       => ['name' => 'ABCDips Barista'],
-                    'cover_image'  => '/images/blog-brownies.jpg',
+                    'author' => ['name' => 'ABCDips Barista'],
+                    'cover_image' => '/images/blog-brownies.jpg',
                 ],
             ]
         ]);
@@ -177,41 +178,42 @@ Route::prefix('blog')->group(function () {
             if ($post) {
                 return response()->json(['data' => $post]);
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $defaults = [
             'secret-behind-our-signature-banana-bread' => [
-                'id'           => 1,
-                'title'        => 'The Secret Behind Our Signature Banana Bread',
-                'slug'         => 'secret-behind-our-signature-banana-bread',
-                'category'     => 'Baking Tips',
-                'excerpt'      => 'Discover how we use caramelized ripe bananas and pure creamery butter to achieve that unmatched moist texture.',
-                'content'      => "At ABCDips & Treats, banana bread is not just a recipe; it is our foundation!\n\nWe select naturally ripened Cavendish bananas at peak sweetness, folding them with brown butter, cinnamon, and farm-fresh eggs before baking in small artisanal batches.\n\nPro Tip: Try serving warm with a scoop of vanilla ice cream or a drizzle of salted caramel!",
+                'id' => 1,
+                'title' => 'The Secret Behind Our Signature Banana Bread',
+                'slug' => 'secret-behind-our-signature-banana-bread',
+                'category' => 'Baking Tips',
+                'excerpt' => 'Discover how we use caramelized ripe bananas and pure creamery butter to achieve that unmatched moist texture.',
+                'content' => "At ABCDips & Treats, banana bread is not just a recipe; it is our foundation!\n\nWe select naturally ripened Cavendish bananas at peak sweetness, folding them with brown butter, cinnamon, and farm-fresh eggs before baking in small batches.\n\nPro Tip: Try serving warm with a scoop of vanilla ice cream or a drizzle of salted caramel!",
                 'published_at' => now()->subDays(2)->toIso8601String(),
-                'author'       => ['name' => 'Chef Head Baker'],
-                'cover_image'  => '/images/blog-banana-bread.jpg',
+                'author' => ['name' => 'Chef Head Baker'],
+                'cover_image' => '/images/blog-banana-bread.jpg',
             ],
             'how-to-design-your-dream-custom-celebration-cake' => [
-                'id'           => 2,
-                'title'        => 'How to Design Your Dream Custom Celebration Cake',
-                'slug'         => 'how-to-design-your-dream-custom-celebration-cake',
-                'category'     => 'Custom Cakes & Vlogs',
-                'excerpt'      => 'A behind-the-scenes look at how we turn your theme inspirations into edible works of cake art.',
-                'content'      => "Planning a wedding or 30th birthday?\n\nFrom choosing tiers and guest servings to selecting buttercream finishes and flavor pairings like Signature Ube Halaya or Dark Belgian Chocolate, here is your complete guide to ordering with ABCDips.\n\nOur head pastry chef works directly with your budget range and theme vision to create unforgettable celebration centerpieces.",
+                'id' => 2,
+                'title' => 'How to Design Your Dream Custom Celebration Cake',
+                'slug' => 'how-to-design-your-dream-custom-celebration-cake',
+                'category' => 'Custom Cakes & Vlogs',
+                'excerpt' => 'A behind-the-scenes look at how we turn your theme inspirations into edible works of cake art.',
+                'content' => "Planning a wedding or 30th birthday?\n\nFrom choosing tiers and guest servings to selecting buttercream finishes and flavor pairings like Signature Ube Halaya or Dark Belgian Chocolate, here is your complete guide to ordering with ABCDips.\n\nOur head pastry chef works directly with your budget range and theme vision to create unforgettable celebration centerpieces.",
                 'published_at' => now()->subDays(5)->toIso8601String(),
-                'author'       => ['name' => 'Pastry Design Team'],
-                'cover_image'  => '/images/blog-custom-cake.jpg',
+                'author' => ['name' => 'Pastry Design Team'],
+                'cover_image' => '/images/blog-custom-cake.jpg',
             ],
             '5-pairing-ideas-for-fudgy-dark-chocolate-brownies' => [
-                'id'           => 3,
-                'title'        => '5 Pairing Ideas for Fudgy Dark Chocolate Brownies',
-                'slug'         => '5-pairing-ideas-for-fudgy-dark-chocolate-brownies',
-                'category'     => 'Treats & Pairings',
-                'excerpt'      => 'Elevate your coffee break with these decadent brownie and dip combinations.',
-                'content'      => "Our Belgian dark chocolate brownies feature crackly tops and dense, gooey centers.\n\nPair them with iced sea-salt latte, fresh strawberry compote, or melted dulce de leche for an indulgent afternoon treat!",
+                'id' => 3,
+                'title' => '5 Pairing Ideas for Fudgy Dark Chocolate Brownies',
+                'slug' => '5-pairing-ideas-for-fudgy-dark-chocolate-brownies',
+                'category' => 'Treats & Pairings',
+                'excerpt' => 'Elevate your coffee break with these decadent brownie and dip combinations.',
+                'content' => "Our Belgian dark chocolate brownies feature crackly tops and dense, gooey centers.\n\nPair them with iced sea-salt latte, fresh strawberry compote, or melted dulce de leche for an indulgent afternoon treat!",
                 'published_at' => now()->subDays(8)->toIso8601String(),
-                'author'       => ['name' => 'ABCDips Barista'],
-                'cover_image'  => '/images/blog-brownies.jpg',
+                'author' => ['name' => 'ABCDips Barista'],
+                'cover_image' => '/images/blog-brownies.jpg',
             ],
         ];
 

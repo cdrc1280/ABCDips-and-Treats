@@ -6,6 +6,7 @@ use App\Filament\Resources\ProductResource\Pages\CreateProduct;
 use App\Filament\Resources\ProductResource\Pages\EditProduct;
 use App\Filament\Resources\ProductResource\Pages\ListProducts;
 use App\Models\Product;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
@@ -101,26 +102,39 @@ class ProductResource extends Resource
                             ->nullable(),
 
                         TextInput::make('price')
+                            ->label('Selling Price')
                             ->required()
                             ->numeric()
-                            ->prefix('₱'),
+                            ->minValue(0)
+                            ->step('0.01')
+                            ->prefix('₱')
+                            ->readOnly()
+                            ->helperText('Automatically calculated & set by Product Costing.')
+                            ->extraInputAttributes(['inputmode' => 'decimal']),
 
                         TextInput::make('sale_price')
                             ->nullable()
                             ->numeric()
-                            ->prefix('₱'),
+                            ->minValue(0)
+                            ->step('0.01')
+                            ->prefix('₱')
+                            ->extraInputAttributes(['inputmode' => 'decimal']),
 
                         TextInput::make('stock_qty')
                             ->label('Stock Quantity')
                             ->required()
-                            ->numeric()
-                            ->default(50),
+                            ->integer()
+                            ->minValue(0)
+                            ->default(50)
+                            ->extraInputAttributes(['inputmode' => 'numeric']),
 
                         TextInput::make('min_stock_qty')
                             ->label('Minimum Stock Alert Level')
                             ->required()
-                            ->numeric()
-                            ->default(10),
+                            ->integer()
+                            ->minValue(0)
+                            ->default(10)
+                            ->extraInputAttributes(['inputmode' => 'numeric']),
                     ])->columns(2),
 
                 Section::make('Organization & Visibility')
@@ -134,8 +148,10 @@ class ProductResource extends Resource
 
                         TextInput::make('prep_time_minutes')
                             ->label('Prep Time (minutes)')
-                            ->numeric()
-                            ->default(30),
+                            ->integer()
+                            ->minValue(0)
+                            ->default(30)
+                            ->extraInputAttributes(['inputmode' => 'numeric']),
 
                         Toggle::make('is_active')
                             ->label('Active on Storefront')

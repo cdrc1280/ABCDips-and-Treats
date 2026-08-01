@@ -41,9 +41,23 @@ class CouponResource extends Resource
                 Select::make('type')
                     ->options(['fixed' => 'Fixed Amount (₱)', 'percent' => 'Percentage (%)'])
                     ->required(),
-                TextInput::make('value')->numeric()->required()->prefix('₱/%'),
-                TextInput::make('min_spend')->label('Minimum Order (₱)')->numeric()->prefix('₱'),
-                TextInput::make('max_uses')->label('Max Uses')->numeric(),
+                TextInput::make('value')
+                    ->numeric()
+                    ->minValue(0)
+                    ->required()
+                    ->prefix('₱/%')
+                    ->extraInputAttributes(['inputmode' => 'decimal']),
+                TextInput::make('min_spend')
+                    ->label('Minimum Order (₱)')
+                    ->numeric()
+                    ->minValue(0)
+                    ->prefix('₱')
+                    ->extraInputAttributes(['inputmode' => 'decimal']),
+                TextInput::make('max_uses')
+                    ->label('Max Uses')
+                    ->integer()
+                    ->minValue(1)
+                    ->extraInputAttributes(['inputmode' => 'numeric']),
                 TextInput::make('used_count')->label('Times Used')->numeric()->disabled(),
                 DateTimePicker::make('expires_at'),
                 Toggle::make('is_active')->default(true),

@@ -98,6 +98,11 @@ class Product extends Model implements HasMedia
         return $this->hasMany(OrderItem::class);
     }
 
+    public function recipe(): HasOne
+    {
+        return $this->hasOne(Recipe::class);
+    }
+
     public function getEffectivePriceAttribute(): float
     {
         return (float) ($this->sale_price ?? $this->price);

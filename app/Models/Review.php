@@ -21,6 +21,7 @@ class Review extends Model implements HasMedia
         'rating',
         'title',
         'comment',
+        'is_anonymous',
         'is_verified_buyer',
         'is_approved',
         'is_featured',
@@ -29,6 +30,7 @@ class Review extends Model implements HasMedia
 
     protected $casts = [
         'rating'            => 'integer',
+        'is_anonymous'      => 'boolean',
         'is_verified_buyer' => 'boolean',
         'is_approved'       => 'boolean',
         'is_featured'       => 'boolean',

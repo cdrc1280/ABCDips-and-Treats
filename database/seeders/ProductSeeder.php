@@ -37,7 +37,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Cheesecakes & Cakes',
                 'slug' => 'cheesecakes-cakes',
-                'description' => 'Creamy artisanal cheesecakes and decadent celebration cakes baked for sweet moments.',
+                'description' => 'Creamy cheesecakes and decadent celebration cakes baked for sweet moments.',
                 'sort_order' => 4,
             ],
             [
@@ -274,8 +274,8 @@ class ProductSeeder extends Seeder
             [
                 'category_slug' => 'banana-bread-loaves',
                 'sku' => 'ABCD-SD-011',
-                'name' => 'Artisanal Sourdough Country Loaf',
-                'slug' => 'artisanal-sourdough-country-loaf',
+                'name' => 'Sourdough Country Loaf',
+                'slug' => 'sourdough-country-loaf',
                 'short_description' => 'Naturally fermented 36-hour wild sourdough loaf with a blistered crispy crust.',
                 'description' => 'Crafted with unbleached flour, water, sea salt, and our 4-year-old wild starter culture. Naturally fermented over 36 hours for complex flavor, open crumb, and enhanced digestibility.',
                 'price' => 350.00,
@@ -375,26 +375,26 @@ class ProductSeeder extends Seeder
 
         foreach ($products as $pData) {
             $cat = $catMap[$pData['category_slug']];
-            
+
             $product = Product::create([
-                'category_id'       => $cat->id,
-                'sku'               => $pData['sku'],
-                'name'              => $pData['name'],
-                'slug'              => $pData['slug'],
+                'category_id' => $cat->id,
+                'sku' => $pData['sku'],
+                'name' => $pData['name'],
+                'slug' => $pData['slug'],
                 'short_description' => $pData['short_description'],
-                'description'       => $pData['description'] ?? $pData['short_description'],
-                'price'             => $pData['price'],
-                'sale_price'        => $pData['sale_price'],
+                'description' => $pData['description'] ?? $pData['short_description'],
+                'price' => $pData['price'],
+                'sale_price' => $pData['sale_price'],
                 'prep_time_minutes' => $pData['prep_time_minutes'],
-                'stock_qty'         => $pData['stock_qty'],
-                'is_featured'       => $pData['is_featured'],
-                'is_best_seller'    => $pData['is_best_seller'],
-                'is_new_arrival'    => $pData['is_new_arrival'],
-                'is_seasonal'       => $pData['is_seasonal'],
-                'is_limited'        => $pData['is_limited'],
-                'is_active'         => true,
-                'seo_title'         => $pData['name'] . ' | ABCDips & Treats',
-                'seo_description'   => $pData['short_description'],
+                'stock_qty' => $pData['stock_qty'],
+                'is_featured' => $pData['is_featured'],
+                'is_best_seller' => $pData['is_best_seller'],
+                'is_new_arrival' => $pData['is_new_arrival'],
+                'is_seasonal' => $pData['is_seasonal'],
+                'is_limited' => $pData['is_limited'],
+                'is_active' => true,
+                'seo_title' => $pData['name'] . ' | ABCDips & Treats',
+                'seo_description' => $pData['short_description'],
             ]);
 
             // Sync tags
@@ -409,9 +409,9 @@ class ProductSeeder extends Seeder
             // Allergens
             foreach ($pData['allergens'] as $alg) {
                 ProductAllergen::create([
-                    'product_id'    => $product->id,
+                    'product_id' => $product->id,
                     'allergen_name' => $alg['name'],
-                    'type'          => $alg['type'],
+                    'type' => $alg['type'],
                 ]);
             }
 

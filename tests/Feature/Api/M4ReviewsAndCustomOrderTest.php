@@ -79,6 +79,30 @@ class M4ReviewsAndCustomOrderTest extends TestCase
         $this->assertDatabaseHas('reviews', ['reviewer_name' => 'Maria Clara']);
     }
 
+    public function test_can_submit_anonymous_review(): void
+    {
+        $product = Product::first();
+
+        $response = $this->postJson("/api/products/{$product->id}/reviews", [
+            'product_id'    => $product->id,
+            'rating'        => 5,
+            'title'         => 'Anonymous Review Test',
+            'comment'       => 'Super delicious pastry, posted anonymously!',
+            'reviewer_name' => 'Secret Customer',
+            'reviewer_email'=> 'secret@abcdips.test',
+            'is_anonymous'  => true,
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.reviewer_name', 'Anonymous')
+            ->assertJsonPath('data.is_anonymous', true);
+
+        $this->assertDatabaseHas('reviews', [
+            'reviewer_email' => 'secret@abcdips.test',
+            'is_anonymous'   => true,
+        ]);
+    }
+
     public function test_can_list_approved_reviews(): void
     {
         $product = Product::first();

@@ -35,56 +35,67 @@ class OrderService
         $discount = (float) $cart->discount_amount;
         $total = max(0.0, round($subtotal - $discount + $deliveryFee, 2));
 
-        // Create Order with default PENDING status
-        $order = Order::create([
-            'order_number' => $orderNumber,
-            'tracking_token' => $trackingToken,
-            'user_id' => $user?->id ?? $cart->user_id,
-            'customer_name' => $data['customer_name'],
-            'customer_email' => $data['customer_email'],
-            'customer_phone' => $data['customer_phone'],
-            'fulfillment_type' => $fulfillment,
-            'delivery_address' => $data['delivery_address'] ?? null,
-            'city' => $data['city'] ?? null,
-            'postal_code' => $data['postal_code'] ?? null,
-            'scheduled_time' => $data['scheduled_time'] ?? null,
-            'notes' => $data['notes'] ?? null,
-            'subtotal' => $subtotal,
-            'discount_amount' => $discount,
-            'coupon_code' => $cart->coupon_code,
-            'delivery_fee' => $deliveryFee,
-            'total' => $total,
-            'payment_method' => $data['payment_method'],
-            'payment_status' => 'pending',
-            'status' => Order::STATUS_PENDING,
-        ]);
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($cart, $data, $user, $fulfillment, $deliveryFee, $subtotal, $discount, $total, $orderNumber, $trackingToken) {
+            // Check stock availability for non-custom items
+            foreach ($cart->items as $item) {
+                if ($item->product && empty($item->options['is_custom'])) {
+                    $lockedProduct = Product::where('id', $item->product_id)->lockForUpdate()->first();
+                    if ($lockedProduct && $lockedProduct->stock_qty < $item->qty) {
+                        throw new \RuntimeException("Insufficient stock for product: {$lockedProduct->name}. Available stock: {$lockedProduct->stock_qty}.");
+                    }
+                }
+            }
 
-        // Copy Cart Items -> Order Items
-        foreach ($cart->items as $item) {
-            $productName = (!empty($item->options['is_custom']) && !empty($item->options['custom_title']))
-                ? $item->options['custom_title']
-                : $item->product->name;
-
-            $productSku = (!empty($item->options['is_custom']))
-                ? 'SKU-CUSTOM-CAKE'
-                : $item->product->sku;
-
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item->product_id,
-                'product_name' => $productName,
-                'product_sku' => $productSku,
-                'qty' => $item->qty,
-                'unit_price' => $item->unit_price,
-                'subtotal' => $item->subtotal,
-                'options' => $item->options,
+            // Create Order with default PENDING status
+            $order = Order::create([
+                'order_number' => $orderNumber,
+                'tracking_token' => $trackingToken,
+                'user_id' => $user?->id ?? $cart->user_id,
+                'customer_name' => $data['customer_name'],
+                'customer_email' => $data['customer_email'],
+                'customer_phone' => $data['customer_phone'],
+                'fulfillment_type' => $fulfillment,
+                'delivery_address' => $data['delivery_address'] ?? null,
+                'city' => $data['city'] ?? null,
+                'postal_code' => $data['postal_code'] ?? null,
+                'scheduled_time' => $data['scheduled_time'] ?? null,
+                'notes' => $data['notes'] ?? null,
+                'subtotal' => $subtotal,
+                'discount_amount' => $discount,
+                'coupon_code' => $cart->coupon_code,
+                'delivery_fee' => $deliveryFee,
+                'total' => $total,
+                'payment_method' => $data['payment_method'],
+                'payment_status' => 'pending',
+                'status' => Order::STATUS_PENDING,
             ]);
 
-            // Deduct stock quantity
-            if ($item->product && empty($item->options['is_custom'])) {
-                $item->product->decrement('stock_qty', $item->qty);
+            // Copy Cart Items -> Order Items
+            foreach ($cart->items as $item) {
+                $productName = (!empty($item->options['is_custom']) && !empty($item->options['custom_title']))
+                    ? $item->options['custom_title']
+                    : $item->product->name;
+
+                $productSku = (!empty($item->options['is_custom']))
+                    ? 'SKU-CUSTOM-CAKE'
+                    : $item->product->sku;
+
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product_id,
+                    'product_name' => $productName,
+                    'product_sku' => $productSku,
+                    'qty' => $item->qty,
+                    'unit_price' => $item->unit_price,
+                    'subtotal' => $item->subtotal,
+                    'options' => $item->options,
+                ]);
+
+                // Deduct stock quantity
+                if ($item->product && empty($item->options['is_custom'])) {
+                    $item->product->decrement('stock_qty', $item->qty);
+                }
             }
-        }
 
         // Process Payment Gateway Charge
         $gateway = $this->paymentManager->driver($data['payment_method']);
@@ -159,6 +170,7 @@ class OrderService
         $cart->update(['coupon_code' => null, 'discount_amount' => 0]);
 
         return $order->load(['items', 'statusHistories']);
+        });
     }
 
     public function updateOrderStatus(Order $order, string $newStatus, ?string $comment = null, ?User $user = null): Order

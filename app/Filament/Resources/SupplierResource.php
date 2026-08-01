@@ -32,10 +32,14 @@ class SupplierResource extends Resource
                 Section::make('Supplier Information')
                     ->columnSpanFull()
                     ->components([
-                        TextInput::make('name')->required(),
-                        TextInput::make('contact_person'),
-                        TextInput::make('email')->email(),
-                        TextInput::make('phone'),
+                        TextInput::make('name')->required()->maxLength(255),
+                        TextInput::make('contact_person')->maxLength(255),
+                        TextInput::make('email')->email()->maxLength(255),
+                        TextInput::make('phone')
+                            ->tel()
+                            ->rule(new \App\Rules\PhilippinePhone)
+                            ->maxLength(20)
+                            ->extraInputAttributes(['inputmode' => 'tel']),
                         TextInput::make('payment_terms')->default('Net 30'),
                         Textarea::make('address')->columnSpanFull(),
                         Textarea::make('notes')->columnSpanFull(),

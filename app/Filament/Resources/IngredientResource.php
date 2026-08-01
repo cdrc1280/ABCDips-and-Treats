@@ -45,9 +45,26 @@ class IngredientResource extends Resource
                         Select::make('unit')
                             ->options(['kg' => 'Kilograms (kg)', 'g' => 'Grams (g)', 'L' => 'Liters (L)', 'ml' => 'Milliliters (ml)', 'pcs' => 'Pieces (pcs)', 'box' => 'Box'])
                             ->required(),
-                        TextInput::make('cost_per_unit')->numeric()->prefix('₱')->required(),
-                        TextInput::make('stock_qty')->label('Current Stock Qty')->numeric()->required()->default(0),
-                        TextInput::make('min_stock_qty')->label('Min Reorder Level')->numeric()->required()->default(5),
+                        TextInput::make('cost_per_unit')
+                            ->numeric()
+                            ->minValue(0)
+                            ->prefix('₱')
+                            ->required()
+                            ->extraInputAttributes(['inputmode' => 'decimal']),
+                        TextInput::make('stock_qty')
+                            ->label('Current Stock Qty')
+                            ->numeric()
+                            ->minValue(0)
+                            ->required()
+                            ->default(0)
+                            ->extraInputAttributes(['inputmode' => 'decimal']),
+                        TextInput::make('min_stock_qty')
+                            ->label('Min Reorder Level')
+                            ->numeric()
+                            ->minValue(0)
+                            ->required()
+                            ->default(5)
+                            ->extraInputAttributes(['inputmode' => 'decimal']),
                         TextInput::make('supplier_name'),
                     ])->columns(2),
             ]);

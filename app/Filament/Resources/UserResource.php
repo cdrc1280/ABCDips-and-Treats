@@ -69,7 +69,9 @@ class UserResource extends Resource
 
                 TextInput::make('phone')
                     ->tel()
-                    ->maxLength(20),
+                    ->rule(new \App\Rules\PhilippinePhone)
+                    ->maxLength(20)
+                    ->extraInputAttributes(['inputmode' => 'tel']),
 
                 Textarea::make('address')
                     ->rows(2)

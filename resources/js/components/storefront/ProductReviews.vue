@@ -87,9 +87,14 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <BaseInput v-model="form.reviewer_name" label="Your Name" placeholder="e.g. Maria S." required />
+          <BaseInput v-model="form.reviewer_name" label="Your Name" placeholder="e.g. Maria S." :disabled="form.is_anonymous" :required="!form.is_anonymous" />
           <BaseInput v-model="form.reviewer_email" type="email" label="Your Email" placeholder="maria@example.com" required />
         </div>
+
+        <label class="flex items-center gap-2 text-xs font-bold text-[#5C3A22] cursor-pointer py-1">
+          <input type="checkbox" v-model="form.is_anonymous" class="rounded text-[#5C3A22] focus:ring-[#5C3A22] w-4 h-4" />
+          <span>Post review anonymously (Your name will appear as "Anonymous" publicly)</span>
+        </label>
 
         <BaseInput v-model="form.title" label="Headline / Review Title" placeholder="e.g. Incredibly moist and perfectly sweetened!" />
 
@@ -207,7 +212,8 @@ const form = ref({
   reviewer_name: '',
   reviewer_email: '',
   title: '',
-  comment: ''
+  comment: '',
+  is_anonymous: false
 })
 
 const productReviewTemplates = [

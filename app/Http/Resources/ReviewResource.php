@@ -12,10 +12,11 @@ class ReviewResource extends JsonResource
         return [
             'id'                => $this->id,
             'product_id'        => $this->product_id,
-            'reviewer_name'     => $this->reviewer_name,
+            'reviewer_name'     => $this->is_anonymous ? 'Anonymous' : $this->reviewer_name,
             'rating'            => $this->rating,
             'title'             => $this->title,
             'comment'           => $this->comment,
+            'is_anonymous'      => (bool) $this->is_anonymous,
             'is_verified_buyer' => $this->is_verified_buyer,
             'is_featured'       => $this->is_featured,
             'helpful_votes'     => $this->helpful_votes,

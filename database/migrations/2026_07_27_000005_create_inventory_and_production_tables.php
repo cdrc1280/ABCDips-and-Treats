@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('sku')->unique();
             $table->string('name');
             $table->string('unit')->default('kg'); // kg, g, L, ml, pcs, box
-            $table->decimal('cost_per_unit', 10, 2)->default(0);
+            $table->decimal('cost_per_unit', 12, 4)->default(0);
             $table->decimal('stock_qty', 12, 3)->default(0);
             $table->decimal('min_stock_qty', 12, 3)->default(5);
             $table->decimal('reorder_qty', 12, 3)->default(20);

@@ -39,7 +39,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <BaseInput v-model="form.customer_name" label="Full Name" placeholder="e.g. Maria Santos" required :error="errors.customer_name?.[0]" />
             <BaseInput v-model="form.customer_email" type="email" label="Email Address" placeholder="maria@example.com" required :error="errors.customer_email?.[0]" />
-            <BaseInput v-model="form.customer_phone" label="Mobile Number" placeholder="0917 123 4567" required :error="errors.customer_phone?.[0]" />
+            <BaseInput v-model="form.customer_phone" type="tel" numeric-only maxlength="13" label="Mobile Number" placeholder="09171234567" required :error="errors.customer_phone?.[0]" />
             <BaseInput v-model="form.event_date" type="date" label="Event Date" required :error="errors.event_date?.[0]" />
           </div>
         </div>
@@ -123,6 +123,8 @@
             <BaseInput
               v-model.number="form.budget_range_min"
               type="number"
+              numeric-only
+              min="0"
               label="Minimum Preferred Budget (₱)"
               placeholder="e.g. 2000"
               required
@@ -131,6 +133,8 @@
             <BaseInput
               v-model.number="form.budget_range_max"
               type="number"
+              numeric-only
+              min="0"
               label="Maximum Preferred Budget (₱)"
               placeholder="e.g. 4500"
               required

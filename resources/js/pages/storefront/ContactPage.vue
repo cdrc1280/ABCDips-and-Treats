@@ -56,14 +56,17 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#1C1410] mb-1.5">Email Address *</label>
-                            <input v-model="form.email" type="email" required placeholder="your@email.com"
+                            <input v-model="form.email" type="email" inputmode="email" required placeholder="your@email.com"
+                                @keydown.space.prevent
                                 class="w-full bg-[#FBF3E7] border border-[#C08E5D]/30 rounded-xl px-4 py-3 text-sm text-[#1C1410] focus:outline-none focus:border-[#5C3A22] focus:ring-1 focus:ring-[#5C3A22]/20 transition-all" />
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
                             <label class="block text-xs font-bold text-[#1C1410] mb-1.5">Phone Number</label>
-                            <input v-model="form.phone" placeholder="09XX XXX XXXX"
+                            <input v-model="form.phone" type="tel" inputmode="tel" maxlength="13" placeholder="09171234567"
+                                @keydown="onNumericKeydown"
+                                @input="form.phone = $event.target.value.replace(/(?!^\+)[^\d]/g, '')"
                                 class="w-full bg-[#FBF3E7] border border-[#C08E5D]/30 rounded-xl px-4 py-3 text-sm text-[#1C1410] focus:outline-none focus:border-[#5C3A22] focus:ring-1 focus:ring-[#5C3A22]/20 transition-all" />
                         </div>
                         <div>
@@ -121,5 +124,11 @@ async function submit() {
     } finally {
         submitting.value = false
     }
+}
+
+function onNumericKeydown(event) {
+    const allowedControlKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']
+    if (allowedControlKeys.includes(event.key) || event.ctrlKey || event.metaKey) return
+    if (!/^\d$/.test(event.key) && event.key !== '+') event.preventDefault()
 }
 </script>

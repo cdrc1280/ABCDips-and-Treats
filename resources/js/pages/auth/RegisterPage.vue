@@ -31,8 +31,11 @@
 
       <BaseInput
         v-model="form.phone"
+        type="tel"
+        numeric-only
+        maxlength="13"
         label="Mobile Phone Number"
-        placeholder="0917 123 4567"
+        placeholder="09171234567"
         :error="errors.phone?.[0]"
       />
 

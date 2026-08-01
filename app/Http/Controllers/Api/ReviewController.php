@@ -35,6 +35,7 @@ class ReviewController extends Controller
             'rating'         => ['required', 'integer', 'min:1', 'max:5'],
             'title'          => ['nullable', 'string', 'max:255'],
             'comment'        => ['required', 'string', 'min:10'],
+            'is_anonymous'   => ['nullable', 'boolean'],
             'reviewer_name'  => ['nullable', 'string', 'max:255'],
             'reviewer_email' => ['nullable', 'email', 'max:255'],
             'photos'         => ['nullable', 'array'],

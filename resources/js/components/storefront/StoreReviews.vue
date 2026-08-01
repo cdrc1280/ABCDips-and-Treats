@@ -65,7 +65,7 @@
     <!-- Banner callout when 0 store reviews exist -->
     <div v-else class="bg-[#5C3A22] text-[#FBF3E7] rounded-3xl p-8 text-center space-y-4 shadow-lg border border-[#C08E5D]/30">
       <div class="text-4xl">🧁</div>
-      <h3 class="text-2xl font-extrabold">Bakery &amp; Store Service Reviews</h3>
+      <h3 class="text-2xl font-extrabold text-white">Bakery &amp; Store Service Reviews</h3>
       <p class="text-xs text-[#FBF3E7]/80 max-w-md mx-auto">Have you ordered from ABCDips &amp; Treats? Share your experience with our bakery service, delivery speed, and customer care!</p>
       <BaseButton variant="secondary" size="lg" @click="handleToggleForm">
         {{ showForm ? 'Close Review Form' : '✍️ Write the First Store Review' }}
@@ -118,9 +118,14 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <BaseInput v-model="form.reviewer_name" label="Your Name" placeholder="e.g. Juan Dela Cruz" required />
+          <BaseInput v-model="form.reviewer_name" label="Your Name" placeholder="e.g. Juan Dela Cruz" :disabled="form.is_anonymous" :required="!form.is_anonymous" />
           <BaseInput v-model="form.reviewer_email" type="email" label="Your Email" placeholder="juan@example.com" required />
         </div>
+
+        <label class="flex items-center gap-2 text-xs font-bold text-[#5C3A22] cursor-pointer py-1">
+          <input type="checkbox" v-model="form.is_anonymous" class="rounded text-[#5C3A22] focus:ring-[#5C3A22] w-4 h-4" />
+          <span>Post review anonymously (Your name will appear as "Anonymous" publicly)</span>
+        </label>
 
         <BaseInput v-model="form.title" label="Headline" placeholder="e.g. Always fresh, super fast delivery!" />
 
@@ -236,7 +241,8 @@ const form = ref({
   reviewer_name: '',
   reviewer_email: '',
   title: '',
-  comment: ''
+  comment: '',
+  is_anonymous: false
 })
 
 const storeReviewTemplates = [

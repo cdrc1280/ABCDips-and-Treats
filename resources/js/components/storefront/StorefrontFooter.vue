@@ -9,7 +9,7 @@
                         <img src="/images/logo.png" alt="ABCDips & Treats" class="h-10 w-auto brightness-200" />
                         <div>
                             <span class="font-extrabold text-sm text-[#FBF3E7] block">ABCDips & Treats</span>
-                            <span class="font-['Caveat'] text-[#D9A876] text-xs">lovely bakery</span>
+                            <span class="font-['Caveat'] text-[#D9A876] text-xs">bake with love</span>
                         </div>
                     </div>
                     <p class="text-xs text-[#FBF3E7]/50 leading-relaxed mb-5">Handcrafted pastries baked with 100% real

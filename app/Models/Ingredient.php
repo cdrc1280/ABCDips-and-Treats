@@ -22,7 +22,7 @@ class Ingredient extends Model
     ];
 
     protected $casts = [
-        'cost_per_unit' => 'decimal:2',
+        'cost_per_unit' => 'decimal:4',
         'stock_qty'     => 'decimal:3',
         'min_stock_qty' => 'decimal:3',
         'reorder_qty'   => 'decimal:3',

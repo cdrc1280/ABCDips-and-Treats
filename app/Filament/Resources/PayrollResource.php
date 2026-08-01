@@ -51,9 +51,9 @@ class PayrollResource extends Resource
                                 Payroll::STATUS_PAID => 'Paid',
                             ])
                             ->required(),
-                        TextInput::make('total_gross')->label('Total Gross (₱)')->numeric()->prefix('₱'),
-                        TextInput::make('total_deductions')->label('Total Deductions (₱)')->numeric()->prefix('₱'),
-                        TextInput::make('total_net')->label('Total Net Pay (₱)')->numeric()->prefix('₱'),
+                        TextInput::make('total_gross')->label('Total Gross (₱)')->numeric()->minValue(0)->prefix('₱')->extraInputAttributes(['inputmode' => 'decimal']),
+                        TextInput::make('total_deductions')->label('Total Deductions (₱)')->numeric()->minValue(0)->prefix('₱')->extraInputAttributes(['inputmode' => 'decimal']),
+                        TextInput::make('total_net')->label('Total Net Pay (₱)')->numeric()->minValue(0)->prefix('₱')->extraInputAttributes(['inputmode' => 'decimal']),
                     ])->columns(2),
 
                 Section::make('Employee Payslips (Philippine SSS, PhilHealth, Pag-IBIG, Tax Deductions)')
@@ -65,13 +65,13 @@ class PayrollResource extends Resource
                                 Select::make('employee_id')
                                     ->relationship('employee', 'first_name')
                                     ->required(),
-                                TextInput::make('basic_pay')->numeric()->prefix('₱')->required(),
-                                TextInput::make('sss_deduction')->label('SSS (₱)')->numeric()->prefix('₱'),
-                                TextInput::make('philhealth_deduction')->label('PhilHealth (₱)')->numeric()->prefix('₱'),
-                                TextInput::make('pagibig_deduction')->label('Pag-IBIG (₱)')->numeric()->prefix('₱'),
-                                TextInput::make('withholding_tax')->label('Tax (₱)')->numeric()->prefix('₱'),
-                                TextInput::make('gross_pay')->numeric()->prefix('₱')->required(),
-                                TextInput::make('net_pay')->label('Net Take Home (₱)')->numeric()->prefix('₱')->required(),
+                                TextInput::make('basic_pay')->numeric()->minValue(0)->prefix('₱')->required()->extraInputAttributes(['inputmode' => 'decimal']),
+                                TextInput::make('sss_deduction')->label('SSS (₱)')->numeric()->minValue(0)->prefix('₱')->extraInputAttributes(['inputmode' => 'decimal']),
+                                TextInput::make('philhealth_deduction')->label('PhilHealth (₱)')->numeric()->minValue(0)->prefix('₱')->extraInputAttributes(['inputmode' => 'decimal']),
+                                TextInput::make('pagibig_deduction')->label('Pag-IBIG (₱)')->numeric()->minValue(0)->prefix('₱')->extraInputAttributes(['inputmode' => 'decimal']),
+                                TextInput::make('withholding_tax')->label('Tax (₱)')->numeric()->minValue(0)->prefix('₱')->extraInputAttributes(['inputmode' => 'decimal']),
+                                TextInput::make('gross_pay')->numeric()->minValue(0)->prefix('₱')->required()->extraInputAttributes(['inputmode' => 'decimal']),
+                                TextInput::make('net_pay')->label('Net Take Home (₱)')->numeric()->minValue(0)->prefix('₱')->required()->extraInputAttributes(['inputmode' => 'decimal']),
                             ])
                             ->columns(4)
                             ->columnSpanFull(),
