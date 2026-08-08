@@ -11,27 +11,27 @@
                         <div
                             class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-tan/20 border border-brand-tan/30 text-xs font-bold text-brand-tan">
                             <span class="w-2.5 h-2.5 rounded-full bg-success animate-pulse" />
-                            <span>OVEN FRESH TODAY IN CAVITE</span>
+                            <span>{{ homeContent.hero_badge }}</span>
                         </div>
 
                         <h1
                             class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
-                            Handcrafted Pastries <br class="hidden sm:inline" />
+                            {{ homeContent.hero_title }} <br class="hidden sm:inline" />
                             <span
-                                class="font-['Caveat'] text-brand-tan font-normal text-4xl sm:text-5xl lg:text-6xl block mt-1">baked
-                                with love &amp; real butter</span>
+                                class="font-['Caveat'] text-brand-tan font-normal text-4xl sm:text-5xl lg:text-6xl block mt-1">
+                                {{ homeContent.hero_subtitle }}
+                            </span>
                         </h1>
 
-                        <p class="text-surface/90 text-base sm:text-lg max-w-xl leading-relaxed">
-                            From our famous Classic Banana Bread Loaves and ultra-fudgy Belgian chocolate brownies to
-                            cheesecakes and fresh cinnamon rolls.
+                        <p class="text-surface/90 text-base sm:text-lg max-w-xl leading-relaxed whitespace-pre-line">
+                            {{ homeContent.hero_description }}
                         </p>
 
                         <div class="flex flex-wrap gap-4 pt-2">
-                            <RouterLink to="/shop">
+                            <RouterLink :to="homeContent.hero_btn_primary_url || '/shop'">
                                 <button v-tooltip="'Explore all handcrafted treats & pastries'"
                                     class="bg-brand-tan text-ink px-7 py-3.5 rounded-2xl font-bold text-sm hover:bg-brand-caramel transition-colors shadow-md flex items-center gap-2">
-                                    Browse Full Menu
+                                    {{ homeContent.hero_btn_primary_text }}
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -39,10 +39,10 @@
                                 </button>
                             </RouterLink>
 
-                            <RouterLink to="/best-sellers">
+                            <RouterLink :to="homeContent.hero_btn_secondary_url || '/best-sellers'">
                                 <button v-tooltip="'View top customer favorite pastries'"
                                     class="bg-transparent border border-brand-tan/60 text-surface px-7 py-3.5 rounded-2xl font-semibold text-sm hover:bg-brand-tan/20 transition-colors">
-                                    Explore Best Sellers
+                                    {{ homeContent.hero_btn_secondary_text }}
                                 </button>
                             </RouterLink>
                         </div>
@@ -50,21 +50,21 @@
                         <!-- Trust Highlights -->
                         <div
                             class="pt-6 border-t border-brand-tan/20 flex flex-wrap gap-6 text-xs text-surface/90 font-medium">
-                            <div class="flex items-center gap-2">
+                            <div v-if="homeContent.hero_bullet_1" class="flex items-center gap-2">
                                 <svg class="w-4 h-4 text-brand-tan" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span>Same-day &amp; Scheduled Delivery</span>
+                                <span>{{ homeContent.hero_bullet_1 }}</span>
                             </div>
-                            <div class="flex items-center gap-2">
+                            <div v-if="homeContent.hero_bullet_2" class="flex items-center gap-2">
                                 <svg class="w-4 h-4 text-brand-tan" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span>100% Real Creamery Butter</span>
+                                <span>{{ homeContent.hero_bullet_2 }}</span>
                             </div>
                         </div>
                     </div>
@@ -75,15 +75,16 @@
                             class="w-full max-w-sm bg-surface dark:bg-[#2A1C13] hero-showcase-card rounded-3xl p-6 shadow-2xl text-center border border-brand-caramel/30">
                             <div
                                 class="bg-white dark:bg-[#1E130B] hero-showcase-inner rounded-2xl p-2 mb-4 shadow-inner flex items-center justify-center overflow-hidden aspect-4/3">
-                                <img src="/images/blog-banana-bread.jpg" alt="Classic Banana Bread"
+                                <img :src="homeContent.hero_card_image" :alt="homeContent.hero_card_title"
                                     class="w-full h-full object-cover rounded-xl transition-transform duration-500 hover:scale-105" />
                             </div>
                             <div
                                 class="bg-brand-choco text-surface p-4 rounded-2xl text-left shadow-sm border border-brand-tan/30">
-                                <div class="text-[11px] font-bold text-brand-tan uppercase tracking-wider">Signature
-                                    Treat</div>
-                                <div class="text-base font-bold text-white">Classic Banana Bread</div>
-                                <div class="text-xs text-surface/80 mt-0.5">Starts at ₱280.00</div>
+                                <div class="text-[11px] font-bold text-brand-tan uppercase tracking-wider">
+                                    {{ homeContent.hero_card_badge }}
+                                </div>
+                                <div class="text-base font-bold text-white">{{ homeContent.hero_card_title }}</div>
+                                <div class="text-xs text-surface/80 mt-0.5">{{ homeContent.hero_card_subtitle }}</div>
                             </div>
                         </div>
                     </div>
@@ -154,18 +155,18 @@
                 class="bg-brand-choco rounded-3xl p-8 md:p-12 text-surface relative overflow-hidden shadow-xl border border-brand-caramel/30">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10">
                     <div class="space-y-4">
-                        <span class="font-['Caveat'] text-brand-tan text-2xl">weekly special spotlight</span>
-                        <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Signature Ube
-                            Cheesecake</h2>
-                        <p class="text-surface/90 text-sm md:text-base leading-relaxed">
-                            Real Philippine Ube Halaya folded into silky baked cream cheese set over a coconut Graham
-                            crust. Baked fresh in limited batches.
+                        <span class="font-['Caveat'] text-brand-tan text-2xl">{{ homeContent.spotlight_tagline }}</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                            {{ homeContent.spotlight_title }}
+                        </h2>
+                        <p class="text-surface/90 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                            {{ homeContent.spotlight_description }}
                         </p>
                         <div class="pt-2">
-                            <RouterLink to="/products/signature-ube-cheesecake-6-inch">
+                            <RouterLink :to="homeContent.spotlight_btn_url || '/shop'">
                                 <button
                                     class="bg-brand-tan text-ink px-6 py-3.5 rounded-2xl font-bold text-sm hover:bg-brand-caramel transition-colors shadow-md">
-                                    Order Spotlight Treat — ₱680.00
+                                    {{ homeContent.spotlight_btn_text }}
                                 </button>
                             </RouterLink>
                         </div>
@@ -174,7 +175,7 @@
                     <div class="flex justify-center">
                         <div
                             class="w-64 h-64 md:w-80 md:h-80 rounded-2xl bg-white dark:bg-[#120B07] border border-brand-tan/40 p-3 flex items-center justify-center shadow-lg overflow-hidden">
-                            <img src="/images/blog-custom-cake.jpg" alt="Signature Ube Cheesecake"
+                            <img :src="homeContent.spotlight_image" :alt="homeContent.spotlight_title"
                                 class="w-full h-full object-cover rounded-xl shadow-md transition-transform duration-500 hover:scale-105" />
                         </div>
                     </div>
@@ -229,6 +230,41 @@ const featuredProducts = ref([])
 const bestSellers = ref([])
 const loading = ref(true)
 
+const homeContent = ref({
+    hero_badge: 'OVEN FRESH TODAY IN CAVITE',
+    hero_title: 'Handcrafted Pastries',
+    hero_subtitle: 'baked with love & real butter',
+    hero_description: 'From our famous Classic Banana Bread Loaves and ultra-fudgy Belgian chocolate brownies to cheesecakes and fresh cinnamon rolls.',
+    hero_btn_primary_text: 'Browse Full Menu',
+    hero_btn_primary_url: '/shop',
+    hero_btn_secondary_text: 'Explore Best Sellers',
+    hero_btn_secondary_url: '/best-sellers',
+    hero_bullet_1: 'Same-day & Scheduled Delivery',
+    hero_bullet_2: '100% Real Creamery Butter',
+    hero_card_badge: 'Signature Treat',
+    hero_card_title: 'Classic Banana Bread',
+    hero_card_subtitle: 'Starts at ₱280.00',
+    hero_card_image: '/images/blog-banana-bread.jpg',
+
+    spotlight_tagline: 'weekly special spotlight',
+    spotlight_title: 'Signature Ube Cheesecake',
+    spotlight_description: 'Real Philippine Ube Halaya folded into silky baked cream cheese set over a coconut Graham crust. Baked fresh in limited batches.',
+    spotlight_btn_text: 'Order Spotlight Treat — ₱680.00',
+    spotlight_btn_url: '/products/signature-ube-cheesecake-6-inch',
+    spotlight_image: '/images/blog-custom-cake.jpg',
+})
+
+async function fetchHomeContent() {
+    try {
+        const { data } = await axios.get('/api/home-content')
+        if (data) {
+            homeContent.value = { ...homeContent.value, ...data }
+        }
+    } catch (err) {
+        console.error('Failed to fetch home banner settings', err)
+    }
+}
+
 async function loadData() {
     loading.value = true
     try {
@@ -247,5 +283,8 @@ async function loadData() {
     }
 }
 
-onMounted(() => loadData())
+onMounted(() => {
+    fetchHomeContent()
+    loadData()
+})
 </script>

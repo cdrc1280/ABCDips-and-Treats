@@ -37,6 +37,7 @@ Route::get('products/best-sellers', [ProductController::class, 'bestSellers']);
 Route::get('products/new-arrivals', [ProductController::class, 'newArrivals']);
 Route::get('about-stats', [ProductController::class, 'aboutStats']);
 Route::get('about-content', [ProductController::class, 'aboutContent']);
+Route::get('home-content', [ProductController::class, 'homeContent']);
 Route::get('products/{slug}', [ProductController::class, 'show']);
 
 // ─── Cart REST Endpoints (Public/Guest & Auth) ────────────────

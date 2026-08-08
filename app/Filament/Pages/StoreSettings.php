@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Setting;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -81,6 +82,28 @@ class StoreSettings extends Page implements HasForms
             'about_cta_subtitle' => Setting::get('about_cta_subtitle', 'Same-day delivery available in Cavite. Fresh from our oven to your door.'),
             'about_cta_button_text' => Setting::get('about_cta_button_text', 'Browse Full Menu →'),
             'about_cta_button_url' => Setting::get('about_cta_button_url', '/shop'),
+
+            'home_hero_badge' => Setting::get('home_hero_badge', 'OVEN FRESH TODAY IN CAVITE'),
+            'home_hero_title' => Setting::get('home_hero_title', 'Handcrafted Pastries'),
+            'home_hero_subtitle' => Setting::get('home_hero_subtitle', 'baked with love & real butter'),
+            'home_hero_description' => Setting::get('home_hero_description', 'From our famous Classic Banana Bread Loaves and ultra-fudgy Belgian chocolate brownies to cheesecakes and fresh cinnamon rolls.'),
+            'home_hero_btn_primary_text' => Setting::get('home_hero_btn_primary_text', 'Browse Full Menu'),
+            'home_hero_btn_primary_url' => Setting::get('home_hero_btn_primary_url', '/shop'),
+            'home_hero_btn_secondary_text' => Setting::get('home_hero_btn_secondary_text', 'Explore Best Sellers'),
+            'home_hero_btn_secondary_url' => Setting::get('home_hero_btn_secondary_url', '/best-sellers'),
+            'home_hero_bullet_1' => Setting::get('home_hero_bullet_1', 'Same-day & Scheduled Delivery'),
+            'home_hero_bullet_2' => Setting::get('home_hero_bullet_2', '100% Real Creamery Butter'),
+            'home_hero_card_badge' => Setting::get('home_hero_card_badge', 'Signature Treat'),
+            'home_hero_card_title' => Setting::get('home_hero_card_title', 'Classic Banana Bread'),
+            'home_hero_card_subtitle' => Setting::get('home_hero_card_subtitle', 'Starts at ₱280.00'),
+            'home_hero_card_image' => Setting::get('home_hero_card_image', '/images/blog-banana-bread.jpg'),
+
+            'home_spotlight_tagline' => Setting::get('home_spotlight_tagline', 'weekly special spotlight'),
+            'home_spotlight_title' => Setting::get('home_spotlight_title', 'Signature Ube Cheesecake'),
+            'home_spotlight_description' => Setting::get('home_spotlight_description', 'Real Philippine Ube Halaya folded into silky baked cream cheese set over a coconut Graham crust. Baked fresh in limited batches.'),
+            'home_spotlight_btn_text' => Setting::get('home_spotlight_btn_text', 'Order Spotlight Treat — ₱680.00'),
+            'home_spotlight_btn_url' => Setting::get('home_spotlight_btn_url', '/products/signature-ube-cheesecake-6-inch'),
+            'home_spotlight_image' => Setting::get('home_spotlight_image', '/images/blog-custom-cake.jpg'),
         ]);
     }
 
@@ -123,6 +146,115 @@ class StoreSettings extends Page implements HasForms
                         TextInput::make('store_email')
                             ->label('Store Support Email')
                             ->email()
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make('Homepage Hero Banner')
+                    ->description('Customize the main hero banner headlines, trust bullets, CTA buttons, and showcase treat card.')
+                    ->columns(2)
+                    ->components([
+                        TextInput::make('home_hero_badge')
+                            ->label('Top Badge Text')
+                            ->placeholder('OVEN FRESH TODAY IN CAVITE')
+                            ->required(),
+
+                        TextInput::make('home_hero_title')
+                            ->label('Main Headline Title')
+                            ->placeholder('Handcrafted Pastries')
+                            ->required(),
+
+                        TextInput::make('home_hero_subtitle')
+                            ->label('Script Subheading Text')
+                            ->placeholder('baked with love & real butter')
+                            ->required(),
+
+                        Textarea::make('home_hero_description')
+                            ->label('Paragraph Description')
+                            ->rows(2)
+                            ->columnSpanFull()
+                            ->required(),
+
+                        TextInput::make('home_hero_btn_primary_text')
+                            ->label('Primary Button Label')
+                            ->placeholder('Browse Full Menu'),
+
+                        TextInput::make('home_hero_btn_primary_url')
+                            ->label('Primary Button Destination URL')
+                            ->placeholder('/shop'),
+
+                        TextInput::make('home_hero_btn_secondary_text')
+                            ->label('Secondary Button Label')
+                            ->placeholder('Explore Best Sellers'),
+
+                        TextInput::make('home_hero_btn_secondary_url')
+                            ->label('Secondary Button Destination URL')
+                            ->placeholder('/best-sellers'),
+
+                        TextInput::make('home_hero_bullet_1')
+                            ->label('Trust Bullet Point 1')
+                            ->placeholder('Same-day & Scheduled Delivery'),
+
+                        TextInput::make('home_hero_bullet_2')
+                            ->label('Trust Bullet Point 2')
+                            ->placeholder('100% Real Creamery Butter'),
+
+                        TextInput::make('home_hero_card_badge')
+                            ->label('Showcase Card Badge Label')
+                            ->placeholder('Signature Treat'),
+
+                        TextInput::make('home_hero_card_title')
+                            ->label('Showcase Card Item Title')
+                            ->placeholder('Classic Banana Bread'),
+
+                        TextInput::make('home_hero_card_subtitle')
+                            ->label('Showcase Card Price / Subtitle')
+                            ->placeholder('Starts at ₱280.00'),
+
+                        FileUpload::make('home_hero_card_image')
+                            ->label('Showcase Card Product Image')
+                            ->disk('public')
+                            ->directory('settings')
+                            ->image()
+                            ->imageEditor()
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make('Homepage Weekly Spotlight Banner')
+                    ->description('Customize the weekly featured pastry spotlight banner, title, description, pricing, and showcase image.')
+                    ->columns(2)
+                    ->components([
+                        TextInput::make('home_spotlight_tagline')
+                            ->label('Script Tagline')
+                            ->placeholder('weekly special spotlight')
+                            ->required(),
+
+                        TextInput::make('home_spotlight_title')
+                            ->label('Spotlight Product Title')
+                            ->placeholder('Signature Ube Cheesecake')
+                            ->required(),
+
+                        Textarea::make('home_spotlight_description')
+                            ->label('Spotlight Description')
+                            ->rows(2)
+                            ->columnSpanFull()
+                            ->required(),
+
+                        TextInput::make('home_spotlight_btn_text')
+                            ->label('Button Label & Price')
+                            ->placeholder('Order Spotlight Treat — ₱680.00')
+                            ->required(),
+
+                        TextInput::make('home_spotlight_btn_url')
+                            ->label('Button Destination Link')
+                            ->placeholder('/products/signature-ube-cheesecake-6-inch')
+                            ->required(),
+
+                        FileUpload::make('home_spotlight_image')
+                            ->label('Spotlight Product Image')
+                            ->disk('public')
+                            ->directory('settings')
+                            ->image()
+                            ->imageEditor()
                             ->columnSpanFull(),
                     ]),
 
@@ -290,17 +422,23 @@ class StoreSettings extends Page implements HasForms
                 str_starts_with($key, 'paymongo_') => 'paymongo',
                 str_starts_with($key, 'bdo_') => 'bdo',
                 str_starts_with($key, 'about_') => 'about',
+                str_starts_with($key, 'home_') => 'home',
                 default => 'general',
             };
 
             if (is_array($value)) {
-                Setting::setJson($key, $value, $group);
+                // If FileUpload component returns an array of paths, pick first file path
+                if (isset($value[0]) && is_string($value[0])) {
+                    Setting::set($key, $value[0], $group);
+                } else {
+                    Setting::setJson($key, $value, $group);
+                }
             } else {
-                Setting::set($key, is_bool($value) ? ($value ? '1' : '0') : $value, $group);
+                Setting::set($key, is_bool($value) ? ($value ? '1' : '0') : (string) ($value ?? ''), $group);
             }
         }
 
         Cache::flush();
-        Notification::make()->title('All Store Settings Saved Successfully!')->success()->send();
+        Notification::make()->title('All Store & Homepage Settings Saved Successfully!')->success()->send();
     }
 }
