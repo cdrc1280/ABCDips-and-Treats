@@ -195,7 +195,7 @@
 
                   <!-- Allergen Chips (Only if product has allergens) -->
                   <div v-if="modalStore.product.allergens && modalStore.product.allergens.length > 0" class="space-y-1.5">
-                    <span class="block text-xs font-bold uppercase tracking-wider text-brand-choco">Allergen Information</span>
+                    <span class="block text-xs font-bold uppercase tracking-wider text-brand-choco dark:text-[#E2C08A]">Allergen Information</span>
                     <div class="flex flex-wrap gap-2">
                       <span
                         v-for="(alg, idx) in modalStore.product.allergens"
@@ -210,34 +210,34 @@
                   <!-- Quantity Selector & Action Buttons -->
                   <div class="space-y-4 pt-1">
                     <div class="flex items-center gap-3">
-                      <span class="text-xs text-warm-gray font-bold uppercase tracking-wider">Quantity:</span>
-                      <div class="flex items-center border border-brand-caramel/30 rounded-xl bg-white p-0.5">
+                      <span class="text-xs text-warm-gray dark:text-[#C5B4A4] font-bold uppercase tracking-wider">Quantity:</span>
+                      <div class="flex items-center border border-brand-caramel/30 dark:border-[#C08E5D]/30 rounded-xl bg-white dark:bg-[#140D09] p-0.5">
                         <button
                           type="button"
-                          class="w-8 h-8 rounded-lg flex items-center justify-center text-brand-choco hover:bg-surface font-extrabold text-sm disabled:opacity-30 cursor-pointer"
+                          class="w-8 h-8 rounded-lg flex items-center justify-center text-brand-choco dark:text-[#E2C08A] hover:bg-surface dark:hover:bg-[#2A1C13] font-extrabold text-sm disabled:opacity-30 cursor-pointer"
                           :disabled="quantity <= 1"
                           @click="quantity--"
                         >
                           -
                         </button>
-                        <span class="w-10 text-center font-bold text-ink text-sm">{{ quantity }}</span>
+                        <span class="w-10 text-center font-bold text-ink dark:text-[#FBF3E7] text-sm">{{ quantity }}</span>
                         <button
                           type="button"
-                          class="w-8 h-8 rounded-lg flex items-center justify-center text-brand-choco hover:bg-surface font-extrabold text-sm cursor-pointer"
+                          class="w-8 h-8 rounded-lg flex items-center justify-center text-brand-choco dark:text-[#E2C08A] hover:bg-surface dark:hover:bg-[#2A1C13] font-extrabold text-sm cursor-pointer"
                           @click="quantity++"
                         >
                           +
                         </button>
                       </div>
-                      <span v-if="modalStore.product.stock_qty" class="text-xs text-warm-gray">
+                      <span v-if="modalStore.product.stock_qty" class="text-xs text-warm-gray dark:text-[#C5B4A4]">
                         ({{ modalStore.product.stock_qty }} available)
                       </span>
                     </div>
 
-                    <div class="flex items-center gap-3">
+                    <div class="flex flex-col sm:flex-row items-center gap-3">
                       <button
                         type="button"
-                        class="flex-1 px-5 py-3 rounded-xl border-2 border-brand-choco bg-surface hover:bg-brand-tan/20 text-brand-choco font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                        class="w-full sm:flex-1 px-5 py-3 rounded-xl border-2 border-brand-choco dark:border-[#C08E5D] bg-surface dark:bg-[#140D09] hover:bg-brand-tan/20 text-brand-choco dark:text-[#E2C08A] font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs disabled:opacity-50"
                         :disabled="adding || !modalStore.product.is_in_stock"
                         @click="handleAddToCart"
                       >
@@ -247,7 +247,7 @@
 
                       <button
                         type="button"
-                        class="flex-1 px-6 py-3 rounded-xl bg-brand-choco hover:bg-[#442917] text-surface font-extrabold text-sm flex items-center justify-center transition-all cursor-pointer shadow-sm disabled:opacity-50"
+                        class="w-full sm:flex-1 px-6 py-3 rounded-xl bg-brand-choco hover:bg-[#442917] dark:bg-[#C08E5D] dark:hover:bg-[#A07245] text-surface dark:text-[#1C1410] font-extrabold text-sm flex items-center justify-center transition-all cursor-pointer shadow-sm disabled:opacity-50"
                         :disabled="adding || !modalStore.product.is_in_stock"
                         @click="handleBuyNow"
                       >
@@ -263,13 +263,13 @@
               <!-- Product Details / Description Section -->
               <div
                 v-if="modalStore.product.description || modalStore.product.nutrition"
-                class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-brand-caramel/20 space-y-4"
+                class="bg-white dark:bg-[#1E1510] rounded-2xl p-4 sm:p-6 shadow-sm border border-brand-caramel/20 dark:border-[#C08E5D]/20 space-y-4"
               >
-                <div class="flex border-b border-brand-caramel/20 gap-6">
+                <div class="flex border-b border-brand-caramel/20 dark:border-[#C08E5D]/20 gap-6">
                   <button
                     type="button"
                     class="pb-3 text-sm font-bold transition-all border-b-2"
-                    :class="activeTab === 'description' ? 'border-brand-choco text-brand-choco' : 'border-transparent text-warm-gray hover:text-brand-choco'"
+                    :class="activeTab === 'description' ? 'border-brand-choco dark:border-[#E2C08A] text-brand-choco dark:text-[#E2C08A]' : 'border-transparent text-warm-gray dark:text-[#C5B4A4] hover:text-brand-choco dark:hover:text-[#E2C08A]'"
                     @click="activeTab = 'description'"
                   >
                     Product Description
@@ -279,7 +279,7 @@
                     v-if="modalStore.product.nutrition"
                     type="button"
                     class="pb-3 text-sm font-bold transition-all border-b-2"
-                    :class="activeTab === 'nutrition' ? 'border-brand-choco text-brand-choco' : 'border-transparent text-warm-gray hover:text-brand-choco'"
+                    :class="activeTab === 'nutrition' ? 'border-brand-choco dark:border-[#E2C08A] text-brand-choco dark:text-[#E2C08A]' : 'border-transparent text-warm-gray dark:text-[#C5B4A4] hover:text-brand-choco dark:hover:text-[#E2C08A]'"
                     @click="activeTab = 'nutrition'"
                   >
                     Nutrition Facts
@@ -287,20 +287,20 @@
                 </div>
 
                 <!-- Description Tab Content -->
-                <div v-if="activeTab === 'description'" class="text-xs sm:text-sm text-ink/90 leading-relaxed space-y-2">
+                <div v-if="activeTab === 'description'" class="text-xs sm:text-sm text-ink/90 dark:text-[#FBF3E7]/90 leading-relaxed space-y-2">
                   <div v-html="modalStore.product.description || modalStore.product.short_description"></div>
                 </div>
 
                 <!-- Nutrition Tab Content -->
                 <div v-else-if="activeTab === 'nutrition' && modalStore.product.nutrition" class="max-w-xs">
-                  <div class="border border-ink p-3 rounded-xl space-y-1.5 text-ink text-xs">
-                    <h4 class="font-extrabold text-base border-b-2 border-ink pb-1">Nutrition Facts</h4>
+                  <div class="border border-ink dark:border-[#E2C08A] p-3 rounded-xl space-y-1.5 text-ink dark:text-[#FBF3E7] text-xs">
+                    <h4 class="font-extrabold text-base border-b-2 border-ink dark:border-[#E2C08A] pb-1">Nutrition Facts</h4>
                     <p class="text-[11px] font-semibold">Serving Size: {{ modalStore.product.nutrition.serving_size }}</p>
-                    <div class="border-t-4 border-ink my-1 pt-1 flex justify-between font-extrabold text-sm">
+                    <div class="border-t-4 border-ink dark:border-[#E2C08A] my-1 pt-1 flex justify-between font-extrabold text-sm">
                       <span>Calories</span>
                       <span>{{ modalStore.product.nutrition.calories }}</span>
                     </div>
-                    <div class="border-t border-ink pt-1 text-[11px] space-y-1">
+                    <div class="border-t border-ink dark:border-[#E2C08A] pt-1 text-[11px] space-y-1">
                       <div class="flex justify-between font-semibold">
                         <span>Total Fat</span>
                         <span>{{ modalStore.product.nutrition.fat_g }}g</span>
@@ -319,7 +319,7 @@
               </div>
 
               <!-- Ratings & Customer Reviews Component -->
-              <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-brand-caramel/20">
+              <div class="bg-white dark:bg-[#1E1510] rounded-2xl p-4 sm:p-6 shadow-sm border border-brand-caramel/20 dark:border-[#C08E5D]/20">
                 <ProductReviews :product-id="modalStore.product.id" />
               </div>
 

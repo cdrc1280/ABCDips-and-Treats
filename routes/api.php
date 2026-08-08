@@ -36,6 +36,7 @@ Route::get('products/featured', [ProductController::class, 'featured']);
 Route::get('products/best-sellers', [ProductController::class, 'bestSellers']);
 Route::get('products/new-arrivals', [ProductController::class, 'newArrivals']);
 Route::get('about-stats', [ProductController::class, 'aboutStats']);
+Route::get('about-content', [ProductController::class, 'aboutContent']);
 Route::get('products/{slug}', [ProductController::class, 'show']);
 
 // ─── Cart REST Endpoints (Public/Guest & Auth) ────────────────
@@ -71,7 +72,8 @@ Route::post('custom-orders', [CustomOrderController::class, 'store'])->middlewar
 
 // ─── Public AI Chat (Customer-Facing) ────────────────────────
 Route::post('ai/query', [PublicAiController::class, 'query'])->middleware('throttle:20,1');
-Route::post('chat/escalate', [ChatEscalationController::class, 'store'])->middleware('throttle:3,1');
+Route::post('chat/escalate', [ChatEscalationController::class, 'store'])->middleware('throttle:15,1');
+Route::get('chat/escalate/messages', [ChatEscalationController::class, 'fetchClientConversation']);
 
 // ─── POS, Analytics & AI Admin API ───────────────────────────
 Route::middleware(['auth:sanctum', 'role:super_admin|admin'])->group(function () {

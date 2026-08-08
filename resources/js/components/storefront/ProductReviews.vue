@@ -50,15 +50,15 @@
         </div>
 
         <!-- Quick Pre-made Review Templates -->
-        <div class="space-y-1.5 bg-white/70 p-4 rounded-2xl border border-brand-caramel/20">
-          <label class="block text-xs font-bold uppercase text-brand-choco">⚡ Quick Pre-made Review Messages (Click to instant fill)</label>
+        <div class="space-y-1.5 bg-white/70 dark:bg-[#1A120C]/70 p-4 rounded-2xl border border-brand-caramel/20 dark:border-[#C08E5D]/20">
+          <label class="block text-xs font-bold uppercase text-brand-choco dark:text-[#E2C08A]">⚡ Quick Pre-made Review Messages (Click to instant fill)</label>
           <div class="flex flex-wrap gap-2 pt-1">
             <button
               v-for="(tpl, idx) in productReviewTemplates"
               :key="idx"
               type="button"
               v-tooltip="`Click to fill: '${tpl.chipLabel}'`"
-              class="text-xs bg-white border border-brand-caramel/30 hover:border-brand-choco px-3 py-1.5 rounded-xl text-brand-choco font-semibold transition-all hover:bg-brand-tan/20 shadow-2xs"
+              class="text-xs bg-white dark:bg-[#1E1510] border border-brand-caramel/30 dark:border-[#C08E5D]/30 hover:border-brand-choco text-brand-choco dark:text-[#E2C08A] font-semibold transition-all hover:bg-brand-tan/20 shadow-2xs"
               @click="applyTemplate(tpl)"
             >
               {{ tpl.chipLabel }}
@@ -68,7 +68,7 @@
 
         <!-- Star Rating Interactive Selector -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-bold uppercase text-brand-choco">Overall Star Rating</label>
+          <label class="block text-xs font-bold uppercase text-brand-choco dark:text-[#E2C08A]">Overall Star Rating</label>
           <div class="flex items-center gap-3">
             <div class="flex items-center gap-1">
               <button
@@ -82,7 +82,7 @@
                 {{ star <= form.rating ? '⭐' : '☆' }}
               </button>
             </div>
-            <span class="text-xs font-extrabold text-brand-choco bg-white px-3 py-1 rounded-full border border-brand-caramel/30">
+            <span class="text-xs font-extrabold text-brand-choco dark:text-[#E2C08A] bg-white dark:bg-[#1E1510] px-3 py-1 rounded-full border border-brand-caramel/30 dark:border-[#C08E5D]/30">
               {{ form.rating }} / 5 Stars
             </span>
           </div>
@@ -93,7 +93,7 @@
           <BaseInput v-model="form.reviewer_email" type="email" label="Your Email" placeholder="maria@example.com" required />
         </div>
 
-        <label class="flex items-center gap-2 text-xs font-bold text-brand-choco cursor-pointer py-1">
+        <label class="flex items-center gap-2 text-xs font-bold text-brand-choco dark:text-[#E2C08A] cursor-pointer py-1">
           <input type="checkbox" v-model="form.is_anonymous" class="rounded text-brand-choco focus:ring-brand-choco w-4 h-4" />
           <span>Post review anonymously (Your name will appear as "Anonymous" publicly)</span>
         </label>
@@ -102,8 +102,8 @@
 
         <BaseTextarea v-model="form.comment" label="Detailed Review" placeholder="Tell us what you loved about the pastry flavor, freshness, and packaging..." rows="4" required />
 
-        <div v-if="!authStore.isAuthenticated" class="text-xs text-brand-choco/80 bg-brand-tan/10 p-3 rounded-xl border border-brand-tan/20 flex items-center gap-2 mt-2">
-          💡 Tip: <RouterLink to="/auth/register" class="font-bold underline hover:text-brand-choco transition-colors">Create a free account</RouterLink> to be recognized as a Verified Buyer!
+        <div v-if="!authStore.isAuthenticated" class="text-xs text-brand-choco/80 dark:text-[#E2C08A]/80 bg-brand-tan/10 p-3 rounded-xl border border-brand-tan/20 flex items-center gap-2 mt-2">
+          💡 Tip: <RouterLink to="/auth/register" class="font-bold underline hover:text-brand-choco dark:hover:text-[#E2C08A] transition-colors">Create a free account</RouterLink> to be recognized as a Verified Buyer!
         </div>
 
         <div class="flex justify-end gap-3 pt-2">
@@ -114,8 +114,8 @@
     </Transition>
 
     <!-- Rating Filters with Counts -->
-    <div v-if="reviews.length > 0" class="flex items-center justify-between gap-4 border-b border-brand-caramel/15 pb-4">
-      <div class="text-xs font-bold text-warm-gray">Filter by score:</div>
+    <div v-if="reviews.length > 0" class="flex items-center justify-between gap-4 border-b border-brand-caramel/15 dark:border-[#C08E5D]/20 pb-4">
+      <div class="text-xs font-bold text-warm-gray dark:text-[#C5B4A4]">Filter by score:</div>
       <div class="flex items-center gap-1.5 overflow-x-auto">
         <button
           v-for="filter in [0, 5, 4, 3, 2, 1]"
@@ -123,7 +123,7 @@
           type="button"
           v-tooltip="filter === 0 ? 'Show all reviews' : `Show only ${filter}-star reviews`"
           class="px-3 py-1 rounded-xl text-xs font-bold transition-all shrink-0"
-          :class="selectedFilter === filter ? 'bg-brand-choco text-white shadow-xs' : 'bg-white text-brand-choco border border-brand-caramel/20 hover:bg-surface'"
+          :class="selectedFilter === filter ? 'bg-brand-choco text-white dark:bg-[#C08E5D] dark:text-[#1C1410] shadow-xs' : 'bg-white dark:bg-[#1E1510] text-brand-choco dark:text-[#E2C08A] border border-brand-caramel/20 dark:border-[#C08E5D]/20 hover:bg-surface dark:hover:bg-[#140D09]'"
           @click="selectedFilter = filter"
         >
           {{ filter === 0 ? `All (${reviews.length})` : `${filter}★ (${getRatingCount(filter)})` }}
@@ -136,9 +136,9 @@
       <SkeletonRow v-for="n in 3" :key="n" />
     </div>
 
-    <div v-else-if="filteredReviews.length === 0" class="text-center py-12 bg-surface/40 rounded-3xl border border-dashed border-brand-caramel/30 p-8">
-      <p class="text-base font-bold text-ink mb-1">No reviews for this filter yet.</p>
-      <p class="text-xs text-warm-gray mb-4">Be the first to share your review for this pastry!</p>
+    <div v-else-if="filteredReviews.length === 0" class="text-center py-12 bg-surface/40 dark:bg-[#140D09]/40 rounded-3xl border border-dashed border-brand-caramel/30 dark:border-[#C08E5D]/30 p-8">
+      <p class="text-base font-bold text-ink dark:text-[#FBF3E7] mb-1">No reviews for this filter yet.</p>
+      <p class="text-xs text-warm-gray dark:text-[#C5B4A4] mb-4">Be the first to share your review for this pastry!</p>
       <BaseButton size="sm" variant="outline" v-tooltip="'Share your rating & feedback'" @click="handleToggleForm">✍️ Write a Review</BaseButton>
     </div>
 
@@ -146,7 +146,7 @@
       <div
         v-for="review in filteredReviews"
         :key="review.id"
-        class="bg-white p-6 rounded-3xl border border-brand-caramel/20 shadow-sm hover:shadow-md transition-all space-y-3"
+        class="bg-white dark:bg-[#1E1510] p-6 rounded-3xl border border-brand-caramel/20 dark:border-[#C08E5D]/20 shadow-sm hover:shadow-md transition-all space-y-3"
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">

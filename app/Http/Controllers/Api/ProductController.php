@@ -7,6 +7,7 @@ use App\Http\Resources\ProductResource;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Review;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\ProductService;
 use Illuminate\Http\JsonResponse;
@@ -88,6 +89,41 @@ class ProductController extends Controller
             'happy_customers' => $customersCount,
             'signature_recipes' => $recipesCount,
             'average_rating' => $avgRatingFormatted,
+        ]);
+    }
+
+    public function aboutContent(): JsonResponse
+    {
+        $defaultTimeline = [
+            ['year' => '2020', 'emoji' => '🏠', 'title' => 'Home Kitchen Beginnings', 'desc' => 'ABCDips & Treats started in a small home kitchen, baking banana bread and cookies for friends and family.'],
+            ['year' => '2021', 'emoji' => '❤️', 'title' => 'First Online Orders', 'desc' => 'Word spread and we started taking online orders through social media, quickly selling out every weekend.'],
+            ['year' => '2023', 'emoji' => '🥰', 'title' => 'Full Menu & Delivery', 'desc' => 'Expanded to our full pastry menu including custom cakes, cheesecakes, and cinnamon rolls with city-wide delivery.'],
+        ];
+
+        $defaultValues = [
+            ['emoji' => '🫖', 'title' => 'Quality Ingredients', 'desc' => 'We use only real creamery butter, imported Belgian chocolate, and fresh farm eggs. No shortcuts, ever.'],
+            ['emoji' => '❤️', 'title' => 'Made with Love', 'desc' => 'Every pastry is handcrafted in small batches by our dedicated bakers who pour passion into every bite.'],
+            ['emoji' => '🌟', 'title' => 'Community First', 'desc' => 'We believe in building relationships, supporting local suppliers, and making people smile one pastry at a time.'],
+        ];
+
+        return response()->json([
+            'hero_tagline' => Setting::get('about_hero_tagline', 'our story'),
+            'hero_title' => Setting::get('about_hero_title', "Baked with Heart,\nserved with love"),
+            'hero_subtitle' => Setting::get('about_hero_subtitle', 'ABCDips & Treats began as a small home bakery with a simple dream: to share the joy of freshly baked, handcrafted pastries with every Filipino household.'),
+            
+            'timeline_tagline' => Setting::get('about_timeline_tagline', 'the journey'),
+            'timeline_title' => Setting::get('about_timeline_title', 'The ABCDips Story'),
+            'timeline' => Setting::getJson('about_timeline', $defaultTimeline),
+
+            'values_tagline' => Setting::get('about_values_tagline', 'what drives us'),
+            'values_title' => Setting::get('about_values_title', 'Our Core Values'),
+            'values' => Setting::getJson('about_values', $defaultValues),
+
+            'cta_tagline' => Setting::get('about_cta_tagline', 'ready to indulge?'),
+            'cta_title' => Setting::get('about_cta_title', 'Order Your Favorites Today'),
+            'cta_subtitle' => Setting::get('about_cta_subtitle', 'Same-day delivery available in Cavite. Fresh from our oven to your door.'),
+            'cta_button_text' => Setting::get('about_cta_button_text', 'Browse Full Menu →'),
+            'cta_button_url' => Setting::get('about_cta_button_url', '/shop'),
         ]);
     }
 }

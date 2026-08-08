@@ -15,8 +15,8 @@
         :class="[
           'px-4 py-2 rounded-2xl text-xs font-extrabold transition-all duration-200 flex items-center gap-2',
           activeFilter === tab.id
-            ? 'bg-brand-choco text-surface shadow-sm'
-            : 'bg-white text-ink border border-brand-caramel/20 hover:bg-surface'
+            ? 'bg-brand-choco text-surface dark:bg-[#C08E5D] dark:text-[#1C1410] shadow-sm'
+            : 'bg-white dark:bg-[#1E1510] text-ink dark:text-[#FBF3E7] border border-brand-caramel/20 dark:border-[#C08E5D]/20 hover:bg-surface dark:hover:bg-[#140D09]'
         ]"
       >
         <span>{{ tab.icon }}</span>
@@ -24,7 +24,7 @@
         <span
           :class="[
             'px-2 py-0.5 rounded-full text-[10px] font-black',
-            activeFilter === tab.id ? 'bg-brand-tan text-ink' : 'bg-surface text-brand-choco'
+            activeFilter === tab.id ? 'bg-brand-tan text-ink' : 'bg-surface dark:bg-[#140D09] text-brand-choco dark:text-[#E2C08A]'
           ]"
         >
           {{ getFilteredCount(tab.id) }}
@@ -54,18 +54,18 @@
       <div
         v-for="order in filteredOrders"
         :key="order.id"
-        class="bg-white rounded-3xl p-6 border border-brand-caramel/20 shadow-sm space-y-6 transition-all"
+        class="bg-white dark:bg-[#1E1510] rounded-3xl p-6 border border-brand-caramel/20 dark:border-[#C08E5D]/20 shadow-sm space-y-6 transition-all"
       >
         <!-- Header Row -->
-        <div class="flex flex-wrap justify-between items-center gap-3 pb-4 border-b border-brand-caramel/15">
+        <div class="flex flex-wrap justify-between items-center gap-3 pb-4 border-b border-brand-caramel/15 dark:border-[#C08E5D]/20">
           <div>
             <div class="flex items-center gap-2">
-              <span class="font-extrabold text-ink text-xl">Order #{{ order.order_number }}</span>
+              <span class="font-extrabold text-ink dark:text-[#FBF3E7] text-xl">Order #{{ order.order_number }}</span>
               <BaseBadge :variant="getStatusVariant(order.status)" size="sm">
                 {{ order.status_label || order.status }}
               </BaseBadge>
             </div>
-            <span class="text-xs text-warm-gray block mt-1">
+            <span class="text-xs text-warm-gray dark:text-[#C5B4A4] block mt-1">
               📅 Placed on {{ formatDate(order.created_at) }} • {{ order.fulfillment_type === 'pickup' ? '🏪 Store Pickup' : '🛵 Doorstep Delivery' }}
             </span>
           </div>

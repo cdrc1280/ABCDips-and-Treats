@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Setting;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -30,6 +31,18 @@ class StoreSettings extends Page implements HasForms
 
     public function mount(): void
     {
+        $defaultTimeline = [
+            ['year' => '2020', 'emoji' => '🏠', 'title' => 'Home Kitchen Beginnings', 'desc' => 'ABCDips & Treats started in a small home kitchen, baking banana bread and cookies for friends and family.'],
+            ['year' => '2021', 'emoji' => '❤️', 'title' => 'First Online Orders', 'desc' => 'Word spread and we started taking online orders through social media, quickly selling out every weekend.'],
+            ['year' => '2023', 'emoji' => '🥰', 'title' => 'Full Menu & Delivery', 'desc' => 'Expanded to our full pastry menu including custom cakes, cheesecakes, and cinnamon rolls with city-wide delivery.'],
+        ];
+
+        $defaultValues = [
+            ['emoji' => '🫖', 'title' => 'Quality Ingredients', 'desc' => 'We use only real creamery butter, imported Belgian chocolate, and fresh farm eggs. No shortcuts, ever.'],
+            ['emoji' => '❤️', 'title' => 'Made with Love', 'desc' => 'Every pastry is handcrafted in small batches by our dedicated bakers who pour passion into every bite.'],
+            ['emoji' => '🌟', 'title' => 'Community First', 'desc' => 'We believe in building relationships, supporting local suppliers, and making people smile one pastry at a time.'],
+        ];
+
         $this->form->fill([
             'store_name' => Setting::get('store_name', 'ABCDips & Treats'),
             'store_phone' => Setting::get('store_phone', ''),
@@ -50,6 +63,24 @@ class StoreSettings extends Page implements HasForms
             'bdo_account_name' => Setting::get('bdo_account_name', 'ABCDips & Treats'),
             'bdo_account_number' => Setting::get('bdo_account_number', '0012-3456-7890'),
             'bdo_instructions' => Setting::get('bdo_instructions', ''),
+
+            'about_hero_tagline' => Setting::get('about_hero_tagline', 'our story'),
+            'about_hero_title' => Setting::get('about_hero_title', "Baked with Heart,\nserved with love"),
+            'about_hero_subtitle' => Setting::get('about_hero_subtitle', 'ABCDips & Treats began as a small home bakery with a simple dream: to share the joy of freshly baked, handcrafted pastries with every Filipino household.'),
+            
+            'about_timeline_tagline' => Setting::get('about_timeline_tagline', 'the journey'),
+            'about_timeline_title' => Setting::get('about_timeline_title', 'The ABCDips Story'),
+            'about_timeline' => Setting::getJson('about_timeline', $defaultTimeline),
+
+            'about_values_tagline' => Setting::get('about_values_tagline', 'what drives us'),
+            'about_values_title' => Setting::get('about_values_title', 'Our Core Values'),
+            'about_values' => Setting::getJson('about_values', $defaultValues),
+
+            'about_cta_tagline' => Setting::get('about_cta_tagline', 'ready to indulge?'),
+            'about_cta_title' => Setting::get('about_cta_title', 'Order Your Favorites Today'),
+            'about_cta_subtitle' => Setting::get('about_cta_subtitle', 'Same-day delivery available in Cavite. Fresh from our oven to your door.'),
+            'about_cta_button_text' => Setting::get('about_cta_button_text', 'Browse Full Menu →'),
+            'about_cta_button_url' => Setting::get('about_cta_button_url', '/shop'),
         ]);
     }
 
@@ -93,6 +124,85 @@ class StoreSettings extends Page implements HasForms
                             ->label('Store Support Email')
                             ->email()
                             ->columnSpanFull(),
+                    ]),
+
+                Section::make('About Us Page Content')
+                    ->description('Modify all titles, subtitles, timeline milestones, and core values shown on the public /about page.')
+                    ->columns(2)
+                    ->components([
+                        TextInput::make('about_hero_tagline')
+                            ->label('Hero Script Tagline')
+                            ->placeholder('our story')
+                            ->required(),
+
+                        TextInput::make('about_hero_title')
+                            ->label('Hero Heading')
+                            ->placeholder('Baked with Heart, served with love')
+                            ->required(),
+
+                        Textarea::make('about_hero_subtitle')
+                            ->label('Hero Description')
+                            ->rows(2)
+                            ->columnSpanFull()
+                            ->required(),
+
+                        TextInput::make('about_timeline_tagline')
+                            ->label('Timeline Script Tagline')
+                            ->placeholder('the journey'),
+
+                        TextInput::make('about_timeline_title')
+                            ->label('Timeline Heading')
+                            ->placeholder('The ABCDips Story'),
+
+                        Repeater::make('about_timeline')
+                            ->label('Bakery Milestones Timeline')
+                            ->columnSpanFull()
+                            ->schema([
+                                TextInput::make('year')->label('Year')->required(),
+                                TextInput::make('emoji')->label('Emoji Icon')->placeholder('🏠'),
+                                TextInput::make('title')->label('Milestone Title')->required(),
+                                Textarea::make('desc')->label('Milestone Description')->rows(2)->required(),
+                            ])
+                            ->columns(3),
+
+                        TextInput::make('about_values_tagline')
+                            ->label('Values Script Tagline')
+                            ->placeholder('what drives us'),
+
+                        TextInput::make('about_values_title')
+                            ->label('Values Heading')
+                            ->placeholder('Our Core Values'),
+
+                        Repeater::make('about_values')
+                            ->label('Bakery Core Values')
+                            ->columnSpanFull()
+                            ->schema([
+                                TextInput::make('emoji')->label('Emoji Icon')->placeholder('🫖'),
+                                TextInput::make('title')->label('Value Title')->required(),
+                                Textarea::make('desc')->label('Value Description')->rows(2)->required(),
+                            ])
+                            ->columns(3),
+
+                        TextInput::make('about_cta_tagline')
+                            ->label('CTA Script Tagline')
+                            ->placeholder('ready to indulge?'),
+
+                        TextInput::make('about_cta_title')
+                            ->label('CTA Heading')
+                            ->placeholder('Order Your Favorites Today'),
+
+                        Textarea::make('about_cta_subtitle')
+                            ->label('CTA Subtitle')
+                            ->rows(2)
+                            ->columnSpanFull(),
+
+                        TextInput::make('about_cta_button_text')
+                            ->label('CTA Button Label')
+                            ->placeholder('Browse Full Menu →'),
+
+                        TextInput::make('about_cta_button_url')
+                            ->label('CTA Button Destination URL')
+                            ->placeholder('/shop'),
                     ]),
 
                 Section::make('Lalamove Delivery API')
@@ -179,10 +289,15 @@ class StoreSettings extends Page implements HasForms
                 str_starts_with($key, 'lalamove_') => 'lalamove',
                 str_starts_with($key, 'paymongo_') => 'paymongo',
                 str_starts_with($key, 'bdo_') => 'bdo',
+                str_starts_with($key, 'about_') => 'about',
                 default => 'general',
             };
 
-            Setting::set($key, is_bool($value) ? ($value ? '1' : '0') : $value, $group);
+            if (is_array($value)) {
+                Setting::setJson($key, $value, $group);
+            } else {
+                Setting::set($key, is_bool($value) ? ($value ? '1' : '0') : $value, $group);
+            }
         }
 
         Cache::flush();

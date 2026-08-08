@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between">
       <RouterLink
         to="/account/orders"
-        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-brand-choco bg-white border border-brand-caramel/25 hover:bg-brand-tan/20 transition-all shadow-sm"
+        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-brand-choco dark:text-[#E2C08A] bg-white dark:bg-[#1E1510] border border-brand-caramel/25 dark:border-[#C08E5D]/25 hover:bg-brand-tan/20 transition-all shadow-sm"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
         Back to My Account
@@ -12,7 +12,7 @@
 
       <RouterLink
         to="/"
-        class="text-xs font-bold text-warm-gray hover:text-brand-choco hover:underline"
+        class="text-xs font-bold text-warm-gray dark:text-[#C5B4A4] hover:text-brand-choco dark:hover:text-[#E2C08A] hover:underline"
       >
         Go to Storefront →
       </RouterLink>
@@ -27,8 +27,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
       <!-- Profile Form Left -->
-      <form @submit.prevent="updateProfile" class="bg-white rounded-3xl p-6 md:p-8 border border-brand-caramel/20 shadow-sm space-y-4">
-        <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-3">
+      <form @submit.prevent="updateProfile" class="bg-white dark:bg-[#1E1510] rounded-3xl p-6 md:p-8 border border-brand-caramel/20 dark:border-[#C08E5D]/20 shadow-sm space-y-4">
+        <h3 class="font-extrabold text-xl text-ink dark:text-[#FBF3E7] border-b border-brand-caramel/20 dark:border-[#C08E5D]/20 pb-3">
           Personal Details
         </h3>
 
@@ -40,7 +40,7 @@
 
         <div class="space-y-1">
           <div class="flex items-center justify-between mb-1">
-            <label class="text-sm font-semibold text-ink">Email Address (Account ID)</label>
+            <label class="text-sm font-semibold text-ink dark:text-[#E2C08A]">Email Address (Account ID)</label>
             <span
               v-if="authStore.user?.email_verified_at"
               class="text-xs font-bold text-success bg-success/15 px-2.5 py-0.5 rounded-full flex items-center gap-1"

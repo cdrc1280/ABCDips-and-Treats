@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-surface flex flex-col relative">
+  <div class="min-h-screen bg-surface dark:bg-[#140D09] text-ink dark:text-[#FBF3E7] flex flex-col relative">
     <!-- Header Nav -->
     <StorefrontNav />
 
@@ -8,11 +8,11 @@
 
       <!-- Back Button & Account Navigation Bar -->
       <div
-        class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 bg-white p-4 sm:p-5 rounded-2xl border border-brand-caramel/20 shadow-sm">
+        class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 bg-white dark:bg-[#1E1510] p-4 sm:p-5 rounded-2xl border border-brand-caramel/20 dark:border-[#C08E5D]/20 shadow-sm">
 
         <!-- Back to Store Button -->
         <RouterLink to="/"
-          class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-brand-choco bg-brand-tan/20 hover:bg-brand-tan/35 transition-colors">
+          class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-brand-choco dark:text-[#E2C08A] bg-brand-tan/20 hover:bg-brand-tan/35 transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
@@ -24,8 +24,8 @@
           <RouterLink v-for="tab in accountTabs" :key="tab.to" :to="tab.to" :class="[
             'px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5',
             route.path === tab.to
-              ? 'bg-brand-choco text-surface shadow-sm'
-              : 'text-ink hover:bg-brand-tan/20 hover:text-brand-choco'
+              ? 'bg-brand-choco text-surface dark:bg-[#C08E5D] dark:text-[#1C1410] shadow-sm'
+              : 'text-ink dark:text-[#FBF3E7] hover:bg-brand-tan/20 hover:text-brand-choco dark:hover:text-[#E2C08A]'
           ]">
             <span v-html="tab.icon" />
             {{ tab.label }}
@@ -48,7 +48,7 @@
     <StorefrontFooter />
     <CartDrawer />
     <ToastContainer />
-    <AiChatWidget v-if="authStore.isAuthenticated && authStore.isAdmin" />
+    <AiChatWidget />
   </div>
 </template>
 

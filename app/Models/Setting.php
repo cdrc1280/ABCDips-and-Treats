@@ -35,6 +35,28 @@ class Setting extends Model
     }
 
     /**
+     * Get a setting value as decoded JSON array or default.
+     */
+    public static function getJson(string $key, array $default = []): array
+    {
+        $value = static::get($key);
+        if (is_array($value)) return $value;
+        if (is_string($value) && !empty($value)) {
+            $decoded = json_decode($value, true);
+            return is_array($decoded) ? $decoded : $default;
+        }
+        return $default;
+    }
+
+    /**
+     * Set a setting value as JSON string.
+     */
+    public static function setJson(string $key, array $value, string $group = 'general'): void
+    {
+        static::set($key, json_encode($value), $group);
+    }
+
+    /**
      * Get all settings as a flat key => value array, optionally filtered by group.
      */
     public static function getAllByGroup(string $group): array

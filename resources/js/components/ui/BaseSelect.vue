@@ -1,6 +1,6 @@
 <template>
   <div class="w-full">
-    <label v-if="label" :for="id" class="block text-xs font-semibold uppercase tracking-wider text-brand-choco mb-1.5">
+    <label v-if="label" :for="id" class="block text-xs font-semibold uppercase tracking-wider text-brand-choco dark:text-[#E2C08A] mb-1.5">
       {{ label }}
       <span v-if="required" class="text-error">*</span>
     </label>
@@ -12,10 +12,10 @@
         :disabled="disabled"
         :required="required"
         :class="[
-          'w-full rounded-xl bg-white border text-sm text-ink pl-3.5 pr-10 py-2.5 appearance-none transition-all duration-200 focus:outline-none focus:ring-2 disabled:bg-surface/50 disabled:text-warm-gray disabled:cursor-not-allowed',
+          'w-full rounded-xl bg-white dark:bg-[#1E1510] border text-sm text-ink dark:text-[#FBF3E7] pl-3.5 pr-10 py-2.5 appearance-none transition-all duration-200 focus:outline-none focus:ring-2 disabled:bg-surface/50 dark:disabled:bg-[#140D09] disabled:text-warm-gray disabled:cursor-not-allowed',
           error
             ? 'border-error focus:border-error focus:ring-error/20'
-            : 'border-brand-caramel/30 hover:border-brand-caramel focus:border-brand-choco focus:ring-brand-choco/20'
+            : 'border-brand-caramel/30 dark:border-[#C08E5D]/30 hover:border-brand-caramel dark:hover:border-[#C08E5D] focus:border-brand-choco dark:focus:border-[#E2C08A] focus:ring-brand-choco/20 dark:focus:ring-[#E2C08A]/20'
         ]"
         @change="$emit('update:modelValue', $event.target.value)"
       >

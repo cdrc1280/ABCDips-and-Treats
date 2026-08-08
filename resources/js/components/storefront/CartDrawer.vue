@@ -9,12 +9,12 @@
         <!-- Slide-over Drawer -->
         <Transition name="slide">
             <div v-if="cartStore.openDrawer"
-                class="fixed inset-y-0 right-0 z-90 w-full max-w-md bg-white shadow-2xl flex flex-col justify-between border-l border-brand-caramel/20">
+                class="fixed inset-y-0 right-0 z-90 w-full max-w-md bg-white dark:bg-[#1E1510] shadow-2xl flex flex-col justify-between border-l border-brand-caramel/20 dark:border-[#C08E5D]/20">
                 <!-- Header -->
-                <div class="p-6 border-b border-brand-caramel/20 flex items-center justify-between bg-surface">
+                <div class="p-6 border-b border-brand-caramel/20 dark:border-[#C08E5D]/20 flex items-center justify-between bg-surface dark:bg-[#140D09]">
                     <div>
-                        <h2 class="text-xl font-bold text-ink">Your Pastry Basket</h2>
-                        <p class="text-xs text-warm-gray">{{ cartStore.itemCount }} {{ cartStore.itemCount === 1 ?
+                        <h2 class="text-xl font-bold text-ink dark:text-[#FBF3E7]">Your Pastry Basket</h2>
+                        <p class="text-xs text-warm-gray dark:text-[#C5B4A4]">{{ cartStore.itemCount }} {{ cartStore.itemCount === 1 ?
                             'item' : 'items' }}</p>
                     </div>
                     <button v-tooltip="'Close basket drawer'"

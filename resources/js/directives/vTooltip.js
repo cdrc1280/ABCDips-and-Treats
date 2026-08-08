@@ -1,20 +1,28 @@
 export const vTooltip = {
   mounted(el, binding) {
-    if (!binding.value) return
-
-    const text = typeof binding.value === 'object' ? binding.value.text : binding.value
-    const position = (typeof binding.value === 'object' && binding.value.position) ? binding.value.position : 'top'
-
-    if (!text) return
-
-    el.setAttribute('title', text)
+    el._tooltipValue = binding.value
+    if (el.hasAttribute('title')) el.removeAttribute('title')
 
     let tooltipEl = null
 
+    function getTooltipText() {
+      const val = el._tooltipValue
+      if (!val) return ''
+      return typeof val === 'object' ? val.text : String(val)
+    }
+
+    function getTooltipPosition() {
+      const val = el._tooltipValue
+      return (typeof val === 'object' && val.position) ? val.position : 'top'
+    }
+
     function createTooltip() {
       tooltipEl = document.createElement('div')
-      tooltipEl.className = 'fixed z-99999 pointer-events-none transition-all duration-200 opacity-0 scale-95 px-3 py-1.5 bg-ink/95 text-surface text-[11px] font-semibold rounded-xl border border-brand-caramel/30 shadow-2xl backdrop-blur-md max-w-xs text-center leading-snug tracking-wide'
-      tooltipEl.textContent = text
+      const isDark = document.documentElement.classList.contains('dark')
+      tooltipEl.className = isDark
+        ? 'fixed z-[9999] pointer-events-none transition-all duration-200 opacity-0 scale-95 px-3 py-1.5 bg-[#2A1C13]/95 text-[#E2C08A] text-[11px] font-semibold rounded-xl border border-[#C08E5D]/40 shadow-2xl backdrop-blur-md max-w-xs text-center leading-snug tracking-wide'
+        : 'fixed z-[9999] pointer-events-none transition-all duration-200 opacity-0 scale-95 px-3 py-1.5 bg-[#1C1410]/95 text-[#FBF3E7] text-[11px] font-semibold rounded-xl border border-[#C08E5D]/30 shadow-2xl backdrop-blur-md max-w-xs text-center leading-snug tracking-wide'
+      
       document.body.appendChild(tooltipEl)
     }
 
@@ -22,6 +30,7 @@ export const vTooltip = {
       if (!tooltipEl) return
       const rect = el.getBoundingClientRect()
       const tipRect = tooltipEl.getBoundingClientRect()
+      const position = getTooltipPosition()
 
       let top = 0
       let left = 0
@@ -40,7 +49,7 @@ export const vTooltip = {
         left = rect.right + 8
       }
 
-      // Viewport bounds check
+      // Viewport overflow boundary guards
       if (left < 10) left = 10
       if (left + tipRect.width > window.innerWidth - 10) {
         left = window.innerWidth - tipRect.width - 10
@@ -52,7 +61,18 @@ export const vTooltip = {
     }
 
     function show() {
+      const text = getTooltipText()
+      if (!text) return
+
       if (!tooltipEl) createTooltip()
+
+      tooltipEl.textContent = text
+      
+      const isDark = document.documentElement.classList.contains('dark')
+      tooltipEl.className = isDark
+        ? 'fixed z-[9999] pointer-events-none transition-all duration-200 opacity-0 scale-95 px-3 py-1.5 bg-[#2A1C13]/95 text-[#E2C08A] text-[11px] font-semibold rounded-xl border border-[#C08E5D]/40 shadow-2xl backdrop-blur-md max-w-xs text-center leading-snug tracking-wide'
+        : 'fixed z-[9999] pointer-events-none transition-all duration-200 opacity-0 scale-95 px-3 py-1.5 bg-[#1C1410]/95 text-[#FBF3E7] text-[11px] font-semibold rounded-xl border border-[#C08E5D]/30 shadow-2xl backdrop-blur-md max-w-xs text-center leading-snug tracking-wide'
+
       positionTooltip()
       requestAnimationFrame(() => {
         if (tooltipEl) {
@@ -83,14 +103,15 @@ export const vTooltip = {
     el.addEventListener('focus', show)
     el.addEventListener('blur', hide)
   },
+
   updated(el, binding) {
-    if (binding.value !== binding.oldValue) {
-      const text = typeof binding.value === 'object' ? binding.value.text : binding.value
-      if (text) {
-        el.setAttribute('title', text)
-      }
+    el._tooltipValue = binding.value
+    if (el.hasAttribute('title')) el.removeAttribute('title')
+    if (el._tooltipShow && document.activeElement === el) {
+      el._tooltipShow()
     }
   },
+
   unmounted(el) {
     if (el._tooltipHide) {
       el._tooltipHide()

@@ -23,22 +23,22 @@
         >
           <div
             v-if="modelValue"
-            class="bg-white rounded-3xl shadow-2xl border border-brand-caramel/20 overflow-hidden w-full max-w-lg relative"
+            class="bg-white dark:bg-[#1E1510] text-ink dark:text-[#FBF3E7] rounded-3xl shadow-2xl border border-brand-caramel/20 dark:border-[#C08E5D]/20 overflow-hidden w-full max-w-lg relative"
             style="box-shadow: var(--shadow-xl, 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1));"
           >
             <!-- Modal Header -->
-            <div class="px-6 pt-6 pb-4 flex items-center justify-between border-b border-brand-caramel/15">
+            <div class="px-6 pt-6 pb-4 flex items-center justify-between border-b border-brand-caramel/15 dark:border-[#C08E5D]/20">
               <div>
-                <h3 class="font-extrabold text-xl text-ink flex items-center gap-2">
+                <h3 class="font-extrabold text-xl text-ink dark:text-[#FBF3E7] flex items-center gap-2">
                   <slot name="icon" />
                   <span>{{ title }}</span>
                 </h3>
-                <p v-if="subtitle" class="text-xs text-warm-gray mt-0.5">{{ subtitle }}</p>
+                <p v-if="subtitle" class="text-xs text-warm-gray dark:text-[#C5B4A4] mt-0.5">{{ subtitle }}</p>
               </div>
 
               <button
                 type="button"
-                class="w-8 h-8 rounded-full bg-surface hover:bg-brand-tan/30 text-brand-choco flex items-center justify-center transition-colors"
+                class="w-8 h-8 rounded-full bg-surface dark:bg-[#140D09] hover:bg-brand-tan/30 text-brand-choco dark:text-[#E2C08A] flex items-center justify-center transition-colors"
                 @click="close"
               >
                 ✕
@@ -51,7 +51,7 @@
             </div>
 
             <!-- Modal Footer -->
-            <div v-if="$slots.footer" class="px-6 py-4 bg-surface/60 border-t border-brand-caramel/15 flex items-center justify-end gap-3">
+            <div v-if="$slots.footer" class="px-6 py-4 bg-surface/60 dark:bg-[#140D09]/60 border-t border-brand-caramel/15 dark:border-[#C08E5D]/20 flex items-center justify-end gap-3">
               <slot name="footer" />
             </div>
           </div>

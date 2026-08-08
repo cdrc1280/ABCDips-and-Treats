@@ -1,13 +1,13 @@
 <template>
   <div class="w-full">
-    <label v-if="label" :for="id" class="block text-xs font-semibold uppercase tracking-wider text-brand-choco mb-1.5">
+    <label v-if="label" :for="id" class="block text-xs font-semibold uppercase tracking-wider text-brand-choco dark:text-[#E2C08A] mb-1.5">
       {{ label }}
       <span v-if="required" class="text-error">*</span>
     </label>
 
     <div class="relative rounded-xl">
       <!-- Icon Left Slot -->
-      <div v-if="$slots['icon-left']" class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-warm-gray">
+      <div v-if="$slots['icon-left']" class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-warm-gray dark:text-[#C5B4A4]">
         <slot name="icon-left" />
       </div>
 
@@ -26,14 +26,14 @@
         :inputmode="computedInputMode"
         :autocomplete="autocomplete"
         :class="[
-          'w-full rounded-xl bg-white border text-sm text-ink placeholder-warm-gray/60 transition-all duration-200 focus:outline-none focus:ring-2 disabled:bg-surface/50 disabled:text-warm-gray disabled:cursor-not-allowed',
+          'w-full rounded-xl bg-white dark:bg-[#1E1510] border text-sm text-ink dark:text-[#FBF3E7] placeholder-warm-gray/60 dark:placeholder-[#C5B4A4]/50 transition-all duration-200 focus:outline-none focus:ring-2 disabled:bg-surface/50 dark:disabled:bg-[#140D09] disabled:text-warm-gray disabled:cursor-not-allowed',
           $slots['icon-left'] ? 'pl-10' : 'pl-3.5',
           hasRightContent ? 'pr-10' : 'pr-3.5',
           error
             ? 'border-error focus:border-error focus:ring-error/20'
             : success
             ? 'border-success focus:border-success focus:ring-success/20'
-            : 'border-brand-caramel/30 hover:border-brand-caramel focus:border-brand-choco focus:ring-brand-choco/20',
+            : 'border-brand-caramel/30 dark:border-[#C08E5D]/30 hover:border-brand-caramel dark:hover:border-[#C08E5D] focus:border-brand-choco dark:focus:border-[#E2C08A] focus:ring-brand-choco/20 dark:focus:ring-[#E2C08A]/20',
           sizeClass
         ]"
         @keydown="handleKeydown"

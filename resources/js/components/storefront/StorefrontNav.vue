@@ -22,9 +22,9 @@
             </RouterLink>
 
             <!-- Desktop Navigation Links (Single Line, Never Wrap) -->
-            <nav class="hidden lg:flex items-center gap-1 xl:gap-1.5 flex-1 justify-center max-w-3xl px-2">
+            <nav class="hidden lg:flex items-center gap-0.5 xl:gap-1.5 flex-1 justify-center max-w-3xl px-1">
                 <RouterLink v-for="link in navLinks" :key="link.to" :to="link.to" :class="[
-                    'px-2.5 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs xl:text-sm font-bold whitespace-nowrap transition-all duration-200 shrink-0',
+                    'px-2 py-1.5 lg:px-2.5 xl:px-3.5 xl:py-2 rounded-xl text-[11px] lg:text-xs xl:text-sm font-bold whitespace-nowrap transition-all duration-200 shrink-0',
                     isLinkActive(link.to)
                         ? 'bg-[#5C3A22] text-[#FBF3E7] shadow-xs dark:bg-[#C08E5D] dark:text-[#1C1410]'
                         : 'text-[#1C1410] dark:text-[#FBF3E7] hover:text-[#5C3A22] dark:hover:text-[#E2C08A] hover:bg-[#D9A876]/20'

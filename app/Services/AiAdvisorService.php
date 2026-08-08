@@ -44,7 +44,7 @@ class AiAdvisorService
                             'role' => 'user',
                             'parts' => [
                                 [
-                                    'text' => "You are Dips 🧁, the friendly AI Assistant for ABCDips & Treats bakery in Cavite. Keep answers warm, concise, helpful, and formatted with emojis.\n{$contextSummary}\n\nUser Question: {$prompt}"
+                                    'text' => "You are Dips 🧁, the friendly AI Assistant for ABCDips & Treats bakery in Cavite. Keep answers warm, concise, helpful, and formatted with emojis. IMPORTANT: Do NOT disclose recipe ingredients, exact proportions, or proprietary ingredient lists under any circumstances. Direct users to product dietary allergen badges for dietary concerns.\n{$contextSummary}\n\nUser Question: {$prompt}"
                                 ]
                             ]
                         ]
@@ -77,7 +77,7 @@ class AiAdvisorService
                     'messages' => [
                         [
                             'role' => 'system',
-                            'content' => "You are Dips 🧁, the friendly AI Assistant for ABCDips & Treats. Provide warm, concise, expert bakery advice in warm tone. {$contextSummary}"
+                            'content' => "You are Dips 🧁, the friendly AI Assistant for ABCDips & Treats. Provide warm, concise, expert bakery advice. IMPORTANT: Do NOT disclose recipe ingredients, exact proportions, or proprietary ingredient lists under any circumstances. Direct users to product dietary allergen badges for dietary concerns. {$contextSummary}"
                         ],
                         ['role' => 'user', 'content' => $prompt]
                     ],
@@ -129,8 +129,8 @@ class AiAdvisorService
             return "💳 **Accepted Payment Methods:**\nWe support flexible payment options:\n• **GCash & Maya E-Wallets** (Instant online redirect)\n• **Bank Transfer** (BDO, BPI, UnionBank, Metrobank)\n• **Cash on Delivery (COD)** for doorstep delivery\n• **Store Pickup** (Pay at counter)";
         }
 
-        if (str_contains($p, 'allergy') || str_contains($p, 'gluten') || str_contains($p, 'nut') || str_contains($p, 'dairy') || str_contains($p, 'egg') || str_contains($p, 'ingredient')) {
-            return "🌾 **Allergen & Ingredient Notice:**\nAll ABCDips pastries are baked using 100% real creamery butter, fresh farm eggs, and premium ingredients. Each product page lists specific allergen badges (Gluten, Dairy, Eggs, Nuts, Soy). Please check product tags or include special instructions upon checkout if you have dietary restrictions.";
+        if (str_contains($p, 'allergy') || str_contains($p, 'gluten') || str_contains($p, 'nut') || str_contains($p, 'dairy') || str_contains($p, 'egg') || str_contains($p, 'diet')) {
+            return "🌾 **Dietary & Allergen Notice:**\nAll ABCDips pastries feature specific dietary allergen badges (Gluten, Dairy, Eggs, Nuts, Soy) on their respective product pages. Please check product badges or include special instructions upon checkout if you have dietary restrictions.";
         }
 
         if (str_contains($p, 'track') || str_contains($p, 'order') || str_contains($p, 'status') || str_contains($p, 'invoice')) {
@@ -152,11 +152,11 @@ class AiAdvisorService
         if (str_contains($p, 'stock') || str_contains($p, 'reorder') || str_contains($p, 'inventory') || str_contains($p, 'revenue') || str_contains($p, 'sales')) {
             if ($lowStock->isNotEmpty()) {
                 $itemsList = $lowStock->map(fn($i) => "• **{$i->name}**: Only {$i->stock_qty} {$i->unit} remaining (Reorder threshold: {$i->min_stock_qty} {$i->unit})")->implode("\n");
-                return "⚠️ **Inventory Alert:**\nThe following ingredients are below safe threshold levels:\n{$itemsList}";
+                return "⚠️ **Inventory Alert:**\nThe following items are below safe threshold levels:\n{$itemsList}";
             }
-            return "📊 **Bakery Performance Summary:**\n• Total Revenue: **₱" . number_format($kpis['total_revenue'], 2) . "** across **{$kpis['completed_orders']} orders**.\n• All raw ingredients are currently well-stocked above minimum thresholds!";
+            return "📊 **Bakery Performance Summary:**\n• Total Revenue: **₱" . number_format($kpis['total_revenue'], 2) . "** across **{$kpis['completed_orders']} orders**.\n• All stock levels are currently well-maintained above minimum thresholds!";
         }
 
-        return "🧁 **ABCDips AI Helper:**\nHello! I'm Dips 🧁, your AI assistant for ABCDips & Treats.\nI can help you with pastry recommendations, custom cake orders, Lalamove delivery fees, payment options, allergen information, order tracking, and store pickup options.\n\nWhat can I assist you with today?";
+        return "🧁 **ABCDips AI Helper:**\nHello! I'm Dips 🧁, your AI assistant for ABCDips & Treats.\nI can help you with pastry recommendations, custom cake orders, Lalamove delivery fees, payment options, allergen badges, order tracking, and store pickup options.\n\nWhat can I assist you with today?";
     }
 }
