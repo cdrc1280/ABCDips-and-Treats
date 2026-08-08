@@ -42,8 +42,7 @@ RUN composer install \
     --no-dev \
     --prefer-dist \
     --optimize-autoloader \
-    --no-interaction \
-    --no-scripts
+    --no-interaction
 
 COPY . .
 
@@ -73,7 +72,9 @@ RUN npm run build
 
 FROM php:8.3-fpm
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
+ARG APP_ENV=production
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    APP_ENV=${APP_ENV}
 
 RUN apt-get update && apt-get install -y \
     nginx \
@@ -125,6 +126,6 @@ RUN mkdir -p \
 RUN chown -R www-data:www-data /var/www/html
 RUN chmod -R 775 storage bootstrap/cache
 
-EXPOSE 8080
+EXPOSE 80
 
 ENTRYPOINT ["/entrypoint.sh"]

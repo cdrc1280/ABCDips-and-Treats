@@ -133,7 +133,7 @@
                 <button @click="mobileOpen = !mobileOpen" v-tooltip="'Toggle navigation menu'"
                     class="lg:hidden p-2 rounded-xl hover:bg-brand-tan/20 transition-colors"
                     aria-label="Toggle Navigation">
-                    <svg class="w-5 h-5 text-ink dark:text-surface" fill="none" stroke="currentColor"
+                    <svg class="w-5 h-5 text-[#1C1410] dark:text-[#FBF3E7]" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path v-if="!mobileOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16M4 18h16" />
@@ -150,25 +150,25 @@
             leave-active-class="transition-all duration-150 ease-in" leave-from-class="opacity-100 translate-y-0"
             leave-to-class="opacity-0 -translate-y-2">
             <div v-if="mobileOpen"
-                class="lg:hidden border-t border-brand-caramel/20 bg-surface/98 dark:bg-ink/98 pb-4 shadow-xl">
+                class="lg:hidden border-t border-[#C08E5D]/20 bg-[#FBF3E7]/98 dark:bg-[#140D09]/98 pb-4 shadow-2xl backdrop-blur-xl">
                 <div class="max-w-7xl mx-auto px-4 pt-3 flex flex-col gap-1">
                     <RouterLink v-for="link in navLinks" :key="link.to" :to="link.to" @click="mobileOpen = false"
                         :class="[
                             'px-4 py-3 rounded-xl text-sm font-semibold transition-colors',
                             isLinkActive(link.to)
-                                ? 'bg-brand-choco text-surface font-bold'
-                                : 'text-ink dark:text-surface hover:text-brand-choco dark:hover:text-surface-400 hover:bg-brand-tan/20'
+                                ? 'bg-[#5C3A22] text-[#FBF3E7] font-bold dark:bg-[#C08E5D] dark:text-[#1C1410] shadow-xs'
+                                : 'text-[#1C1410] dark:text-[#FBF3E7] hover:text-[#5C3A22] dark:hover:text-[#E2C08A] hover:bg-[#D9A876]/20'
                         ]">{{ link.label }}</RouterLink>
 
-                    <div class="border-t border-brand-caramel/20 mt-2 pt-2">
+                    <div class="border-t border-[#C08E5D]/20 mt-2 pt-2">
                         <RouterLink v-if="!authStore.isAuthenticated" to="/auth/login" @click="mobileOpen = false"
-                            class="block px-4 py-3 text-sm font-bold text-brand-choco dark:text-surface-400">Sign In /
+                            class="block px-4 py-3 text-sm font-bold text-[#5C3A22] dark:text-[#E2C08A] hover:bg-[#D9A876]/20 rounded-xl transition-colors">Sign In /
                             Create Account
                         </RouterLink>
                         <template v-else>
                             <RouterLink v-for="item in accountLinks" :key="item.to" :to="item.to"
                                 @click="mobileOpen = false"
-                                class="block px-4 py-3 text-sm text-ink dark:text-surface hover:text-brand-choco dark:hover:text-surface-400 hover:bg-brand-tan/20 rounded-xl transition-colors">
+                                class="block px-4 py-3 text-sm font-medium text-[#1C1410] dark:text-[#FBF3E7] hover:text-[#5C3A22] dark:hover:text-[#E2C08A] hover:bg-[#D9A876]/20 rounded-xl transition-colors">
                                 {{ item.label }}</RouterLink>
                             <button @click="handleLogout"
                                 class="block w-full text-left px-4 py-3 text-sm font-semibold text-error hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors">Sign
