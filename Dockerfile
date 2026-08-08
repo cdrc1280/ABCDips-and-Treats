@@ -130,6 +130,6 @@ RUN chmod -R 775 storage bootstrap/cache
 
 EXPOSE 80
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 CMD curl -f http://localhost/ || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 CMD curl -f http://localhost:${PORT:-80}/up || exit 1
 
 ENTRYPOINT ["/entrypoint.sh"]
