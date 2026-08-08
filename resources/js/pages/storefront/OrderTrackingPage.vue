@@ -15,13 +15,13 @@
 
     <div v-else class="max-w-4xl mx-auto space-y-8">
       <!-- Header Bar -->
-      <div class="bg-white rounded-3xl p-6 md:p-8 border border-[#C08E5D]/20 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="bg-white rounded-3xl p-6 md:p-8 border border-brand-caramel/20 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <span class="script-accent text-[#C08E5D] text-lg">live order status</span>
-          <h1 class="text-2xl md:text-3xl font-extrabold text-[#1C1410] mt-0.5">
+          <span class="script-accent text-brand-caramel text-lg">live order status</span>
+          <h1 class="text-2xl md:text-3xl font-extrabold text-ink mt-0.5">
             Order #{{ order.order_number }}
           </h1>
-          <p class="text-xs text-[#8C7A68]">Placed on {{ new Date(order.created_at).toLocaleString() }}</p>
+          <p class="text-xs text-warm-gray">Placed on {{ new Date(order.created_at).toLocaleString() }}</p>
         </div>
 
         <div class="flex items-center gap-3">
@@ -35,8 +35,8 @@
       </div>
 
       <!-- Live Pipeline Progress Tracker Bar -->
-      <div class="bg-white rounded-3xl p-6 md:p-10 border border-[#C08E5D]/20 shadow-sm space-y-8">
-        <h3 class="font-extrabold text-xl text-[#1C1410] border-b border-[#C08E5D]/20 pb-4">
+      <div class="bg-white rounded-3xl p-6 md:p-10 border border-brand-caramel/20 shadow-sm space-y-8">
+        <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-4">
           Kitchen &amp; Delivery Progress
         </h3>
 
@@ -51,17 +51,17 @@
             <div
               class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300"
               :class="isStepComplete(step.key)
-                ? 'bg-[#6B8F5E] text-white shadow-md scale-105'
+                ? 'bg-success text-white shadow-md scale-105'
                 : isStepActive(step.key)
-                ? 'bg-[#D9A876] dark:bg-[#E2C08A] text-[#1C1410] ring-4 ring-[#D9A876]/30 animate-bounce'
-                : 'bg-[#FBF3E7] dark:bg-[#2A1C13] text-[#8C7A68] dark:text-[#C5B4A4] border border-[#C08E5D]/30'"
+                ? 'bg-brand-tan dark:bg-surface-400 text-ink ring-4 ring-brand-tan/30 animate-bounce'
+                : 'bg-surface dark:bg-[#2A1C13] text-warm-gray dark:text-[#C5B4A4] border border-brand-caramel/30'"
             >
               <svg v-if="isStepComplete(step.key)" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
               <span v-else>{{ idx + 1 }}</span>
             </div>
 
-            <div class="font-bold text-xs text-[#1C1410] dark:text-[#FBF3E7]">{{ step.label }}</div>
-            <div class="text-[10px] text-[#8C7A68] dark:text-[#C5B4A4] line-clamp-1">{{ step.desc }}</div>
+            <div class="font-bold text-xs text-ink dark:text-surface">{{ step.label }}</div>
+            <div class="text-[10px] text-warm-gray dark:text-[#C5B4A4] line-clamp-1">{{ step.desc }}</div>
           </div>
         </div>
       </div>
@@ -69,39 +69,39 @@
       <!-- Customer Details & Order Items Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Customer Info Box -->
-        <div class="bg-white rounded-3xl p-6 border border-[#C08E5D]/20 shadow-sm space-y-4">
-          <h3 class="font-extrabold text-lg text-[#1C1410] border-b border-[#C08E5D]/20 pb-2">
+        <div class="bg-white rounded-3xl p-6 border border-brand-caramel/20 shadow-sm space-y-4">
+          <h3 class="font-extrabold text-lg text-ink border-b border-brand-caramel/20 pb-2">
             Fulfillment Details
           </h3>
 
           <div class="space-y-2 text-xs">
-            <div class="flex justify-between"><span class="text-[#8C7A68]">Customer:</span><span class="font-semibold text-[#1C1410]">{{ order.customer_name }}</span></div>
-            <div class="flex justify-between"><span class="text-[#8C7A68]">Contact:</span><span class="font-semibold text-[#1C1410]">{{ order.customer_phone }}</span></div>
-            <div class="flex justify-between"><span class="text-[#8C7A68]">Method:</span><span class="font-semibold uppercase text-[#5C3A22]">{{ order.fulfillment_type }}</span></div>
-            <div v-if="order.delivery_address" class="pt-2 border-t border-[#C08E5D]/15">
-              <span class="text-[#8C7A68] block mb-1">Delivery Address:</span>
-              <span class="font-medium text-[#1C1410] block">{{ order.delivery_address }}, {{ order.city }}</span>
+            <div class="flex justify-between"><span class="text-warm-gray">Customer:</span><span class="font-semibold text-ink">{{ order.customer_name }}</span></div>
+            <div class="flex justify-between"><span class="text-warm-gray">Contact:</span><span class="font-semibold text-ink">{{ order.customer_phone }}</span></div>
+            <div class="flex justify-between"><span class="text-warm-gray">Method:</span><span class="font-semibold uppercase text-brand-choco">{{ order.fulfillment_type }}</span></div>
+            <div v-if="order.delivery_address" class="pt-2 border-t border-brand-caramel/15">
+              <span class="text-warm-gray block mb-1">Delivery Address:</span>
+              <span class="font-medium text-ink block">{{ order.delivery_address }}, {{ order.city }}</span>
             </div>
           </div>
         </div>
 
         <!-- Items Box -->
-        <div class="bg-white rounded-3xl p-6 border border-[#C08E5D]/20 shadow-sm space-y-4">
-          <h3 class="font-extrabold text-lg text-[#1C1410] border-b border-[#C08E5D]/20 pb-2">
+        <div class="bg-white rounded-3xl p-6 border border-brand-caramel/20 shadow-sm space-y-4">
+          <h3 class="font-extrabold text-lg text-ink border-b border-brand-caramel/20 pb-2">
             Items Ordered
           </h3>
 
-          <div class="divide-y divide-[#C08E5D]/15 max-h-48 overflow-y-auto pr-1">
+          <div class="divide-y divide-brand-caramel/15 max-h-48 overflow-y-auto pr-1">
             <div v-for="item in order.items" :key="item.id" class="py-2 flex justify-between items-center text-xs">
               <div>
-                <span class="font-bold text-[#1C1410]">{{ item.product_name }}</span>
-                <span class="text-[#8C7A68] block">Qty: {{ item.qty }}</span>
+                <span class="font-bold text-ink">{{ item.product_name }}</span>
+                <span class="text-warm-gray block">Qty: {{ item.qty }}</span>
               </div>
-              <span class="font-bold text-[#5C3A22]">₱{{ (item.subtotal || 0).toFixed(2) }}</span>
+              <span class="font-bold text-brand-choco">₱{{ (item.subtotal || 0).toFixed(2) }}</span>
             </div>
           </div>
 
-          <div class="pt-2 border-t border-[#C08E5D]/20 flex justify-between items-baseline font-extrabold text-base text-[#5C3A22]">
+          <div class="pt-2 border-t border-brand-caramel/20 flex justify-between items-baseline font-extrabold text-base text-brand-choco">
             <span>Total Paid</span>
             <span>₱{{ (order.total || 0).toFixed(2) }}</span>
           </div>

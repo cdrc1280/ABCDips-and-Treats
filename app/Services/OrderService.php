@@ -97,79 +97,77 @@ class OrderService
                 }
             }
 
-        // Process Payment Gateway Charge
-        $gateway = $this->paymentManager->driver($data['payment_method']);
-        $payResult = $gateway->charge($order, $data);
+            // Process Payment Gateway Charge
+            $gateway = $this->paymentManager->driver($data['payment_method']);
+            $payResult = $gateway->charge($order, $data);
 
-        if ($payResult['success']) {
-            $order->update([
-                'payment_reference' => $payResult['reference'],
-                'payment_status' => $payResult['status'] === 'paid' ? 'paid' : 'pending',
-                'paid_at' => $payResult['status'] === 'paid' ? now() : null,
-                'status' => Order::STATUS_PENDING,
+            if ($payResult['success']) {
+                $order->update([
+                    'payment_reference' => $payResult['reference'],
+                    'payment_status' => $payResult['status'] === 'paid' ? 'paid' : 'pending',
+                    'paid_at' => $payResult['status'] === 'paid' ? now() : null,
+                    'status' => Order::STATUS_PENDING,
+                ]);
+            }
+
+            // Increment coupon use count
+            if ($cart->coupon_code) {
+                Coupon::where('code', $cart->coupon_code)->increment('used_count');
+            }
+
+            // Log initial pipeline status
+            $order->statusHistories()->create([
+                'from_status' => null,
+                'to_status' => Order::STATUS_PENDING,
+                'comment' => 'Order placed via online checkout (Pending approval/baking).',
+                'changed_by_user_id' => $user?->id,
             ]);
-        }
 
-        // Increment coupon use count
-        if ($cart->coupon_code) {
-            Coupon::where('code', $cart->coupon_code)->increment('used_count');
-        }
+            // Audit Log entry
+            \App\Services\AuditLogger::log('created', "Order #{$order->order_number} placed by {$order->customer_name} (₱" . number_format($order->total, 2) . ")", $order);
 
-        // Log initial pipeline status
-        $order->statusHistories()->create([
-            'from_status' => null,
-            'to_status' => Order::STATUS_PENDING,
-            'comment' => 'Order placed via online checkout (Pending approval/baking).',
-            'changed_by_user_id' => $user?->id,
-        ]);
+            // Seller Notification (Filament Database Notification)
+            try {
+                $admins = User::whereHas('roles', fn($q) => $q->whereIn('name', ['admin', 'super_admin']))->get();
 
-        // Audit Log entry
-        \App\Services\AuditLogger::log('created', "Order #{$order->order_number} placed by {$order->customer_name} (₱" . number_format($order->total, 2) . ")", $order);
+                if ($admins->isEmpty()) {
+                    report(new \RuntimeException('No admin users found to notify for new order.'));
+                    $admins = collect();
+                }
 
-        // Seller Notification (Filament Database Notification)
-        try {
-            $admins = User::whereHas('roles', fn ($q) => $q->whereIn('name', ['admin', 'super_admin']))
-                ->orWhere('email', 'like', '%admin%')
-                ->orWhere('id', 1)
-                ->get();
+                $orderUrl = \App\Filament\Resources\OrderResource::getUrl('edit', ['record' => $order]);
+                $itemCount = $order->items->count();
+                $firstItems = $order->items->take(2)->map(fn($i) => "{$i->qty}x {$i->product_name}")->implode(', ');
+                if ($itemCount > 2) {
+                    $firstItems .= ' + more';
+                }
+                $fulfillmentLabel = ucfirst($order->fulfillment_type);
 
-            if ($admins->isEmpty()) {
-                $admins = User::all();
+                foreach ($admins as $admin) {
+                    \Filament\Notifications\Notification::make()
+                        ->title("🛍️ New Order #{$order->order_number}")
+                        ->body("👤 Customer: **{$order->customer_name}**\n💰 Total: **₱" . number_format($order->total, 2) . "** ({$fulfillmentLabel})\n📦 Items: {$firstItems}")
+                        ->icon('heroicon-o-shopping-bag')
+                        ->iconColor('success')
+                        ->actions([
+                            \Filament\Actions\Action::make('mark_settled')
+                                ->label('✓ Mark as Settled')
+                                ->button()
+                                ->color('success')
+                                ->markAsRead()
+                                ->url($orderUrl),
+                        ])
+                        ->sendToDatabase($admin);
+                }
+            } catch (\Throwable $e) {
+                report($e);
             }
 
-            $orderUrl = \App\Filament\Resources\OrderResource::getUrl('edit', ['record' => $order]);
-            $itemCount = $order->items->count();
-            $firstItems = $order->items->take(2)->map(fn ($i) => "{$i->qty}x {$i->product_name}")->implode(', ');
-            if ($itemCount > 2) {
-                $firstItems .= ' + more';
-            }
-            $fulfillmentLabel = ucfirst($order->fulfillment_type);
+            // Clear cart items
+            $cart->items()->delete();
+            $cart->update(['coupon_code' => null, 'discount_amount' => 0]);
 
-            foreach ($admins as $admin) {
-                \Filament\Notifications\Notification::make()
-                    ->title("🛍️ New Order #{$order->order_number}")
-                    ->body("👤 Customer: **{$order->customer_name}**\n💰 Total: **₱" . number_format($order->total, 2) . "** ({$fulfillmentLabel})\n📦 Items: {$firstItems}")
-                    ->icon('heroicon-o-shopping-bag')
-                    ->iconColor('success')
-                    ->actions([
-                        \Filament\Actions\Action::make('mark_settled')
-                            ->label('✓ Mark as Settled')
-                            ->button()
-                            ->color('success')
-                            ->markAsRead()
-                            ->url($orderUrl),
-                    ])
-                    ->sendToDatabase($admin);
-            }
-        } catch (\Throwable $e) {
-            report($e);
-        }
-
-        // Clear cart items
-        $cart->items()->delete();
-        $cart->update(['coupon_code' => null, 'discount_amount' => 0]);
-
-        return $order->load(['items', 'statusHistories']);
+            return $order->load(['items', 'statusHistories']);
         });
     }
 

@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-2xl font-bold text-[#1C1410] mb-1">Welcome back</h1>
-      <p class="script-accent text-[#C08E5D] text-lg">sign in to your account</p>
+      <h1 class="text-2xl font-bold text-ink mb-1">Welcome back</h1>
+      <p class="script-accent text-brand-caramel text-lg">sign in to your account</p>
     </div>
 
     <!-- Error Alert -->
@@ -41,10 +41,10 @@
       </div>
     </form>
 
-    <div class="text-center pt-2 border-t border-[#C08E5D]/20">
-      <p class="text-sm text-[#8C7A68]">
+    <div class="text-center pt-2 border-t border-brand-caramel/20">
+      <p class="text-sm text-warm-gray">
         Don't have an account yet?
-        <RouterLink to="/auth/register" class="font-bold text-[#5C3A22] hover:underline">
+        <RouterLink to="/auth/register" class="font-bold text-brand-choco hover:underline">
           Create an account
         </RouterLink>
       </p>

@@ -11,13 +11,13 @@ class AuthService
     /**
      * Register a new user and issue a token.
      *
-     * @return array{user: User, token: string}
+     * @return array{user: User}
      */
     public function register(array $data): array
     {
         $user = User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
+            'name' => $data['name'],
+            'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
 
@@ -26,6 +26,8 @@ class AuthService
             $user->assignRole('customer');
         }
 
+        $user->load('roles');
+
         // Fire registered event for email verification (wrapped to handle missing routes in tests)
         try {
             event(new Registered($user));
@@ -33,28 +35,25 @@ class AuthService
             // verification.verify route not registered in test environment — skip
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth-token')->plainTextToken;
 
         return compact('user', 'token');
     }
 
     /**
-     * Authenticate a user by credentials and issue a token.
+     * Authenticate a user by credentials.
      *
      * @return array{user: User, token: string}|null
      */
     public function login(array $credentials): ?array
     {
-        $user = User::where('email', $credentials['email'])->first();
+        $user = User::with('roles')->where('email', $credentials['email'])->first();
 
-        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
             return null;
         }
 
-        // Revoke old tokens to prevent accumulation (optional — remove for multi-device)
-        $user->tokens()->delete();
-
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth-token')->plainTextToken;
 
         return compact('user', 'token');
     }

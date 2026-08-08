@@ -22,7 +22,7 @@
     </div>
 
     <div v-else class="space-y-6">
-      <div class="flex justify-between items-center text-xs font-bold text-[#8C7A68]">
+      <div class="flex justify-between items-center text-xs font-bold text-warm-gray">
         <span>Showing {{ wishlistStore.items.length }} saved item{{ wishlistStore.items.length > 1 ? 's' : '' }}</span>
       </div>
 

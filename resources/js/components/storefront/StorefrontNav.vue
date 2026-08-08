@@ -2,13 +2,13 @@
     <header :class="[
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         scrolled
-            ? 'bg-[#FBF3E7]/95 dark:bg-[#1C1410]/95 backdrop-blur-xl shadow-md border-b border-[#C08E5D]/30'
-            : 'bg-[#FBF3E7]/85 dark:bg-[#1C1410]/85 backdrop-blur-md border-b border-[#C08E5D]/10'
+            ? 'bg-[#FBF3E7]/95 dark:bg-[#140D09]/95 backdrop-blur-xl shadow-md border-b border-[#C08E5D]/30'
+            : 'bg-[#FBF3E7]/85 dark:bg-[#140D09]/85 backdrop-blur-md border-b border-[#C08E5D]/15'
     ]">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between h-18">
 
             <!-- Brand Logo & Wordmark -->
-            <RouterLink to="/" class="flex items-center gap-2.5 group flex-shrink-0"
+            <RouterLink to="/" class="flex items-center gap-2.5 group shrink-0"
                 v-tooltip="'ABCDips &amp; Treats — Home'">
                 <img src="/images/logo.png" alt="ABCDips &amp; Treats"
                     class="h-10 sm:h-11 w-auto transition-transform duration-300 group-hover:scale-105" />
@@ -24,9 +24,9 @@
             <!-- Desktop Navigation Links (Single Line, Never Wrap) -->
             <nav class="hidden lg:flex items-center gap-1 xl:gap-1.5 flex-1 justify-center max-w-3xl px-2">
                 <RouterLink v-for="link in navLinks" :key="link.to" :to="link.to" :class="[
-                    'px-2.5 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs xl:text-sm font-bold whitespace-nowrap transition-all duration-200 flex-shrink-0',
+                    'px-2.5 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs xl:text-sm font-bold whitespace-nowrap transition-all duration-200 shrink-0',
                     isLinkActive(link.to)
-                        ? 'bg-[#5C3A22] text-[#FBF3E7] shadow-xs'
+                        ? 'bg-[#5C3A22] text-[#FBF3E7] shadow-xs dark:bg-[#C08E5D] dark:text-[#1C1410]'
                         : 'text-[#1C1410] dark:text-[#FBF3E7] hover:text-[#5C3A22] dark:hover:text-[#E2C08A] hover:bg-[#D9A876]/20'
                 ]">
                     {{ link.label }}
@@ -34,20 +34,20 @@
             </nav>
 
             <!-- Right Actions (User Account, Cart, Theme Toggle, Mobile Menu) -->
-            <div class="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+            <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
 
                 <!-- Signed-in User Menu Dropdown -->
                 <div v-if="authStore.isAuthenticated" class="relative" ref="userMenuRef">
                     <button @click="userMenuOpen = !userMenuOpen" v-tooltip="'Manage profile, orders &amp; wishlist'"
                         class="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs sm:text-sm font-bold text-[#5C3A22] dark:text-[#E2C08A] bg-[#D9A876]/20 hover:bg-[#D9A876]/35 transition-colors">
-                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         <span
                             class="hidden sm:inline max-w-[85px] md:max-w-[120px] xl:max-w-[150px] truncate whitespace-nowrap">{{
                                 authStore.userName || 'Account' }}</span>
-                        <svg class="w-3 h-3 flex-shrink-0 transition-transform duration-200"
+                        <svg class="w-3 h-3 shrink-0 transition-transform duration-200"
                             :class="userMenuOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -83,7 +83,7 @@
                             <!-- Sign Out Action -->
                             <div class="border-t border-[#C08E5D]/20 py-1">
                                 <button @click="handleLogout" :disabled="loggingOut"
-                                    class="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold text-[#B84C3C] hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors disabled:opacity-50">
+                                    class="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold text-error hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors disabled:opacity-50">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -107,7 +107,7 @@
 
                 <!-- Dark Mode Toggle Button -->
                 <button @click="toggleDarkMode" v-tooltip="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center p-0 text-[#5C3A22] dark:text-[#E2C08A] bg-[#D9A876]/20 hover:bg-[#D9A876]/35 theme-toggle-btn shadow-xs cursor-pointer select-none flex-shrink-0"
+                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center p-0 text-brand-choco dark:text-surface-400 bg-brand-tan/20 hover:bg-brand-tan/35 theme-toggle-btn shadow-xs cursor-pointer select-none shrink-0"
                     aria-label="Toggle Dark Mode">
                     <span v-if="isDark"
                         class="text-sm sm:text-base leading-none flex items-center justify-center transform hover:rotate-90 transition-transform duration-500">☀️</span>
@@ -118,22 +118,22 @@
                 <!-- Basket Button (Only shown when authenticated) -->
                 <button v-if="authStore.isAuthenticated" @click="cartStore.openDrawer = true"
                     v-tooltip="'View your selected treats &amp; cart subtotal'"
-                    class="relative flex items-center gap-1.5 bg-[#5C3A22] text-[#FBF3E7] px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl hover:bg-[#4A2D1A] transition-all duration-200 shadow-sm flex-shrink-0 whitespace-nowrap">
+                    class="relative flex items-center gap-1.5 bg-brand-choco text-surface px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl hover:bg-choco-600 transition-all duration-200 shadow-sm shrink-0 whitespace-nowrap">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                     <span class="hidden sm:inline text-xs font-bold">Basket</span>
                     <span v-if="cartStore.itemCount > 0"
-                        class="w-5 h-5 rounded-full bg-[#D9A876] text-[#1C1410] font-extrabold text-[10px] flex items-center justify-center -mr-0.5">{{
+                        class="w-5 h-5 rounded-full bg-brand-tan text-ink font-extrabold text-[10px] flex items-center justify-center -mr-0.5">{{
                             cartStore.itemCount }}</span>
                 </button>
 
                 <!-- Mobile Menu Hamburger -->
                 <button @click="mobileOpen = !mobileOpen" v-tooltip="'Toggle navigation menu'"
-                    class="lg:hidden p-2 rounded-xl hover:bg-[#D9A876]/20 transition-colors"
+                    class="lg:hidden p-2 rounded-xl hover:bg-brand-tan/20 transition-colors"
                     aria-label="Toggle Navigation">
-                    <svg class="w-5 h-5 text-[#1C1410] dark:text-[#FBF3E7]" fill="none" stroke="currentColor"
+                    <svg class="w-5 h-5 text-ink dark:text-surface" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path v-if="!mobileOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16M4 18h16" />
@@ -150,28 +150,28 @@
             leave-active-class="transition-all duration-150 ease-in" leave-from-class="opacity-100 translate-y-0"
             leave-to-class="opacity-0 -translate-y-2">
             <div v-if="mobileOpen"
-                class="lg:hidden border-t border-[#C08E5D]/20 bg-[#FBF3E7]/98 dark:bg-[#1C1410]/98 pb-4 shadow-xl">
+                class="lg:hidden border-t border-brand-caramel/20 bg-surface/98 dark:bg-ink/98 pb-4 shadow-xl">
                 <div class="max-w-7xl mx-auto px-4 pt-3 flex flex-col gap-1">
                     <RouterLink v-for="link in navLinks" :key="link.to" :to="link.to" @click="mobileOpen = false"
                         :class="[
                             'px-4 py-3 rounded-xl text-sm font-semibold transition-colors',
                             isLinkActive(link.to)
-                                ? 'bg-[#5C3A22] text-[#FBF3E7] font-bold'
-                                : 'text-[#1C1410] dark:text-[#FBF3E7] hover:text-[#5C3A22] dark:hover:text-[#E2C08A] hover:bg-[#D9A876]/20'
+                                ? 'bg-brand-choco text-surface font-bold'
+                                : 'text-ink dark:text-surface hover:text-brand-choco dark:hover:text-surface-400 hover:bg-brand-tan/20'
                         ]">{{ link.label }}</RouterLink>
 
-                    <div class="border-t border-[#C08E5D]/20 mt-2 pt-2">
+                    <div class="border-t border-brand-caramel/20 mt-2 pt-2">
                         <RouterLink v-if="!authStore.isAuthenticated" to="/auth/login" @click="mobileOpen = false"
-                            class="block px-4 py-3 text-sm font-bold text-[#5C3A22] dark:text-[#E2C08A]">Sign In /
+                            class="block px-4 py-3 text-sm font-bold text-brand-choco dark:text-surface-400">Sign In /
                             Create Account
                         </RouterLink>
                         <template v-else>
                             <RouterLink v-for="item in accountLinks" :key="item.to" :to="item.to"
                                 @click="mobileOpen = false"
-                                class="block px-4 py-3 text-sm text-[#1C1410] dark:text-[#FBF3E7] hover:text-[#5C3A22] dark:hover:text-[#E2C08A] hover:bg-[#D9A876]/20 rounded-xl transition-colors">
+                                class="block px-4 py-3 text-sm text-ink dark:text-surface hover:text-brand-choco dark:hover:text-surface-400 hover:bg-brand-tan/20 rounded-xl transition-colors">
                                 {{ item.label }}</RouterLink>
                             <button @click="handleLogout"
-                                class="block w-full text-left px-4 py-3 text-sm font-semibold text-[#B84C3C] hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors">Sign
+                                class="block w-full text-left px-4 py-3 text-sm font-semibold text-error hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors">Sign
                                 Out</button>
                         </template>
                     </div>

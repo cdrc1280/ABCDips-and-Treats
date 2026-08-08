@@ -15,8 +15,9 @@ class PaymentController extends Controller
 {
     public function __construct(
         private PayMongoService $payMongo,
-        private PaymentManager  $paymentManager,
-    ) {}
+        private PaymentManager $paymentManager,
+    ) {
+    }
 
     /**
      * POST /api/payments/create-source
@@ -27,7 +28,7 @@ class PaymentController extends Controller
     {
         $validated = $request->validate([
             'order_id' => 'required|exists:orders,id',
-            'method'   => 'required|in:gcash,maya',
+            'method' => 'required|in:gcash,maya',
         ]);
 
         $order = Order::findOrFail($validated['order_id']);
@@ -37,21 +38,25 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
+        if ($order->payment_status === 'paid' || $order->status !== Order::STATUS_PENDING) {
+            return response()->json(['message' => 'Order cannot be paid in its current status.'], 422);
+        }
+
         $gateway = $this->paymentManager->driver($validated['method']);
-        $result  = $gateway->charge($order);
+        $result = $gateway->charge($order);
 
         if ($result['success'] && !empty($result['checkout_url'])) {
             // Store reference on the order
             $order->update([
                 'payment_reference' => $result['reference'],
-                'payment_status'    => 'awaiting_payment',
+                'payment_status' => 'awaiting_payment',
             ]);
 
             return response()->json([
                 'checkout_url' => $result['checkout_url'],
-                'reference'    => $result['reference'],
-                'provider'     => $result['provider'] ?? 'paymongo',
-                'message'      => $result['message'],
+                'reference' => $result['reference'],
+                'provider' => $result['provider'] ?? 'paymongo',
+                'message' => $result['message'],
             ]);
         }
 
@@ -66,7 +71,7 @@ class PaymentController extends Controller
      */
     public function success(Request $request): JsonResponse
     {
-        $orderId  = $request->query('order');
+        $orderId = $request->query('order');
         $sourceId = $request->query('source_id');
 
         $order = Order::where('id', $orderId)
@@ -78,34 +83,45 @@ class PaymentController extends Controller
         }
 
         // Verify source with PayMongo if source_id is provided
-        if ($sourceId) {
-            $source = $this->payMongo->getSource($sourceId);
-            $status = $source['attributes']['status'] ?? null;
-
-            if ($status === 'chargeable') {
-                $order->update([
-                    'payment_status'    => 'paid',
-                    'payment_reference' => $sourceId,
-                    'status'            => 'confirmed',
-                ]);
-                Log::info("[PayMongo] Order #{$order->order_number} marked as paid via source {$sourceId}");
+        if (!$sourceId) {
+            if (app()->environment('production')) {
+                return response()->json(['message' => 'Missing payment source. Cannot verify payment without a valid source ID.'], 400);
             }
-        } else {
-            // Sandbox / no source ID fallback — still mark as paid for testing
+
             if ($order->payment_status !== 'paid') {
                 $order->update([
                     'payment_status' => 'paid',
-                    'status'         => 'confirmed',
+                    'status' => 'confirmed',
                 ]);
             }
+
+            return response()->json([
+                'success' => true,
+                'order_number' => $order->order_number,
+                'tracking_token' => $order->tracking_token,
+                'payment_status' => $order->payment_status,
+                'status' => $order->status,
+            ]);
+        }
+
+        $source = $this->payMongo->getSource($sourceId);
+        $status = $source['attributes']['status'] ?? null;
+
+        if ($status === 'chargeable') {
+            $order->update([
+                'payment_status' => 'paid',
+                'payment_reference' => $sourceId,
+                'status' => 'confirmed',
+            ]);
+            Log::info("[PayMongo] Order #{$order->order_number} marked as paid via source {$sourceId}");
         }
 
         return response()->json([
-            'success'         => true,
-            'order_number'    => $order->order_number,
-            'tracking_token'  => $order->tracking_token,
-            'payment_status'  => $order->payment_status,
-            'status'          => $order->status,
+            'success' => true,
+            'order_number' => $order->order_number,
+            'tracking_token' => $order->tracking_token,
+            'payment_status' => $order->payment_status,
+            'status' => $order->status,
         ]);
     }
 
@@ -139,14 +155,14 @@ class PaymentController extends Controller
     public function storeSettings(): JsonResponse
     {
         return response()->json([
-            'store_name'    => Setting::get('store_name', 'ABCDips & Treats'),
+            'store_name' => Setting::get('store_name', 'ABCDips & Treats'),
             'store_address' => Setting::get('store_address', ''),
-            'store_phone'   => Setting::get('store_phone', ''),
-            'store_email'   => Setting::get('store_email', ''),
-            'bank_name'           => Setting::get('bank_name', 'BDO'),
-            'bank_account_name'   => Setting::get('bank_account_name', 'ABCDips & Treats'),
+            'store_phone' => Setting::get('store_phone', ''),
+            'store_email' => Setting::get('store_email', ''),
+            'bank_name' => Setting::get('bank_name', 'BDO'),
+            'bank_account_name' => Setting::get('bank_account_name', 'ABCDips & Treats'),
             'bank_account_number' => Setting::get('bank_account_number', ''),
-            'bank_instructions'   => Setting::get('bank_instructions', ''),
+            'bank_instructions' => Setting::get('bank_instructions', ''),
             'paymongo_public_key' => Setting::get('paymongo_public_key', ''),
         ]);
     }

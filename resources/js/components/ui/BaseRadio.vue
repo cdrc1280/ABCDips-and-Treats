@@ -16,16 +16,16 @@
         @change="$emit('update:modelValue', value)"
       />
       <div
-        class="w-5 h-5 rounded-full border border-[#C08E5D]/40 bg-white transition-all duration-200 peer-checked:border-[#5C3A22] peer-focus-visible:ring-2 peer-focus-visible:ring-[#5C3A22]/30 flex items-center justify-center"
+        class="w-5 h-5 rounded-full border border-brand-caramel/40 bg-white transition-all duration-200 peer-checked:border-brand-choco peer-focus-visible:ring-2 peer-focus-visible:ring-brand-choco/30 flex items-center justify-center"
       >
         <div
           v-if="modelValue === value"
-          class="w-2.5 h-2.5 rounded-full bg-[#5C3A22]"
+          class="w-2.5 h-2.5 rounded-full bg-brand-choco"
         />
       </div>
     </div>
 
-    <span v-if="label || $slots.default" class="text-sm text-[#1C1410]">
+    <span v-if="label || $slots.default" class="text-sm text-ink">
       <slot>{{ label }}</slot>
     </span>
   </label>

@@ -6,19 +6,21 @@ export const useAuthStore = defineStore('auth', () => {
   // ─── State ──────────────────────────────────────────────────
   const user = ref(null)
   const loading = ref(false)
+  const initialized = ref(false)
   const error = ref(null)
 
   // ─── Getters ─────────────────────────────────────────────────
   const isAuthenticated = computed(() => !!user.value)
-  const isAdmin         = computed(() => user.value?.roles?.includes('admin') || user.value?.roles?.includes('super_admin'))
-  const userName        = computed(() => user.value?.name ?? '')
-  const userEmail       = computed(() => user.value?.email ?? '')
+  const isAdmin = computed(() => user.value?.roles?.includes('admin') || user.value?.roles?.includes('super_admin'))
+  const userName = computed(() => user.value?.name ?? '')
+  const userEmail = computed(() => user.value?.email ?? '')
 
   // ─── Actions ─────────────────────────────────────────────────
-  async function fetchUser() {
-    const token = localStorage.getItem('auth_token')
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+  async function fetchUser(force = false) {
+    if (initialized.value && !force) return
+    const authToken = localStorage.getItem('auth_token')
+    if (authToken) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`
     }
     try {
       loading.value = true
@@ -30,10 +32,13 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       user.value = null
       localStorage.removeItem('auth_token')
-      localStorage.removeItem('cart_token')
       delete axios.defaults.headers.common['Authorization']
+      const { useCartStore } = await import('@/stores/cart')
+      const cartStore = useCartStore()
+      await cartStore.fetchCart()
     } finally {
       loading.value = false
+      initialized.value = true
     }
   }
 
@@ -44,8 +49,8 @@ export const useAuthStore = defineStore('auth', () => {
       await axios.get('/sanctum/csrf-cookie')
       const { data } = await axios.post('/api/auth/login', credentials)
       user.value = data.data.user
-      
-      if (data.data?.token) {
+
+      if (data.data.token) {
         localStorage.setItem('auth_token', data.data.token)
         axios.defaults.headers.common['Authorization'] = `Bearer ${data.data.token}`
       }
@@ -71,7 +76,7 @@ export const useAuthStore = defineStore('auth', () => {
       const { data } = await axios.post('/api/auth/register', payload)
       user.value = data.data.user
 
-      if (data.data?.token) {
+      if (data.data.token) {
         localStorage.setItem('auth_token', data.data.token)
         axios.defaults.headers.common['Authorization'] = `Bearer ${data.data.token}`
       }
@@ -98,8 +103,9 @@ export const useAuthStore = defineStore('auth', () => {
     } finally {
       user.value = null
       localStorage.removeItem('auth_token')
-      localStorage.removeItem('cart_token')
       delete axios.defaults.headers.common['Authorization']
+      localStorage.removeItem('cart_token')
+      delete axios.defaults.headers.common['X-Cart-Token']
       const { useCartStore } = await import('@/stores/cart')
       const cartStore = useCartStore()
       cartStore.clearCart()
@@ -114,6 +120,9 @@ export const useAuthStore = defineStore('auth', () => {
       await axios.post('/api/cart/merge', { guest_cart_token: cartToken })
     } catch {
       // Merge failure is silent
+    } finally {
+      localStorage.removeItem('cart_token')
+      delete axios.defaults.headers.common['X-Cart-Token']
     }
   }
 
@@ -121,10 +130,11 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     localStorage.removeItem('auth_token')
     delete axios.defaults.headers.common['Authorization']
+    delete axios.defaults.headers.common['X-Cart-Token']
   }
 
   return {
-    user, loading, error,
+    user, loading, initialized, error,
     isAuthenticated, isAdmin, userName, userEmail,
     fetchUser, login, register, logout, clearUser,
   }

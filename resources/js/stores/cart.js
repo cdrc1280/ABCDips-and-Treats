@@ -10,6 +10,7 @@ export const useCartStore = defineStore('cart', () => {
   const cart = ref(null)
   const loading = ref(false)
   const adding = ref(false)
+  const openDrawer = ref(false)
   const error = ref(null)
 
   // ─── Getters ─────────────────────────────────────────────────
@@ -41,21 +42,12 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function addItem(productId, qty = 1, options = {}) {
-    const authStore = useAuthStore()
-    const toast = useToast()
-
-    // Enforce authentication for adding to cart
-    if (!authStore.isAuthenticated) {
-      toast.warning('Please sign in to add items to your basket and place orders.', 'Sign In Required')
-      router.push({ name: 'login', query: { redirect: router.currentRoute.value.fullPath } })
-      return { success: false, requiresAuth: true }
-    }
-
     adding.value = true
     error.value = null
     try {
       const { data } = await axios.post('/api/cart/items', { product_id: productId, qty, options })
       cart.value = data.data
+      openDrawer.value = true
       return { success: true }
     } catch (err) {
       error.value = err.response?.data?.message ?? 'Could not add item.'
@@ -133,7 +125,7 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   return {
-    cart, loading, adding, error, cartToken,
+    cart, loading, adding, openDrawer, error, cartToken,
     items, itemCount, subtotal, discount, fees, total, couponCode, isEmpty,
     fetchCart, addItem, updateItem, removeItem, restoreItem,
     applyCoupon, removeCoupon, batch, clearCart, clearLocalCart,

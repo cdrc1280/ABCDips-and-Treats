@@ -13,7 +13,7 @@ export const vTooltip = {
 
     function createTooltip() {
       tooltipEl = document.createElement('div')
-      tooltipEl.className = 'fixed z-[99999] pointer-events-none transition-all duration-200 opacity-0 scale-95 px-3 py-1.5 bg-[#1C1410]/95 text-[#FBF3E7] text-[11px] font-semibold rounded-xl border border-[#C08E5D]/30 shadow-2xl backdrop-blur-md max-w-xs text-center leading-snug tracking-wide'
+      tooltipEl.className = 'fixed z-99999 pointer-events-none transition-all duration-200 opacity-0 scale-95 px-3 py-1.5 bg-ink/95 text-surface text-[11px] font-semibold rounded-xl border border-brand-caramel/30 shadow-2xl backdrop-blur-md max-w-xs text-center leading-snug tracking-wide'
       tooltipEl.textContent = text
       document.body.appendChild(tooltipEl)
     }

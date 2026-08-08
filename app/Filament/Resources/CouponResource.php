@@ -6,6 +6,7 @@ use App\Filament\Resources\CouponResource\Pages\CreateCoupon;
 use App\Filament\Resources\CouponResource\Pages\EditCoupon;
 use App\Filament\Resources\CouponResource\Pages\ListCoupons;
 use App\Models\Coupon;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
@@ -18,7 +19,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-
 use Illuminate\Support\Str;
 
 class CouponResource extends Resource
@@ -80,8 +80,10 @@ class CouponResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
-                EditAction::make(),
-                DeleteAction::make()
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make(),
+                ]),
             ]);
     }
 

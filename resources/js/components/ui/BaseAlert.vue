@@ -9,7 +9,7 @@
     <div :class="['absolute left-0 top-0 bottom-0 w-1.5', accentBarClass]" />
 
     <!-- Status Icon Bubble -->
-    <div :class="['w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110 shadow-xs', iconBubbleClass]">
+    <div :class="['w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 shadow-xs', iconBubbleClass]">
       <slot name="icon">
         <!-- Success Icon -->
         <svg v-if="variant === 'success'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,10 +32,10 @@
 
     <!-- Notification Message Text -->
     <div class="flex-1 min-w-0 pr-2">
-      <h4 v-if="title" class="font-extrabold text-sm text-[#1C1410] dark:text-[#FBF3E7] tracking-wide mb-0.5">
+      <h4 v-if="title" class="font-extrabold text-sm text-ink dark:text-surface tracking-wide mb-0.5">
         {{ title }}
       </h4>
-      <div class="text-xs font-semibold text-[#5C3A22] dark:text-[#E2C08A] leading-relaxed break-words">
+      <div class="text-xs font-semibold text-brand-choco dark:text-surface-400 leading-relaxed break-words">
         <slot />
       </div>
     </div>
@@ -44,7 +44,7 @@
     <button
       v-if="dismissible"
       type="button"
-      class="flex-shrink-0 text-[#8C7A68] hover:text-[#1C1410] dark:text-[#C5B4A4] dark:hover:text-white p-1.5 rounded-xl transition-all duration-200 hover:bg-[#D9A876]/20 active:scale-95 cursor-pointer"
+      class="shrink-0 text-warm-gray hover:text-ink dark:text-[#C5B4A4] dark:hover:text-white p-1.5 rounded-xl transition-all duration-200 hover:bg-brand-tan/20 active:scale-95 cursor-pointer"
       @click="$emit('dismiss')"
       aria-label="Close notification"
     >
@@ -71,7 +71,7 @@ const props = defineProps({
 defineEmits(['dismiss'])
 
 const containerClasses = computed(() => {
-  return 'bg-white/95 dark:bg-[#1E1510]/95 border-[#C08E5D]/25 dark:border-[#C08E5D]/40 shadow-2xl shadow-[#5C3A22]/10 pl-5'
+  return 'bg-white/95 dark:bg-[#1E1510]/95 border-brand-caramel/25 dark:border-brand-caramel/40 shadow-2xl shadow-brand-choco/10 pl-5'
 })
 
 const accentBarClass = computed(() => {
@@ -84,7 +84,7 @@ const accentBarClass = computed(() => {
       return 'bg-amber-500'
     case 'info':
     default:
-      return 'bg-[#5C3A22] dark:bg-[#D9A876]'
+      return 'bg-brand-choco dark:bg-brand-tan'
   }
 })
 
@@ -98,7 +98,7 @@ const iconBubbleClass = computed(() => {
       return 'bg-amber-500/15 text-amber-600 dark:bg-amber-500/25 dark:text-amber-400'
     case 'info':
     default:
-      return 'bg-[#5C3A22]/15 text-[#5C3A22] dark:bg-[#D9A876]/25 dark:text-[#E2C08A]'
+      return 'bg-brand-choco/15 text-brand-choco dark:bg-brand-tan/25 dark:text-surface-400'
   }
 })
 </script>

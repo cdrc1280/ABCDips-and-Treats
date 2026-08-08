@@ -35,7 +35,7 @@ const sizeClasses = computed(() => {
 const variantClasses = computed(() => {
   switch (props.variant) {
     case 'brand':
-      return 'bg-gradient-to-r from-[#5C3A22] to-[#8C522B] text-white shadow-md shadow-[#5C3A22]/25 tracking-wide ring-1 ring-white/20'
+      return 'bg-gradient-to-r from-brand-choco to-[#8C522B] text-white shadow-md shadow-brand-choco/25 tracking-wide ring-1 ring-white/20'
     case 'success':
       return 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/25 tracking-wide ring-1 ring-white/20'
     case 'warning':
@@ -43,10 +43,10 @@ const variantClasses = computed(() => {
     case 'error':
       return 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-500/25 tracking-wide ring-1 ring-white/20'
     case 'outline':
-      return 'border-2 border-[#5C3A22] text-[#5C3A22] dark:border-[#E2C08A] dark:text-[#E2C08A] bg-transparent font-bold'
+      return 'border-2 border-brand-choco text-brand-choco dark:border-surface-400 dark:text-surface-400 bg-transparent font-bold'
     case 'neutral':
     default:
-      return 'bg-gradient-to-r from-[#8C7A68] to-[#5C3A22] text-white shadow-md tracking-wide'
+      return 'bg-gradient-to-r from-warm-gray to-brand-choco text-white shadow-md tracking-wide'
   }
 })
 </script>

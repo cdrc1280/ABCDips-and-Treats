@@ -16,12 +16,19 @@ class ProductController extends Controller
 {
     public function __construct(
         private readonly ProductService $productService
-    ) {}
+    ) {
+    }
 
     public function index(Request $request): JsonResponse
     {
         $filters = $request->only([
-            'search', 'category', 'tag', 'featured', 'best_seller', 'new_arrival', 'sort'
+            'search',
+            'category',
+            'tag',
+            'featured',
+            'best_seller',
+            'new_arrival',
+            'sort'
         ]);
 
         $perPage = (int) $request->get('per_page', 12);
@@ -34,7 +41,7 @@ class ProductController extends Controller
     {
         $product = $this->productService->getProductBySlug($slug);
 
-        if (! $product) {
+        if (!$product) {
             return response()->json(['message' => 'Product not found.'], 404);
         }
 
@@ -68,7 +75,7 @@ class ProductController extends Controller
     public function aboutStats(): JsonResponse
     {
         $customersCount = max(
-            User::where('role', 'customer')->count(),
+            User::role('customer')->count(),
             Order::distinct('customer_email')->count()
         );
 
@@ -78,9 +85,9 @@ class ProductController extends Controller
         $avgRatingFormatted = $avgRating ? number_format((float) $avgRating, 1) : '5.0';
 
         return response()->json([
-            'happy_customers'   => $customersCount,
+            'happy_customers' => $customersCount,
             'signature_recipes' => $recipesCount,
-            'average_rating'    => $avgRatingFormatted,
+            'average_rating' => $avgRatingFormatted,
         ]);
     }
 }

@@ -1,9 +1,9 @@
 <template>
-  <div class="w-full bg-white rounded-2xl border border-[#C08E5D]/15 overflow-hidden shadow-sm">
+  <div class="w-full bg-white rounded-2xl border border-brand-caramel/15 overflow-hidden shadow-sm">
     <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm text-[#1C1410]">
+      <table class="w-full text-left text-sm text-ink">
         <!-- Table Header -->
-        <thead class="bg-[#FBF3E7] border-b border-[#C08E5D]/20 text-xs font-semibold uppercase tracking-wider text-[#5C3A22]">
+        <thead class="bg-surface border-b border-brand-caramel/20 text-xs font-semibold uppercase tracking-wider text-brand-choco">
           <tr>
             <th
               v-for="col in columns"
@@ -17,7 +17,7 @@
         </thead>
 
         <!-- Table Body -->
-        <tbody class="divide-y divide-[#C08E5D]/10">
+        <tbody class="divide-y divide-brand-caramel/10">
           <template v-if="loading">
             <tr v-for="i in skeletonRows" :key="i">
               <td v-for="col in columns" :key="col.key" class="px-6 py-4">
@@ -28,7 +28,7 @@
 
           <template v-else-if="items.length === 0">
             <tr>
-              <td :colspan="columns.length" class="px-6 py-8 text-center text-[#8C7A68]">
+              <td :colspan="columns.length" class="px-6 py-8 text-center text-warm-gray">
                 <slot name="empty">
                   <EmptyState title="No records found" description="There are no items to display in this table." />
                 </slot>
@@ -40,7 +40,7 @@
             <tr
               v-for="(item, index) in items"
               :key="item.id || index"
-              class="hover:bg-[#FBF3E7]/40 transition-colors duration-150"
+              class="hover:bg-surface/40 transition-colors duration-150"
             >
               <td
                 v-for="col in columns"
@@ -59,7 +59,7 @@
     </div>
 
     <!-- Pagination slot / footer -->
-    <div v-if="$slots.pagination" class="border-t border-[#C08E5D]/15 px-6 py-4 bg-[#FBF3E7]/30">
+    <div v-if="$slots.pagination" class="border-t border-brand-caramel/15 px-6 py-4 bg-surface/30">
       <slot name="pagination" />
     </div>
   </div>

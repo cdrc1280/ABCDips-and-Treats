@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -9,16 +10,22 @@ class M7AnalyticsAndAiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected User $admin;
+
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
         $this->seed(\Database\Seeders\ProductSeeder::class);
         $this->seed(\Database\Seeders\InventorySeeder::class);
+
+        $this->admin = User::factory()->create();
+        $this->admin->assignRole('admin');
     }
 
     public function test_can_fetch_admin_analytics(): void
     {
-        $response = $this->getJson('/api/admin/analytics');
+        $response = $this->actingAs($this->admin, 'sanctum')->getJson('/api/admin/analytics');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -30,7 +37,7 @@ class M7AnalyticsAndAiTest extends TestCase
 
     public function test_can_query_ai_bakery_advisor(): void
     {
-        $response = $this->postJson('/api/admin/ai/query', [
+        $response = $this->actingAs($this->admin, 'sanctum')->postJson('/api/admin/ai/query', [
             'prompt' => 'Which raw ingredients are low in stock?',
         ]);
 

@@ -1,15 +1,15 @@
 <template>
-    <div class="min-h-screen bg-[#1C1410] text-[#FBF3E7] p-4 md:p-6 flex flex-col">
+    <div class="min-h-screen bg-ink text-surface p-4 md:p-6 flex flex-col">
         <!-- Top POS Header -->
-        <header class="bg-[#2D211A] rounded-2xl p-4 mb-4 border border-[#C08E5D]/30 flex items-center justify-between">
+        <header class="bg-[#2D211A] rounded-2xl p-4 mb-4 border border-brand-caramel/30 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div
-                    class="w-10 h-10 rounded-xl bg-[#5C3A22] flex items-center justify-center font-bold text-lg text-[#D9A876]">
+                    class="w-10 h-10 rounded-xl bg-brand-choco flex items-center justify-center font-bold text-lg text-brand-tan">
                     POS
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-lg text-[#FBF3E7]">ABCDips &amp; Treats Walk-in Register</h1>
-                    <p class="text-xs text-[#D9A876]">Counter Terminal #1 • {{ currentUser }}</p>
+                    <h1 class="font-extrabold text-lg text-surface">ABCDips &amp; Treats Walk-in Register</h1>
+                    <p class="text-xs text-brand-tan">Counter Terminal #1 • {{ currentUser }}</p>
                 </div>
             </div>
 
@@ -30,19 +30,19 @@
             <div class="lg:col-span-7 flex flex-col space-y-4">
                 <!-- Search & Filter Bar -->
                 <div
-                    class="bg-[#2D211A] p-4 rounded-2xl border border-[#C08E5D]/20 flex flex-col sm:flex-row gap-3 items-center justify-between">
+                    class="bg-[#2D211A] p-4 rounded-2xl border border-brand-caramel/20 flex flex-col sm:flex-row gap-3 items-center justify-between">
                     <input v-model="searchQuery" type="text" placeholder="Search pastry by name or SKU..."
-                        class="w-full sm:w-72 bg-[#1C1410] border border-[#C08E5D]/30 rounded-xl px-4 py-2 text-sm text-[#FBF3E7] placeholder-[#8C7A68] focus:outline-none focus:border-[#D9A876]" />
+                        class="w-full sm:w-72 bg-ink border border-brand-caramel/30 rounded-xl px-4 py-2 text-sm text-surface placeholder-warm-gray focus:outline-none focus:border-brand-tan" />
 
                     <div class="flex gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
                         <button class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"
-                            :class="!selectedCat ? 'bg-[#D9A876] text-[#1C1410]' : 'bg-[#1C1410] text-[#D9A876] hover:bg-[#5C3A22]'"
+                            :class="!selectedCat ? 'bg-brand-tan text-ink' : 'bg-ink text-brand-tan hover:bg-brand-choco'"
                             @click="selectedCat = ''">
                             All
                         </button>
                         <button v-for="cat in categories" :key="cat"
                             class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"
-                            :class="selectedCat === cat ? 'bg-[#D9A876] text-[#1C1410]' : 'bg-[#1C1410] text-[#D9A876] hover:bg-[#5C3A22]'"
+                            :class="selectedCat === cat ? 'bg-brand-tan text-ink' : 'bg-ink text-brand-tan hover:bg-brand-choco'"
                             @click="selectedCat = cat">
                             {{ cat }}
                         </button>
@@ -51,26 +51,26 @@
 
                 <!-- Product Grid -->
                 <div
-                    class="flex-1 bg-[#2D211A] p-4 rounded-2xl border border-[#C08E5D]/20 overflow-y-auto max-h-[600px]">
+                    class="flex-1 bg-[#2D211A] p-4 rounded-2xl border border-brand-caramel/20 overflow-y-auto max-h-[600px]">
                     <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         <SkeletonCard v-for="n in 6" :key="n" />
                     </div>
 
                     <div v-else class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         <div v-for="p in filteredProducts" :key="p.id"
-                            class="bg-[#1C1410] rounded-xl p-3 border border-[#C08E5D]/20 hover:border-[#D9A876] cursor-pointer transition-all flex flex-col justify-between group"
+                            class="bg-ink rounded-xl p-3 border border-brand-caramel/20 hover:border-brand-tan cursor-pointer transition-all flex flex-col justify-between group"
                             @click="addToRegister(p)">
                             <div>
                                 <img :src="p.primary_image_url"
                                     class="w-full h-24 object-cover rounded-lg mb-2 group-hover:scale-105 transition-transform" />
-                                <h4 class="font-bold text-xs text-[#FBF3E7] line-clamp-1">{{ p.name }}</h4>
-                                <div class="text-[10px] text-[#8C7A68]">SKU: {{ p.sku }}</div>
+                                <h4 class="font-bold text-xs text-surface line-clamp-1">{{ p.name }}</h4>
+                                <div class="text-[10px] text-warm-gray">SKU: {{ p.sku }}</div>
                             </div>
 
-                            <div class="flex items-center justify-between mt-2 pt-2 border-t border-[#C08E5D]/15">
-                                <span class="font-extrabold text-xs text-[#D9A876]">₱{{ p.effective_price.toFixed(2)
+                            <div class="flex items-center justify-between mt-2 pt-2 border-t border-brand-caramel/15">
+                                <span class="font-extrabold text-xs text-brand-tan">₱{{ p.effective_price.toFixed(2)
                                     }}</span>
-                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#5C3A22] text-white font-semibold">
+                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-brand-choco text-white font-semibold">
                                     {{ p.stock_qty }} left
                                 </span>
                             </div>
@@ -81,40 +81,40 @@
 
             <!-- Right Column: POS Register Ticket & Payment Calculator -->
             <div
-                class="lg:col-span-5 bg-[#2D211A] rounded-2xl p-5 border border-[#C08E5D]/30 flex flex-col justify-between">
+                class="lg:col-span-5 bg-[#2D211A] rounded-2xl p-5 border border-brand-caramel/30 flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between border-b border-[#C08E5D]/20 pb-3 mb-4">
-                        <h3 class="font-extrabold text-base text-[#FBF3E7]">Current Order Ticket</h3>
-                        <button class="text-xs text-[#B84C3C] hover:underline" @click="registerItems = []">Clear
+                    <div class="flex items-center justify-between border-b border-brand-caramel/20 pb-3 mb-4">
+                        <h3 class="font-extrabold text-base text-surface">Current Order Ticket</h3>
+                        <button class="text-xs text-error hover:underline" @click="registerItems = []">Clear
                             Ticket</button>
                     </div>
 
                     <!-- Walk-in Customer Field -->
                     <div class="mb-4">
                         <input v-model="customerName" type="text" placeholder="Walk-in Guest Name (Optional)"
-                            class="w-full bg-[#1C1410] border border-[#C08E5D]/30 rounded-xl px-3 py-1.5 text-xs text-[#FBF3E7] placeholder-[#8C7A68]" />
+                            class="w-full bg-ink border border-brand-caramel/30 rounded-xl px-3 py-1.5 text-xs text-surface placeholder-warm-gray" />
                     </div>
 
                     <!-- Items Ticket List -->
                     <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
-                        <div v-if="registerItems.length === 0" class="py-8 text-center text-xs text-[#8C7A68]">
+                        <div v-if="registerItems.length === 0" class="py-8 text-center text-xs text-warm-gray">
                             Tap products on the left to add to order.
                         </div>
 
                         <div v-for="item in registerItems" :key="item.id"
-                            class="bg-[#1C1410] p-2.5 rounded-xl flex items-center justify-between text-xs">
+                            class="bg-ink p-2.5 rounded-xl flex items-center justify-between text-xs">
                             <div class="min-w-0 pr-2">
-                                <div class="font-bold text-[#FBF3E7] truncate">{{ item.name }}</div>
-                                <div class="text-[10px] text-[#8C7A68]">₱{{ item.unit_price.toFixed(2) }} each</div>
+                                <div class="font-bold text-surface truncate">{{ item.name }}</div>
+                                <div class="text-[10px] text-warm-gray">₱{{ item.unit_price.toFixed(2) }} each</div>
                             </div>
 
-                            <div class="flex items-center gap-2 flex-shrink-0">
-                                <button class="w-5 h-5 rounded bg-[#5C3A22] text-white font-bold"
+                            <div class="flex items-center gap-2 shrink-0">
+                                <button class="w-5 h-5 rounded bg-brand-choco text-white font-bold"
                                     @click="updateQty(item.id, -1)">-</button>
                                 <span class="font-bold text-xs w-4 text-center">{{ item.qty }}</span>
-                                <button class="w-5 h-5 rounded bg-[#5C3A22] text-white font-bold"
+                                <button class="w-5 h-5 rounded bg-brand-choco text-white font-bold"
                                     @click="updateQty(item.id, 1)">+</button>
-                                <span class="font-extrabold text-xs text-[#D9A876] ml-2 w-14 text-right">₱{{
+                                <span class="font-extrabold text-xs text-brand-tan ml-2 w-14 text-right">₱{{
                                     item.subtotal.toFixed(2) }}</span>
                             </div>
                         </div>
@@ -122,12 +122,12 @@
                 </div>
 
                 <!-- Payment & Change Calculation -->
-                <div class="border-t border-[#C08E5D]/20 pt-4 space-y-4">
+                <div class="border-t border-brand-caramel/20 pt-4 space-y-4">
                     <!-- Totals Breakdown -->
                     <div class="space-y-1 text-xs">
-                        <div class="flex justify-between text-[#8C7A68]"><span>Subtotal</span><span>₱{{
+                        <div class="flex justify-between text-warm-gray"><span>Subtotal</span><span>₱{{
                                 subtotal.toFixed(2) }}</span></div>
-                        <div class="flex justify-between text-lg font-extrabold text-[#D9A876] pt-1"><span>Total
+                        <div class="flex justify-between text-lg font-extrabold text-brand-tan pt-1"><span>Total
                                 Due</span><span>₱{{ subtotal.toFixed(2) }}</span></div>
                     </div>
 
@@ -135,23 +135,23 @@
                     <div class="grid grid-cols-4 gap-2">
                         <button v-for="m in ['cash', 'gcash', 'maya', 'card']" :key="m"
                             class="py-2 rounded-xl text-xs font-bold uppercase transition-all"
-                            :class="paymentMethod === m ? 'bg-[#D9A876] text-[#1C1410]' : 'bg-[#1C1410] text-[#D9A876] hover:bg-[#5C3A22]'"
+                            :class="paymentMethod === m ? 'bg-brand-tan text-ink' : 'bg-ink text-brand-tan hover:bg-brand-choco'"
                             @click="paymentMethod = m">
                             {{ m }}
                         </button>
                     </div>
 
                     <!-- Cash Tendered & Change Calculator -->
-                    <div v-if="paymentMethod === 'cash'" class="bg-[#1C1410] p-3 rounded-xl space-y-2">
+                    <div v-if="paymentMethod === 'cash'" class="bg-ink p-3 rounded-xl space-y-2">
                         <div class="flex items-center justify-between text-xs">
-                            <span class="text-[#D9A876] font-bold">Cash Tendered:</span>
+                            <span class="text-brand-tan font-bold">Cash Tendered:</span>
                             <input v-model.number="cashTendered" type="number" step="50"
-                                class="w-28 bg-[#2D211A] border border-[#D9A876]/40 rounded-lg px-2 py-1 text-right font-extrabold text-sm text-[#FBF3E7]" />
+                                class="w-28 bg-[#2D211A] border border-brand-tan/40 rounded-lg px-2 py-1 text-right font-extrabold text-sm text-surface" />
                         </div>
                         <div
-                            class="flex justify-between items-center text-xs font-bold pt-1 border-t border-[#C08E5D]/20">
-                            <span class="text-[#8C7A68]">Change Due:</span>
-                            <span class="text-sm font-extrabold text-[#6B8F5E]">₱{{ changeDue.toFixed(2) }}</span>
+                            class="flex justify-between items-center text-xs font-bold pt-1 border-t border-brand-caramel/20">
+                            <span class="text-warm-gray">Change Due:</span>
+                            <span class="text-sm font-extrabold text-success">₱{{ changeDue.toFixed(2) }}</span>
                         </div>
                     </div>
 
@@ -166,7 +166,7 @@
 
         <!-- Receipt Print Modal -->
         <Teleport to="body">
-            <div v-if="receiptOrder" class="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4">
+            <div v-if="receiptOrder" class="fixed inset-0 z-100 bg-black/80 flex items-center justify-center p-4">
                 <div class="bg-white text-black p-6 rounded-2xl max-w-sm w-full font-mono text-xs space-y-4 shadow-2xl">
                     <div class="text-center space-y-1">
                         <h2 class="font-extrabold text-base">ABCDips &amp; Treats</h2>

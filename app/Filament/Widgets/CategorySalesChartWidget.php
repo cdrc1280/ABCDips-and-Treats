@@ -9,7 +9,7 @@ use Filament\Widgets\ChartWidget;
 class CategorySalesChartWidget extends ChartWidget
 {
     protected static ?int $sort = 3;
-    protected int | string | array $columnSpan = 1;
+    protected int|string|array $columnSpan = 'full';
 
     public function getHeading(): ?string
     {

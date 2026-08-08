@@ -10,9 +10,15 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolesAndPermissionsSeeder::class,
-            AdminUserSeeder::class,
             SettingsSeeder::class,
-            ProductSeeder::class,
+            AdminUserSeeder::class,
         ]);
+
+        if (app()->environment(['local', 'testing'])) {
+            $this->call([
+                ProductSeeder::class,
+                PurchasingAndPayrollSeeder::class,
+            ]);
+        }
     }
 }

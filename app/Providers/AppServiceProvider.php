@@ -27,6 +27,15 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
+        // Register security headers middleware for web and API routes
+        try {
+            $router = $this->app->make(\Illuminate\Routing\Router::class);
+            $router->pushMiddlewareToGroup('web', \App\Http\Middleware\SecurityHeaders::class);
+            $router->pushMiddlewareToGroup('api', \App\Http\Middleware\SecurityHeaders::class);
+        } catch (\Throwable $e) {
+            // If router isn't available during certain artisan commands, skip
+        }
+
         Notifications::alignment(Alignment::End);
         Notifications::verticalAlignment(VerticalAlignment::Start);
     }

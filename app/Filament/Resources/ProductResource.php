@@ -7,8 +7,10 @@ use App\Filament\Resources\ProductResource\Pages\EditProduct;
 use App\Filament\Resources\ProductResource\Pages\ListProducts;
 use App\Models\Product;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -103,7 +105,8 @@ class ProductResource extends Resource
 
                         TextInput::make('price')
                             ->label('Selling Price')
-                            ->required()
+                            ->default(0.00)
+                            ->dehydrated(true)
                             ->numeric()
                             ->minValue(0)
                             ->step('0.01')
@@ -119,6 +122,12 @@ class ProductResource extends Resource
                             ->step('0.01')
                             ->prefix('₱')
                             ->extraInputAttributes(['inputmode' => 'decimal']),
+
+                        DateTimePicker::make('sale_ends_at')
+                            ->label('Sale Ends At')
+                            ->nullable()
+                            ->helperText('Leave empty for no expiry. Sale auto-expires at this date/time.')
+                            ->minDate(now()),
 
                         TextInput::make('stock_qty')
                             ->label('Stock Quantity')
@@ -258,8 +267,15 @@ class ProductResource extends Resource
                     ->label('Featured'),
             ])
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
+                ActionGroup::make([
+                    Action::make('costing')
+                        ->label('Costing')
+                        ->icon('heroicon-o-calculator')
+                        ->color('warning')
+                        ->url(fn(Product $record) => "/admin/product-costings/create?product_id={$record->id}"),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                ]),
             ]);
     }
 

@@ -10,7 +10,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 class InventoryStatusWidget extends BaseWidget
 {
     protected static ?int $sort = 4;
-    protected int | string | array $columnSpan = 1;
+    protected int|string|array $columnSpan = 'full';
     protected static ?string $heading = '📦 Raw Ingredients Stock Status';
 
     public function table(Table $table): Table

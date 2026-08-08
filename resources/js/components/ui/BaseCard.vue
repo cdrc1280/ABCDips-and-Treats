@@ -1,17 +1,17 @@
 <template>
   <div
     :class="[
-      'bg-white rounded-2xl transition-all duration-200 overflow-hidden border border-[#C08E5D]/15',
+      'bg-white rounded-2xl transition-all duration-200 overflow-hidden border border-brand-caramel/15',
       hover ? 'hover:shadow-md hover:-translate-y-0.5' : '',
       paddingClasses
     ]"
     :style="cardStyle"
   >
-    <div v-if="$slots.header || title" class="border-b border-[#C08E5D]/15 pb-4 mb-4 flex items-center justify-between">
+    <div v-if="$slots.header || title" class="border-b border-brand-caramel/15 pb-4 mb-4 flex items-center justify-between">
       <slot name="header">
         <div>
-          <h3 v-if="title" class="text-lg font-bold text-[#1C1410]">{{ title }}</h3>
-          <p v-if="subtitle" class="text-xs text-[#8C7A68] mt-0.5">{{ subtitle }}</p>
+          <h3 v-if="title" class="text-lg font-bold text-ink">{{ title }}</h3>
+          <p v-if="subtitle" class="text-xs text-warm-gray mt-0.5">{{ subtitle }}</p>
         </div>
       </slot>
       <slot name="header-action" />
@@ -21,7 +21,7 @@
       <slot />
     </div>
 
-    <div v-if="$slots.footer" class="border-t border-[#C08E5D]/15 pt-4 mt-4">
+    <div v-if="$slots.footer" class="border-t border-brand-caramel/15 pt-4 mt-4">
       <slot name="footer" />
     </div>
   </div>

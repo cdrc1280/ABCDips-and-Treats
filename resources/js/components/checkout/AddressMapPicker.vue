@@ -6,7 +6,7 @@
         type="button"
         @click="showMap = !showMap"
         v-tooltip="'Click to open interactive map and drag pin to your exact delivery location'"
-        class="inline-flex items-center gap-2 text-xs font-bold text-[#5C3A22] bg-[#FBF3E7] hover:bg-[#D9A876]/30 px-3.5 py-2 rounded-xl border border-[#C08E5D]/30 transition-all"
+        class="inline-flex items-center gap-2 text-xs font-bold text-brand-choco bg-surface hover:bg-brand-tan/30 px-3.5 py-2 rounded-xl border border-brand-caramel/30 transition-all"
       >
         <span>📍 {{ showMap ? 'Hide Map Picker' : 'Pinpoint Location on Map' }}</span>
         <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="showMap ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,7 +14,7 @@
         </svg>
       </button>
 
-      <span v-if="selectedCoords" class="text-[11px] text-[#6B8F5E] font-bold flex items-center gap-1">
+      <span v-if="selectedCoords" class="text-[11px] text-success font-bold flex items-center gap-1">
         ✓ Pin Location: {{ selectedCoords.lat.toFixed(4) }}, {{ selectedCoords.lng.toFixed(4) }}
       </span>
     </div>
@@ -28,7 +28,7 @@
       leave-from-class="opacity-100 max-h-[500px] overflow-hidden"
       leave-to-class="opacity-0 max-h-0 overflow-hidden"
     >
-      <div v-show="showMap" class="space-y-2 bg-[#FBF3E7]/60 p-3 rounded-2xl border border-[#C08E5D]/30">
+      <div v-show="showMap" class="space-y-2 bg-surface/60 p-3 rounded-2xl border border-brand-caramel/30">
 
         <!-- Search Bar with Autocomplete Suggestions -->
         <div class="relative">
@@ -38,18 +38,18 @@
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search street, barangay, or landmark in PH..."
-                class="w-full bg-white border border-[#C08E5D]/30 rounded-xl px-3.5 py-2 text-xs text-[#1C1410] placeholder-[#8C7A68] focus:outline-none focus:border-[#5C3A22] focus:ring-1 focus:ring-[#5C3A22]/30"
+                class="w-full bg-white border border-brand-caramel/30 rounded-xl px-3.5 py-2 text-xs text-ink placeholder-warm-gray focus:outline-none focus:border-brand-choco focus:ring-1 focus:ring-brand-choco/30"
                 @input="handleSearchInput"
                 @keydown.enter.prevent="performSearch"
               />
-              <span v-if="searching" class="absolute right-3 top-2.5 w-3.5 h-3.5 border-2 border-[#5C3A22] border-t-transparent rounded-full animate-spin"></span>
+              <span v-if="searching" class="absolute right-3 top-2.5 w-3.5 h-3.5 border-2 border-brand-choco border-t-transparent rounded-full animate-spin"></span>
             </div>
 
             <button
               type="button"
               @click="performSearch"
               v-tooltip="'Search address on map'"
-              class="bg-[#5C3A22] text-[#FBF3E7] px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-[#4A2D1A] transition-colors flex-shrink-0"
+              class="bg-brand-choco text-surface px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-choco-600 transition-colors shrink-0"
             >
               Search
             </button>
@@ -58,14 +58,14 @@
           <!-- Autocomplete Dropdown List -->
           <div
             v-if="suggestions.length > 0"
-            class="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-[#C08E5D]/20 overflow-hidden z-50 max-h-48 overflow-y-auto"
+            class="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-brand-caramel/20 overflow-hidden z-50 max-h-48 overflow-y-auto"
           >
             <button
               v-for="(sug, idx) in suggestions"
               :key="idx"
               type="button"
               @click="selectSuggestion(sug)"
-              class="w-full text-left px-3.5 py-2 text-xs text-[#1C1410] hover:bg-[#FBF3E7] hover:text-[#5C3A22] border-b border-[#C08E5D]/10 last:border-0 truncate"
+              class="w-full text-left px-3.5 py-2 text-xs text-ink hover:bg-surface hover:text-brand-choco border-b border-brand-caramel/10 last:border-0 truncate"
             >
               📍 {{ sug.display_name }}
             </button>
@@ -73,13 +73,13 @@
         </div>
 
         <!-- Leaflet Map Container -->
-        <div class="relative rounded-xl overflow-hidden border border-[#C08E5D]/30 shadow-inner h-64 bg-amber-50">
+        <div class="relative rounded-xl overflow-hidden border border-brand-caramel/30 shadow-inner h-64 bg-amber-50">
           <div ref="mapContainer" class="w-full h-full"></div>
 
           <!-- Instruction Badge Overlay -->
-          <div class="absolute bottom-2 left-2 right-2 bg-white/90 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-[#C08E5D]/20 text-[11px] text-[#5C3A22] flex items-center justify-between z-[400] shadow-sm">
+          <div class="absolute bottom-2 left-2 right-2 bg-white/90 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-brand-caramel/20 text-[11px] text-brand-choco flex items-center justify-between z-400 shadow-sm">
             <span>💡 <strong>Tip:</strong> Drag the 📍 pin or tap anywhere on the map to set your exact delivery dropoff location.</span>
-            <button type="button" @click="centerOnStore" class="text-[10px] font-bold text-[#C08E5D] underline hover:text-[#5C3A22]">Recenter</button>
+            <button type="button" @click="centerOnStore" class="text-[10px] font-bold text-brand-caramel underline hover:text-brand-choco">Recenter</button>
           </div>
         </div>
 

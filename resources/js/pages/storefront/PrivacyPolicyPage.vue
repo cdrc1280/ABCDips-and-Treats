@@ -1,17 +1,17 @@
 <template>
   <div class="max-w-3xl mx-auto px-6 py-16">
     <div class="mb-10">
-      <h1 class="text-4xl font-extrabold text-[#1C1410] tracking-tight">Privacy Policy</h1>
-      <p class="text-[#8C7A68] mt-2 text-sm">Last updated: July 2026</p>
+      <h1 class="text-4xl font-extrabold text-ink tracking-tight">Privacy Policy</h1>
+      <p class="text-warm-gray mt-2 text-sm">Last updated: July 2026</p>
     </div>
     <div class="prose-custom space-y-8">
-      <section v-for="section in sections" :key="section.title" class="bg-white rounded-2xl p-6 border border-[#C08E5D]/20">
-        <h2 class="text-lg font-bold text-[#1C1410] mb-3">{{ section.title }}</h2>
-        <p class="text-sm text-[#8C7A68] leading-relaxed">{{ section.content }}</p>
+      <section v-for="section in sections" :key="section.title" class="bg-white rounded-2xl p-6 border border-brand-caramel/20">
+        <h2 class="text-lg font-bold text-ink mb-3">{{ section.title }}</h2>
+        <p class="text-sm text-warm-gray leading-relaxed">{{ section.content }}</p>
       </section>
     </div>
-    <div class="mt-10 bg-[#FBF3E7] rounded-2xl p-6 border border-[#C08E5D]/20 text-sm text-[#8C7A68]">
-      <strong class="text-[#1C1410]">Questions about this policy?</strong> Contact us at <a href="mailto:hello@abcdips.com" class="text-[#5C3A22] hover:underline">hello@abcdips.com</a>
+    <div class="mt-10 bg-surface rounded-2xl p-6 border border-brand-caramel/20 text-sm text-warm-gray">
+      <strong class="text-ink">Questions about this policy?</strong> Contact us at <a href="mailto:hello@abcdips.com" class="text-brand-choco hover:underline">hello@abcdips.com</a>
     </div>
   </div>
 </template>

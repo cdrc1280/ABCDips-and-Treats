@@ -42,9 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia, Filamen
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasAnyRole(['super_admin', 'admin'])
-            || str_ends_with($this->email, '@abcdips.test')
-            || str_contains($this->email, 'admin');
+        return $this->hasAnyRole(['super_admin', 'admin']);
     }
 
     /**
@@ -54,7 +52,7 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia, Filamen
     {
         return [
             'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
+            'password' => 'hashed',
         ];
     }
 

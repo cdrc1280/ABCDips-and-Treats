@@ -56,16 +56,17 @@ class ProductSeeder extends Seeder
 
         $catMap = [];
         foreach ($categories as $catData) {
-            $catMap[$catData['slug']] = ProductCategory::create($catData);
+            $catMap[$catData['slug']] = ProductCategory::firstOrCreate(['slug' => $catData['slug']], $catData);
         }
 
         // 2. Tags
         $tags = ['Best Seller', 'Freshly Baked', 'Customer Favorite', 'New Recipe', 'Seasonal', 'Gluten Free', 'Nut Free', 'Pre-Order'];
         $tagMap = [];
         foreach ($tags as $tagName) {
-            $tagMap[$tagName] = Tag::create([
-                'name' => $tagName,
+            $tagMap[$tagName] = Tag::firstOrCreate([
                 'slug' => Str::slug($tagName),
+            ], [
+                'name' => $tagName,
             ]);
         }
 
@@ -376,11 +377,12 @@ class ProductSeeder extends Seeder
         foreach ($products as $pData) {
             $cat = $catMap[$pData['category_slug']];
 
-            $product = Product::create([
+            $product = Product::firstOrCreate([
+                'slug' => $pData['slug'],
+            ], [
                 'category_id' => $cat->id,
                 'sku' => $pData['sku'],
                 'name' => $pData['name'],
-                'slug' => $pData['slug'],
                 'short_description' => $pData['short_description'],
                 'description' => $pData['description'] ?? $pData['short_description'],
                 'price' => $pData['price'],

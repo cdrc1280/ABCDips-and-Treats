@@ -5,21 +5,10 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\AdminReportController;
 
 // Admin & Store Printable Order Invoice Route
-Route::get('/order-invoice/{id}', [OrderController::class, 'adminInvoice'])->name('order.invoice');
+Route::middleware(['auth', 'role:super_admin|admin'])->get('/order-invoice/{order}', [OrderController::class, 'adminInvoice'])->name('order.invoice');
 
 // Admin Multi-Format Business Reports Center Download Route (PDF, Excel, Word)
-Route::get('/admin-report-download/{type}/{format}', [AdminReportController::class, 'download'])->name('admin.reports.download');
-
-// Download Test Cases PDF Route
-Route::get('/download-test-cases-pdf', function () {
-    $path = public_path('ABCDips_Treats_Test_Case_Suite.pdf');
-    if (!file_exists($path)) {
-        abort(404, 'PDF file not found.');
-    }
-    return response()->download($path, 'ABCDips_Treats_Test_Case_Suite.pdf', [
-        'Content-Type' => 'application/pdf',
-    ]);
-});
+Route::middleware(['auth', 'role:super_admin|admin'])->get('/admin-report-download/{type}/{format}', [AdminReportController::class, 'download'])->name('admin.reports.download');
 
 // SPA catch-all — serves the Vue app for all non-API, non-admin routes
 Route::get('/{any?}', function () {

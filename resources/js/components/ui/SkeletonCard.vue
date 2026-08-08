@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-2xl p-4 border border-[#C08E5D]/15 space-y-4" style="box-shadow: var(--shadow-sm);">
+  <div class="bg-white rounded-2xl p-4 border border-brand-caramel/15 space-y-4" style="box-shadow: var(--shadow-sm);">
     <!-- Aspect ratio image block -->
     <SkeletonBlock height="180px" radius="1rem" />
     

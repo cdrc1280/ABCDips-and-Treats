@@ -12,7 +12,9 @@ use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    public function __construct(private readonly AuthService $authService) {}
+    public function __construct(private readonly AuthService $authService)
+    {
+    }
 
     /**
      * Register a new customer account.
@@ -21,9 +23,11 @@ class AuthController extends Controller
     {
         $result = $this->authService->register($request->validated());
 
+        auth()->login($result['user']);
+
         return response()->json([
             'message' => 'Account created successfully. Please check your email to verify your account.',
-            'data'    => [
+            'data' => [
                 'user'  => new UserResource($result['user']),
                 'token' => $result['token'],
             ],
@@ -31,21 +35,23 @@ class AuthController extends Controller
     }
 
     /**
-     * Authenticate and issue a Sanctum token.
+     * Authenticate and establish a session.
      */
     public function login(LoginRequest $request): JsonResponse
     {
         $result = $this->authService->login($request->validated());
 
-        if (! $result) {
+        if (!$result) {
             return response()->json([
                 'message' => 'The provided credentials are incorrect.',
             ], 401);
         }
 
+        auth()->login($result['user']);
+
         return response()->json([
             'message' => 'Logged in successfully.',
-            'data'    => [
+            'data' => [
                 'user'  => new UserResource($result['user']),
                 'token' => $result['token'],
             ],
@@ -67,7 +73,18 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        if ($request->user() && method_exists($request->user(), 'currentAccessToken') && $request->user()->currentAccessToken()) {
+            $request->user()->currentAccessToken()->delete();
+        }
+
+        if (auth()->guard('web')->check()) {
+            auth()->guard('web')->logout();
+        }
+
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
         return response()->json(['message' => 'Logged out successfully.']);
     }

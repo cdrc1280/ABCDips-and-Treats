@@ -5,14 +5,14 @@
             subtitle="From classic banana bread loaves to cheesecakes and chewy handcrafted cookies." />
 
         <!-- Filter & Search Controls Bar -->
-        <div class="bg-white rounded-2xl p-4 md:p-6 border border-[#C08E5D]/20 mb-8 space-y-4 shadow-sm">
+        <div class="bg-white rounded-2xl p-4 md:p-6 border border-brand-caramel/20 mb-8 space-y-4 shadow-sm">
             <div class="flex flex-col md:flex-row gap-4 justify-between items-center">
                 <!-- Search Input -->
                 <div class="w-full md:w-80">
                     <BaseInput v-model="searchQuery" placeholder="Search banana bread, cookies, cakes..."
                         @input="debounceSearch">
                         <template #icon-left>
-                            <svg class="w-4 h-4 text-[#8C7A68]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-warm-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
@@ -23,15 +23,15 @@
                 <!-- Category Pills (Horizontal scroll on mobile) -->
                 <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 no-scrollbar">
                     <button
-                        class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex-shrink-0"
-                        :class="!selectedCategory ? 'bg-[#5C3A22] text-[#FBF3E7]' : 'bg-[#D9A876]/20 text-[#5C3A22] hover:bg-[#D9A876]/35'"
+                        class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0"
+                        :class="!selectedCategory ? 'bg-brand-choco text-surface' : 'bg-brand-tan/20 text-brand-choco hover:bg-brand-tan/35'"
                         @click="selectCategory('')">
                         All Items
                     </button>
 
                     <button v-for="cat in categories" :key="cat.id"
-                        class="px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex-shrink-0"
-                        :class="selectedCategory === cat.slug ? 'bg-[#5C3A22] text-[#FBF3E7]' : 'bg-[#D9A876]/20 text-[#5C3A22] hover:bg-[#D9A876]/35'"
+                        class="px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap shrink-0"
+                        :class="selectedCategory === cat.slug ? 'bg-brand-choco text-surface' : 'bg-brand-tan/20 text-brand-choco hover:bg-brand-tan/35'"
                         @click="selectCategory(cat.slug)">
                         {{ cat.name }}
                     </button>
@@ -69,7 +69,7 @@
                 ← Previous
             </BaseButton>
 
-            <span class="text-sm font-semibold text-[#5C3A22] px-4">
+            <span class="text-sm font-semibold text-brand-choco px-4">
                 Page {{ pagination.current_page }} of {{ pagination.last_page }}
             </span>
 

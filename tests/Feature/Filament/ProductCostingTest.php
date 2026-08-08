@@ -24,9 +24,12 @@ class ProductCostingTest extends TestCase
     {
         parent::setUp();
 
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin']);
+
         $this->admin = User::factory()->create([
             'email' => 'admin@abcdips.test',
         ]);
+        $this->admin->assignRole('admin');
 
         $category = ProductCategory::create([
             'name' => 'Pastries',

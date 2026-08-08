@@ -16,28 +16,28 @@
     <article v-else class="max-w-4xl mx-auto space-y-8">
       <!-- Top Navigation -->
       <div class="flex items-center justify-between">
-        <RouterLink to="/blog" class="text-xs font-bold text-[#5C3A22] hover:underline flex items-center gap-1">
+        <RouterLink to="/blog" class="text-xs font-bold text-brand-choco hover:underline flex items-center gap-1">
           ← Back to Bakery Journal &amp; Vlog
         </RouterLink>
-        <span class="text-[11px] font-extrabold text-[#C08E5D] uppercase tracking-wider bg-[#FBF3E7] px-3 py-1 rounded-full border border-[#C08E5D]/20">
+        <span class="text-[11px] font-extrabold text-brand-caramel uppercase tracking-wider bg-surface px-3 py-1 rounded-full border border-brand-caramel/20">
           {{ post.category || 'Bakery Story' }}
         </span>
       </div>
 
       <!-- Post Header -->
       <div class="space-y-4 text-center max-w-3xl mx-auto">
-        <h1 class="text-3xl md:text-5xl font-extrabold text-[#1C1410] leading-tight">
+        <h1 class="text-3xl md:text-5xl font-extrabold text-ink leading-tight">
           {{ post.title }}
         </h1>
-        <div class="flex items-center justify-center gap-4 text-xs text-[#8C7A68]">
-          <span>By <strong class="text-[#1C1410]">{{ post.author?.name || 'ABCDips Team' }}</strong></span>
+        <div class="flex items-center justify-center gap-4 text-xs text-warm-gray">
+          <span>By <strong class="text-ink">{{ post.author?.name || 'ABCDips Team' }}</strong></span>
           <span>•</span>
           <span>{{ formatDate(post.published_at) }}</span>
         </div>
       </div>
 
       <!-- Cover Image Container -->
-      <div class="relative w-full aspect-video max-h-[460px] rounded-3xl overflow-hidden shadow-lg border border-[#C08E5D]/20 bg-[#FBF3E7]">
+      <div class="relative w-full aspect-video max-h-[460px] rounded-3xl overflow-hidden shadow-lg border border-brand-caramel/20 bg-surface">
         <img
           :src="post.cover_image || '/images/blog-banana-bread.jpg'"
           :alt="post.title"
@@ -47,20 +47,20 @@
       </div>
 
       <!-- Article Content Box -->
-      <div class="bg-white rounded-3xl p-8 md:p-12 border border-[#C08E5D]/20 shadow-sm space-y-6 text-[#1C1410] text-base leading-relaxed max-w-3xl mx-auto">
-        <p class="text-lg font-semibold text-[#5C3A22] leading-relaxed italic border-l-4 border-[#C08E5D] pl-4">
+      <div class="bg-white rounded-3xl p-8 md:p-12 border border-brand-caramel/20 shadow-sm space-y-6 text-ink text-base leading-relaxed max-w-3xl mx-auto">
+        <p class="text-lg font-semibold text-brand-choco leading-relaxed italic border-l-4 border-brand-caramel pl-4">
           {{ post.excerpt }}
         </p>
-        <div class="whitespace-pre-line space-y-4 text-[#1C1410]">
+        <div class="whitespace-pre-line space-y-4 text-ink">
           {{ post.content }}
         </div>
       </div>
 
       <!-- Footer CTA -->
-      <div class="bg-[#FBF3E7] rounded-3xl p-8 border border-[#C08E5D]/20 text-center space-y-4 max-w-3xl mx-auto">
-        <span class="script-accent text-[#C08E5D] text-xl block">baked fresh daily</span>
-        <h3 class="text-2xl font-bold text-[#1C1410]">Craving freshly baked treats?</h3>
-        <p class="text-xs text-[#8C7A68] max-w-md mx-auto">
+      <div class="bg-surface rounded-3xl p-8 border border-brand-caramel/20 text-center space-y-4 max-w-3xl mx-auto">
+        <span class="script-accent text-brand-caramel text-xl block">baked fresh daily</span>
+        <h3 class="text-2xl font-bold text-ink">Craving freshly baked treats?</h3>
+        <p class="text-xs text-warm-gray max-w-md mx-auto">
           Explore our signature banana bread, handcrafted cookies, and custom cake options delivered warm to your doorstep.
         </p>
         <div class="pt-2">

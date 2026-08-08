@@ -1,7 +1,7 @@
 <template>
   <div class="py-16 px-4 text-center flex flex-col items-center justify-center max-w-md mx-auto">
     <!-- Cookie doodle hand-drawn line-art SVG motif -->
-    <div class="w-24 h-24 rounded-full bg-[#D9A876]/20 flex items-center justify-center mb-6 text-[#C08E5D]">
+    <div class="w-24 h-24 rounded-full bg-brand-tan/20 flex items-center justify-center mb-6 text-brand-caramel">
       <slot name="icon">
         <svg class="w-12 h-12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 48 48">
           <!-- Cookie outline with bite -->
@@ -16,8 +16,8 @@
       </slot>
     </div>
 
-    <h3 class="text-xl font-bold text-[#1C1410] mb-2">{{ title }}</h3>
-    <p class="text-sm text-[#8C7A68] mb-6 leading-relaxed">{{ description }}</p>
+    <h3 class="text-xl font-bold text-ink mb-2">{{ title }}</h3>
+    <p class="text-sm text-warm-gray mb-6 leading-relaxed">{{ description }}</p>
 
     <div v-if="$slots.action" class="flex justify-center">
       <slot name="action" />

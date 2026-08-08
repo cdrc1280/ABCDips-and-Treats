@@ -28,6 +28,7 @@ class Product extends Model implements HasMedia
         'gallery',
         'price',
         'sale_price',
+        'sale_ends_at',
         'prep_time_minutes',
         'stock_qty',
         'min_stock_qty',
@@ -45,6 +46,7 @@ class Product extends Model implements HasMedia
         'gallery'           => 'array',
         'price'             => 'decimal:2',
         'sale_price'        => 'decimal:2',
+        'sale_ends_at'      => 'datetime',
         'prep_time_minutes' => 'integer',
         'stock_qty'         => 'integer',
         'min_stock_qty'     => 'integer',
@@ -110,7 +112,7 @@ class Product extends Model implements HasMedia
 
     public function getIsOnSaleAttribute(): bool
     {
-        return $this->sale_price !== null && $this->sale_price < $this->price;
+        return $this->sale_price !== null && $this->sale_price < $this->price && ($this->sale_ends_at === null || $this->sale_ends_at->isFuture());
     }
 
     /**

@@ -1,8 +1,8 @@
 <template>
   <div class="w-full">
-    <label v-if="label" :for="id" class="block text-xs font-semibold uppercase tracking-wider text-[#5C3A22] mb-1.5">
+    <label v-if="label" :for="id" class="block text-xs font-semibold uppercase tracking-wider text-brand-choco mb-1.5">
       {{ label }}
-      <span v-if="required" class="text-[#B84C3C]">*</span>
+      <span v-if="required" class="text-error">*</span>
     </label>
 
     <textarea
@@ -13,16 +13,16 @@
       :disabled="disabled"
       :required="required"
       :class="[
-        'w-full rounded-xl bg-white border text-sm text-[#1C1410] p-3.5 placeholder-[#8C7A68]/60 transition-all duration-200 focus:outline-none focus:ring-2 disabled:bg-[#FBF3E7]/50 disabled:text-[#8C7A68] disabled:cursor-not-allowed resize-y',
+        'w-full rounded-xl bg-white border text-sm text-ink p-3.5 placeholder-warm-gray/60 transition-all duration-200 focus:outline-none focus:ring-2 disabled:bg-surface/50 disabled:text-warm-gray disabled:cursor-not-allowed resize-y',
         error
-          ? 'border-[#B84C3C] focus:border-[#B84C3C] focus:ring-[#B84C3C]/20'
-          : 'border-[#C08E5D]/30 hover:border-[#C08E5D] focus:border-[#5C3A22] focus:ring-[#5C3A22]/20'
+          ? 'border-error focus:border-error focus:ring-error/20'
+          : 'border-brand-caramel/30 hover:border-brand-caramel focus:border-brand-choco focus:ring-brand-choco/20'
       ]"
       @input="$emit('update:modelValue', $event.target.value)"
     ></textarea>
 
-    <p v-if="error" class="mt-1.5 text-xs text-[#B84C3C] font-medium">{{ error }}</p>
-    <p v-else-if="hint" class="mt-1.5 text-xs text-[#8C7A68]">{{ hint }}</p>
+    <p v-if="error" class="mt-1.5 text-xs text-error font-medium">{{ error }}</p>
+    <p v-else-if="hint" class="mt-1.5 text-xs text-warm-gray">{{ hint }}</p>
   </div>
 </template>
 

@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between">
       <RouterLink
         to="/account/orders"
-        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-[#5C3A22] bg-white border border-[#C08E5D]/25 hover:bg-[#D9A876]/20 transition-all shadow-sm"
+        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-brand-choco bg-white border border-brand-caramel/25 hover:bg-brand-tan/20 transition-all shadow-sm"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
         Back to My Account
@@ -12,7 +12,7 @@
 
       <RouterLink
         to="/"
-        class="text-xs font-bold text-[#8C7A68] hover:text-[#5C3A22] hover:underline"
+        class="text-xs font-bold text-warm-gray hover:text-brand-choco hover:underline"
       >
         Go to Storefront →
       </RouterLink>
@@ -27,8 +27,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
       <!-- Profile Form Left -->
-      <form @submit.prevent="updateProfile" class="bg-white rounded-3xl p-6 md:p-8 border border-[#C08E5D]/20 shadow-sm space-y-4">
-        <h3 class="font-extrabold text-xl text-[#1C1410] border-b border-[#C08E5D]/20 pb-3">
+      <form @submit.prevent="updateProfile" class="bg-white rounded-3xl p-6 md:p-8 border border-brand-caramel/20 shadow-sm space-y-4">
+        <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-3">
           Personal Details
         </h3>
 
@@ -40,10 +40,10 @@
 
         <div class="space-y-1">
           <div class="flex items-center justify-between mb-1">
-            <label class="text-sm font-semibold text-[#1C1410]">Email Address (Account ID)</label>
+            <label class="text-sm font-semibold text-ink">Email Address (Account ID)</label>
             <span
               v-if="authStore.user?.email_verified_at"
-              class="text-xs font-bold text-[#6B8F5E] bg-[#6B8F5E]/15 px-2.5 py-0.5 rounded-full flex items-center gap-1"
+              class="text-xs font-bold text-success bg-success/15 px-2.5 py-0.5 rounded-full flex items-center gap-1"
             >✓ Verified</span>
             <span
               v-else
@@ -55,7 +55,7 @@
             v-model="profileForm.email"
             type="email"
             disabled
-            class="w-full bg-gray-100 border border-[#C08E5D]/20 rounded-xl px-3.5 py-2.5 text-sm text-[#8C7A68] cursor-not-allowed opacity-80"
+            class="w-full bg-gray-100 border border-brand-caramel/20 rounded-xl px-3.5 py-2.5 text-sm text-warm-gray cursor-not-allowed opacity-80"
           />
 
           <div v-if="!authStore.user?.email_verified_at" class="pt-1.5">
@@ -63,9 +63,9 @@
               type="button"
               @click="sendVerificationEmail"
               :disabled="sendingEmail"
-              class="text-xs font-bold text-[#5C3A22] bg-[#FBF3E7] hover:bg-[#D9A876]/30 px-3.5 py-2 rounded-lg border border-[#C08E5D]/30 transition-all flex items-center gap-1.5"
+              class="text-xs font-bold text-brand-choco bg-surface hover:bg-brand-tan/30 px-3.5 py-2 rounded-lg border border-brand-caramel/30 transition-all flex items-center gap-1.5"
             >
-              <span v-if="sendingEmail" class="w-3 h-3 border-2 border-[#5C3A22] border-t-transparent rounded-full animate-spin"></span>
+              <span v-if="sendingEmail" class="w-3 h-3 border-2 border-brand-choco border-t-transparent rounded-full animate-spin"></span>
               <span>✉️ Send Verification Email</span>
             </button>
           </div>
@@ -103,8 +103,8 @@
       </form>
 
       <!-- Password Change Right -->
-      <form @submit.prevent="changePassword" class="bg-white rounded-3xl p-6 md:p-8 border border-[#C08E5D]/20 shadow-sm space-y-4">
-        <h3 class="font-extrabold text-xl text-[#1C1410] border-b border-[#C08E5D]/20 pb-3">
+      <form @submit.prevent="changePassword" class="bg-white rounded-3xl p-6 md:p-8 border border-brand-caramel/20 shadow-sm space-y-4">
+        <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-3">
           Security &amp; Password
         </h3>
 
@@ -126,22 +126,22 @@
         />
 
         <!-- Password Requirement Rules Checklist -->
-        <div v-if="passwordForm.new_password" class="bg-[#FBF3E7] p-3 rounded-xl border border-[#C08E5D]/20 space-y-1 text-xs">
-          <p class="font-semibold text-[#5C3A22] mb-1">New Password Requirements:</p>
+        <div v-if="passwordForm.new_password" class="bg-surface p-3 rounded-xl border border-brand-caramel/20 space-y-1 text-xs">
+          <p class="font-semibold text-brand-choco mb-1">New Password Requirements:</p>
           <div class="grid grid-cols-2 gap-1">
-            <div :class="rules.minLength ? 'text-[#6B8F5E] font-semibold' : 'text-[#8C7A68]'" class="flex items-center gap-1.5">
+            <div :class="rules.minLength ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
               <span>{{ rules.minLength ? '✓' : '○' }}</span> At least 8 characters
             </div>
-            <div :class="rules.hasUpper ? 'text-[#6B8F5E] font-semibold' : 'text-[#8C7A68]'" class="flex items-center gap-1.5">
+            <div :class="rules.hasUpper ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
               <span>{{ rules.hasUpper ? '✓' : '○' }}</span> Uppercase letter (A-Z)
             </div>
-            <div :class="rules.hasLower ? 'text-[#6B8F5E] font-semibold' : 'text-[#8C7A68]'" class="flex items-center gap-1.5">
+            <div :class="rules.hasLower ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
               <span>{{ rules.hasLower ? '✓' : '○' }}</span> Lowercase letter (a-z)
             </div>
-            <div :class="rules.hasNumber ? 'text-[#6B8F5E] font-semibold' : 'text-[#8C7A68]'" class="flex items-center gap-1.5">
+            <div :class="rules.hasNumber ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
               <span>{{ rules.hasNumber ? '✓' : '○' }}</span> Number (0-9)
             </div>
-            <div :class="rules.hasSpecial ? 'text-[#6B8F5E] font-semibold' : 'text-[#8C7A68]'" class="flex items-center gap-1.5 col-span-2">
+            <div :class="rules.hasSpecial ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5 col-span-2">
               <span>{{ rules.hasSpecial ? '✓' : '○' }}</span> Special character (!@#$%^&* etc.)
             </div>
           </div>

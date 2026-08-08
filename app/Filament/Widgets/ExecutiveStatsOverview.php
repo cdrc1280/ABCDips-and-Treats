@@ -7,6 +7,7 @@ use App\Models\Ingredient;
 use App\Models\Order;
 use App\Models\PackagingMaterial;
 use App\Models\Payroll;
+use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -31,6 +32,9 @@ class ExecutiveStatsOverview extends BaseWidget
         $couponRedemptions = Coupon::sum('used_count');
 
         $totalPayrollDisbursed = (float) Payroll::sum('total_net');
+
+        $verifiedCustomersCount = User::whereNotNull('email_verified_at')->count();
+        $totalCustomersCount    = User::count();
 
         return [
             Stat::make('Total Revenue', '₱' . number_format($totalRevenue, 2))
@@ -57,6 +61,11 @@ class ExecutiveStatsOverview extends BaseWidget
                 ->description('Total net staff compensation')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('warning'),
+
+            Stat::make('Verified Customers', number_format($verifiedCustomersCount) . ' verified')
+                ->description(number_format($verifiedCustomersCount) . ' of ' . number_format($totalCustomersCount) . ' total accounts')
+                ->descriptionIcon('heroicon-m-check-badge')
+                ->color('success'),
         ];
     }
 }

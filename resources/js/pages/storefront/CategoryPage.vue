@@ -2,22 +2,22 @@
   <div class="page-container py-10 md:py-16">
     <!-- Category header skeleton -->
     <div v-if="loading" class="mb-10">
-      <div class="h-4 bg-[#D9A876]/30 rounded w-24 mb-3 animate-pulse" />
-      <div class="h-10 bg-[#D9A876]/30 rounded-xl w-64 mb-4 animate-pulse" />
-      <div class="h-4 bg-[#D9A876]/20 rounded w-96 animate-pulse" />
+      <div class="h-4 bg-brand-tan/30 rounded w-24 mb-3 animate-pulse" />
+      <div class="h-10 bg-brand-tan/30 rounded-xl w-64 mb-4 animate-pulse" />
+      <div class="h-4 bg-brand-tan/20 rounded w-96 animate-pulse" />
     </div>
 
     <!-- Category Header -->
     <div v-else-if="category" class="mb-10">
-      <span class="font-['Caveat'] text-[#C08E5D] text-xl">browse category</span>
-      <h1 class="text-4xl font-extrabold text-[#1C1410] tracking-tight mt-1">{{ category.name }}</h1>
-      <p v-if="category.description" class="text-[#8C7A68] mt-2 max-w-xl">{{ category.description }}</p>
+      <span class="font-['Caveat'] text-brand-caramel text-xl">browse category</span>
+      <h1 class="text-4xl font-extrabold text-ink tracking-tight mt-1">{{ category.name }}</h1>
+      <p v-if="category.description" class="text-warm-gray mt-2 max-w-xl">{{ category.description }}</p>
       <div class="flex items-center gap-3 mt-4">
-        <span class="inline-flex items-center gap-1.5 bg-[#D9A876]/20 text-[#5C3A22] text-xs font-bold px-3 py-1.5 rounded-full">
+        <span class="inline-flex items-center gap-1.5 bg-brand-tan/20 text-brand-choco text-xs font-bold px-3 py-1.5 rounded-full">
           <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" /></svg>
           {{ products.length }} products
         </span>
-        <RouterLink to="/shop" class="text-xs text-[#8C7A68] hover:text-[#5C3A22] transition-colors">← All Categories</RouterLink>
+        <RouterLink to="/shop" class="text-xs text-warm-gray hover:text-brand-choco transition-colors">← All Categories</RouterLink>
       </div>
     </div>
 

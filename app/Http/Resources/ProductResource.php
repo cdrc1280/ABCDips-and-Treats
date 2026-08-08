@@ -25,6 +25,7 @@ class ProductResource extends JsonResource
             'sale_price'        => $this->sale_price ? (float) $this->sale_price : null,
             'effective_price'   => $this->effective_price,
             'is_on_sale'        => $this->is_on_sale,
+            'sale_ends_at'      => $this->sale_ends_at?->toISOString(),
             'prep_time_minutes' => $this->prep_time_minutes,
             'stock_qty'         => $this->stock_qty,
             'is_in_stock'       => $this->stock_qty > 0,

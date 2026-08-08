@@ -1,13 +1,13 @@
 <template>
   <div class="w-full">
-    <label v-if="label" :for="id" class="block text-xs font-semibold uppercase tracking-wider text-[#5C3A22] mb-1.5">
+    <label v-if="label" :for="id" class="block text-xs font-semibold uppercase tracking-wider text-brand-choco mb-1.5">
       {{ label }}
-      <span v-if="required" class="text-[#B84C3C]">*</span>
+      <span v-if="required" class="text-error">*</span>
     </label>
 
     <div class="relative rounded-xl">
       <!-- Icon Left Slot -->
-      <div v-if="$slots['icon-left']" class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8C7A68]">
+      <div v-if="$slots['icon-left']" class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-warm-gray">
         <slot name="icon-left" />
       </div>
 
@@ -26,14 +26,14 @@
         :inputmode="computedInputMode"
         :autocomplete="autocomplete"
         :class="[
-          'w-full rounded-xl bg-white border text-sm text-[#1C1410] placeholder-[#8C7A68]/60 transition-all duration-200 focus:outline-none focus:ring-2 disabled:bg-[#FBF3E7]/50 disabled:text-[#8C7A68] disabled:cursor-not-allowed',
+          'w-full rounded-xl bg-white border text-sm text-ink placeholder-warm-gray/60 transition-all duration-200 focus:outline-none focus:ring-2 disabled:bg-surface/50 disabled:text-warm-gray disabled:cursor-not-allowed',
           $slots['icon-left'] ? 'pl-10' : 'pl-3.5',
           hasRightContent ? 'pr-10' : 'pr-3.5',
           error
-            ? 'border-[#B84C3C] focus:border-[#B84C3C] focus:ring-[#B84C3C]/20'
+            ? 'border-error focus:border-error focus:ring-error/20'
             : success
-            ? 'border-[#6B8F5E] focus:border-[#6B8F5E] focus:ring-[#6B8F5E]/20'
-            : 'border-[#C08E5D]/30 hover:border-[#C08E5D] focus:border-[#5C3A22] focus:ring-[#5C3A22]/20',
+            ? 'border-success focus:border-success focus:ring-success/20'
+            : 'border-brand-caramel/30 hover:border-brand-caramel focus:border-brand-choco focus:ring-brand-choco/20',
           sizeClass
         ]"
         @keydown="handleKeydown"
@@ -44,7 +44,7 @@
       />
 
       <!-- Custom Icon Right Slot -->
-      <div v-if="$slots['icon-right']" class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-[#8C7A68]">
+      <div v-if="$slots['icon-right']" class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-warm-gray">
         <slot name="icon-right" />
       </div>
 
@@ -55,7 +55,7 @@
         @click="showPassword = !showPassword"
         tabindex="-1"
         aria-label="Toggle Password Visibility"
-        class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#8C7A68] hover:text-[#5C3A22] transition-colors focus:outline-none"
+        class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-warm-gray hover:text-brand-choco transition-colors focus:outline-none"
       >
         <!-- Eye Icon (Password Hidden) -->
         <svg v-if="!showPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,18 +64,18 @@
         </svg>
 
         <!-- Eye Slash Icon (Password Visible) -->
-        <svg v-else class="w-4 h-4 text-[#5C3A22]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg v-else class="w-4 h-4 text-brand-choco" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 014.122-.976c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
         </svg>
       </button>
     </div>
 
     <!-- Local / Dynamic Error Message -->
-    <p v-if="error || internalError" class="mt-1.5 text-xs text-[#B84C3C] font-medium flex items-center gap-1">
-      <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    <p v-if="error || internalError" class="mt-1.5 text-xs text-error font-medium flex items-center gap-1">
+      <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
       {{ error || internalError }}
     </p>
-    <p v-else-if="hint" class="mt-1.5 text-xs text-[#8C7A68]">
+    <p v-else-if="hint" class="mt-1.5 text-xs text-warm-gray">
       {{ hint }}
     </p>
   </div>

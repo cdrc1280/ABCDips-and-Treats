@@ -20,36 +20,36 @@ class StoreSettings extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-cog-6-tooth';
-    protected static string|\UnitEnum|null   $navigationGroup = 'Configuration';
-    protected static ?string                 $navigationLabel = 'Store Settings';
-    protected static ?int                    $navigationSort  = 99;
-    protected string                         $view = 'filament.pages.store-settings';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static string|\UnitEnum|null $navigationGroup = 'Configuration';
+    protected static ?string $navigationLabel = 'Store Settings';
+    protected static ?int $navigationSort = 99;
+    protected string $view = 'filament.pages.store-settings';
 
     public ?array $data = [];
 
     public function mount(): void
     {
         $this->form->fill([
-            'store_name'            => Setting::get('store_name', 'ABCDips & Treats'),
-            'store_phone'           => Setting::get('store_phone', ''),
-            'store_address'         => Setting::get('store_address', 'Bacoor, Cavite, Philippines'),
-            'store_lat'             => Setting::get('store_lat', '14.4597'),
-            'store_lng'             => Setting::get('store_lng', '120.9640'),
-            'store_email'           => Setting::get('store_email', ''),
+            'store_name' => Setting::get('store_name', 'ABCDips & Treats'),
+            'store_phone' => Setting::get('store_phone', ''),
+            'store_address' => Setting::get('store_address', 'Bacoor, Cavite, Philippines'),
+            'store_lat' => Setting::get('store_lat', '14.4597'),
+            'store_lng' => Setting::get('store_lng', '120.9640'),
+            'store_email' => Setting::get('store_email', ''),
 
-            'lalamove_api_key'      => Setting::get('lalamove_api_key', ''),
-            'lalamove_api_secret'   => Setting::get('lalamove_api_secret', ''),
+            'lalamove_api_key' => Setting::get('lalamove_api_key', ''),
+            'lalamove_api_secret' => Setting::get('lalamove_api_secret', ''),
             'lalamove_service_type' => Setting::get('lalamove_service_type', 'MOTORCYCLE'),
-            'lalamove_sandbox'      => (bool) Setting::get('lalamove_sandbox', true),
+            'lalamove_sandbox' => (bool) Setting::get('lalamove_sandbox', true),
 
-            'paymongo_public_key'   => Setting::get('paymongo_public_key', ''),
-            'paymongo_secret_key'   => Setting::get('paymongo_secret_key', ''),
-            'paymongo_sandbox'      => (bool) Setting::get('paymongo_sandbox', true),
+            'paymongo_public_key' => Setting::get('paymongo_public_key', ''),
+            'paymongo_secret_key' => Setting::get('paymongo_secret_key', ''),
+            'paymongo_sandbox' => (bool) Setting::get('paymongo_sandbox', true),
 
-            'bdo_account_name'      => Setting::get('bdo_account_name', 'ABCDips & Treats'),
-            'bdo_account_number'    => Setting::get('bdo_account_number', '0012-3456-7890'),
-            'bdo_instructions'      => Setting::get('bdo_instructions', ''),
+            'bdo_account_name' => Setting::get('bdo_account_name', 'ABCDips & Treats'),
+            'bdo_account_number' => Setting::get('bdo_account_number', '0012-3456-7890'),
+            'bdo_instructions' => Setting::get('bdo_instructions', ''),
         ]);
     }
 
@@ -112,8 +112,8 @@ class StoreSettings extends Page implements HasForms
                             ->label('Vehicle / Service Type')
                             ->options([
                                 'MOTORCYCLE' => 'Motorcycle (Standard Pastries)',
-                                'SEDAN'      => 'Sedan (Fragile Custom Cakes)',
-                                'MPV'        => 'MPV / Van (Bulk Orders)',
+                                'SEDAN' => 'Sedan (Fragile Custom Cakes)',
+                                'MPV' => 'MPV / Van (Bulk Orders)',
                             ])
                             ->default('MOTORCYCLE'),
 
@@ -138,7 +138,7 @@ class StoreSettings extends Page implements HasForms
 
                         Toggle::make('paymongo_sandbox')
                             ->label('Sandbox Mode')
-                            ->helperText('Use PayMongo test environment (Test GCash number: 09123456789, OTP: 123456)')
+                            ->helperText(app()->environment(['local', 'testing']) ? 'Use PayMongo test environment (Test GCash number: 09123456789, OTP: 123456)' : null)
                             ->default(true)
                             ->columnSpanFull(),
                     ]),

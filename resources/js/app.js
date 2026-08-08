@@ -15,7 +15,7 @@ if (csrfToken) {
   axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
 }
 
-// Restore Auth token from localStorage if present
+// Bearer token for Sanctum API auth
 const authToken = localStorage.getItem('auth_token')
 if (authToken) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`
@@ -30,6 +30,14 @@ if (cartToken) {
 // Base URL
 axios.defaults.baseURL = window.location.origin
 
+axios.interceptors.request.use((config) => {
+  if (config.method && ['post', 'put', 'patch', 'delete'].includes(config.method.toLowerCase())) {
+    config.headers = config.headers || {}
+    config.headers['X-Requested-With'] = 'XMLHttpRequest'
+  }
+  return config
+}, (error) => Promise.reject(error))
+
 // Response interceptor — capture cart token from server headers
 axios.interceptors.response.use(
   (response) => {
@@ -41,11 +49,6 @@ axios.interceptors.response.use(
     return response
   },
   (error) => {
-    // If 401 Unauthorized, clear auth_token header and state
-    if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token')
-      delete axios.defaults.headers.common['Authorization']
-    }
     return Promise.reject(error)
   }
 )

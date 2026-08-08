@@ -6,6 +6,7 @@ use App\Models\Ingredient;
 use App\Models\Product;
 use App\Models\ProductionBatch;
 use App\Models\Recipe;
+use App\Models\User;
 
 use App\Services\ProductionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,6 +19,7 @@ class M5InventoryAndPosTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
         $this->seed(\Database\Seeders\ProductSeeder::class);
         $this->seed(\Database\Seeders\InventorySeeder::class);
     }
@@ -52,7 +54,10 @@ class M5InventoryAndPosTest extends TestCase
 
     public function test_can_fetch_pos_products(): void
     {
-        $response = $this->getJson('/api/pos/products');
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $response = $this->actingAs($admin, 'sanctum')->getJson('/api/pos/products');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -64,9 +69,12 @@ class M5InventoryAndPosTest extends TestCase
 
     public function test_can_checkout_pos_walkin_order(): void
     {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
         $product = Product::first();
 
-        $response = $this->postJson('/api/pos/checkout', [
+        $response = $this->actingAs($admin, 'sanctum')->postJson('/api/pos/checkout', [
             'customer_name'  => 'Walk-in Customer 01',
             'payment_method' => 'cash',
             'cash_tendered'  => 500,

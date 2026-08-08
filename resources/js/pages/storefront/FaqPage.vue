@@ -1,9 +1,9 @@
 <template>
     <div class="max-w-3xl mx-auto px-6 py-16">
         <div class="text-center mb-12">
-            <span class="font-['Caveat'] text-[#C08E5D] text-2xl block mb-2">got questions?</span>
-            <h1 class="text-4xl font-extrabold text-[#1C1410] tracking-tight">Frequently Asked Questions</h1>
-            <p class="text-[#8C7A68] mt-3">Everything you need to know about ABCDips & Treats</p>
+            <span class="font-['Caveat'] text-brand-caramel text-2xl block mb-2">got questions?</span>
+            <h1 class="text-4xl font-extrabold text-ink tracking-tight">Frequently Asked Questions</h1>
+            <p class="text-warm-gray mt-3">Everything you need to know about ABCDips & Treats</p>
         </div>
 
         <!-- Category Tabs -->
@@ -11,19 +11,19 @@
             <button v-for="cat in categories" :key="cat" @click="activeCategory = cat" :class="[
                 'px-4 py-2 rounded-full text-sm font-semibold transition-all',
                 activeCategory === cat
-                    ? 'bg-[#5C3A22] text-[#FBF3E7]'
-                    : 'bg-[#D9A876]/20 text-[#5C3A22] hover:bg-[#D9A876]/40'
+                    ? 'bg-brand-choco text-surface'
+                    : 'bg-brand-tan/20 text-brand-choco hover:bg-brand-tan/40'
             ]">{{ cat }}</button>
         </div>
 
         <!-- Accordion -->
         <div class="space-y-3">
             <div v-for="(faq, i) in filteredFaqs" :key="i"
-                class="bg-white rounded-2xl border border-[#C08E5D]/20 overflow-hidden shadow-sm">
+                class="bg-white rounded-2xl border border-brand-caramel/20 overflow-hidden shadow-sm">
                 <button @click="openIndex = openIndex === i ? null : i"
                     class="w-full flex items-center justify-between px-6 py-4 text-left">
-                    <span class="font-semibold text-[#1C1410] text-sm pr-4">{{ faq.q }}</span>
-                    <svg class="w-5 h-5 text-[#C08E5D] flex-shrink-0 transition-transform duration-300"
+                    <span class="font-semibold text-ink text-sm pr-4">{{ faq.q }}</span>
+                    <svg class="w-5 h-5 text-brand-caramel shrink-0 transition-transform duration-300"
                         :class="openIndex === i ? 'rotate-180' : ''" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -33,21 +33,21 @@
                     enter-from-class="max-h-0 opacity-0" enter-to-class="max-h-96 opacity-100"
                     leave-active-class="transition-all duration-200 ease-in" leave-from-class="max-h-96 opacity-100"
                     leave-to-class="max-h-0 opacity-0">
-                    <div v-if="openIndex === i" class="px-6 pb-5 border-t border-[#C08E5D]/10">
-                        <p class="text-sm text-[#8C7A68] leading-relaxed pt-4">{{ faq.a }}</p>
+                    <div v-if="openIndex === i" class="px-6 pb-5 border-t border-brand-caramel/10">
+                        <p class="text-sm text-warm-gray leading-relaxed pt-4">{{ faq.a }}</p>
                     </div>
                 </Transition>
             </div>
         </div>
 
         <!-- Contact CTA -->
-        <div class="mt-14 bg-[#5C3A22] rounded-3xl p-8 text-center text-[#FBF3E7]">
+        <div class="mt-14 bg-brand-choco rounded-3xl p-8 text-center text-surface">
             <div class="text-3xl mb-3">🧁</div>
             <h2 class="text-xl font-bold mb-2">Still have questions?</h2>
-            <p class="text-[#FBF3E7]/70 text-sm mb-6">Our team is happy to help. Send us a message and we'll get back to
+            <p class="text-surface/70 text-sm mb-6">Our team is happy to help. Send us a message and we'll get back to
                 you shortly.</p>
             <RouterLink to="/contact"
-                class="inline-flex items-center gap-2 bg-[#D9A876] text-[#1C1410] px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#C08E5D] transition-colors">
+                class="inline-flex items-center gap-2 bg-brand-tan text-ink px-6 py-3 rounded-xl font-bold text-sm hover:bg-brand-caramel transition-colors">
                 Contact Us →</RouterLink>
         </div>
     </div>

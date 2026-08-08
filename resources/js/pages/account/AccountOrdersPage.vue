@@ -7,7 +7,7 @@
     />
 
     <!-- Filter Tabs -->
-    <div class="flex flex-wrap items-center gap-2 border-b border-[#C08E5D]/20 pb-4">
+    <div class="flex flex-wrap items-center gap-2 border-b border-brand-caramel/20 pb-4">
       <button
         v-for="tab in filterTabs"
         :key="tab.id"
@@ -15,8 +15,8 @@
         :class="[
           'px-4 py-2 rounded-2xl text-xs font-extrabold transition-all duration-200 flex items-center gap-2',
           activeFilter === tab.id
-            ? 'bg-[#5C3A22] text-[#FBF3E7] shadow-sm'
-            : 'bg-white text-[#1C1410] border border-[#C08E5D]/20 hover:bg-[#FBF3E7]'
+            ? 'bg-brand-choco text-surface shadow-sm'
+            : 'bg-white text-ink border border-brand-caramel/20 hover:bg-surface'
         ]"
       >
         <span>{{ tab.icon }}</span>
@@ -24,7 +24,7 @@
         <span
           :class="[
             'px-2 py-0.5 rounded-full text-[10px] font-black',
-            activeFilter === tab.id ? 'bg-[#D9A876] text-[#1C1410]' : 'bg-[#FBF3E7] text-[#5C3A22]'
+            activeFilter === tab.id ? 'bg-brand-tan text-ink' : 'bg-surface text-brand-choco'
           ]"
         >
           {{ getFilteredCount(tab.id) }}
@@ -54,18 +54,18 @@
       <div
         v-for="order in filteredOrders"
         :key="order.id"
-        class="bg-white rounded-3xl p-6 border border-[#C08E5D]/20 shadow-sm space-y-6 transition-all"
+        class="bg-white rounded-3xl p-6 border border-brand-caramel/20 shadow-sm space-y-6 transition-all"
       >
         <!-- Header Row -->
-        <div class="flex flex-wrap justify-between items-center gap-3 pb-4 border-b border-[#C08E5D]/15">
+        <div class="flex flex-wrap justify-between items-center gap-3 pb-4 border-b border-brand-caramel/15">
           <div>
             <div class="flex items-center gap-2">
-              <span class="font-extrabold text-[#1C1410] text-xl">Order #{{ order.order_number }}</span>
+              <span class="font-extrabold text-ink text-xl">Order #{{ order.order_number }}</span>
               <BaseBadge :variant="getStatusVariant(order.status)" size="sm">
                 {{ order.status_label || order.status }}
               </BaseBadge>
             </div>
-            <span class="text-xs text-[#8C7A68] block mt-1">
+            <span class="text-xs text-warm-gray block mt-1">
               📅 Placed on {{ formatDate(order.created_at) }} • {{ order.fulfillment_type === 'pickup' ? '🏪 Store Pickup' : '🛵 Doorstep Delivery' }}
             </span>
           </div>
@@ -97,7 +97,7 @@
               size="sm"
               variant="outline"
               v-tooltip="'Cancel pending order'"
-              class="!text-[#B84C3C] !border-[#B84C3C]/40 hover:!bg-red-50"
+              class="!text-error !border-error/40 hover:!bg-red-50"
               @click="openCancelModal(order)"
             >
               🚫 Cancel Order
@@ -111,20 +111,20 @@
         </div>
 
         <!-- Sleek Compact Status Summary (Non-redundant) -->
-        <div v-if="!['cancelled', 'Cancelled', 'refunded', 'Refunded'].includes(order.status)" class="bg-[#FBF3E7]/80 dark:bg-[#1E130B] rounded-2xl px-4 py-3 border border-[#C08E5D]/30 dark:border-[#C08E5D]/40 flex items-center justify-between flex-wrap gap-2 text-xs">
+        <div v-if="!['cancelled', 'Cancelled', 'refunded', 'Refunded'].includes(order.status)" class="bg-surface/80 dark:bg-[#1E130B] rounded-2xl px-4 py-3 border border-brand-caramel/30 dark:border-brand-caramel/40 flex items-center justify-between flex-wrap gap-2 text-xs">
           <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full" :class="order.status === 'completed' || order.status === 'Completed' ? 'bg-[#6B8F5E]' : 'bg-[#D9A876] animate-pulse'"></span>
-            <span class="font-extrabold text-[#5C3A22] dark:text-[#E2C08A]">Kitchen &amp; Delivery Status:</span>
-            <span class="font-semibold text-[#1C1410] dark:text-[#FBF3E7]">{{ getProgressStepText(order.status) }}</span>
+            <span class="w-2.5 h-2.5 rounded-full" :class="order.status === 'completed' || order.status === 'Completed' ? 'bg-success' : 'bg-brand-tan animate-pulse'"></span>
+            <span class="font-extrabold text-brand-choco dark:text-surface-400">Kitchen &amp; Delivery Status:</span>
+            <span class="font-semibold text-ink dark:text-surface">{{ getProgressStepText(order.status) }}</span>
           </div>
-          <RouterLink :to="`/orders/track/${order.tracking_token || order.order_number}`" class="text-xs font-extrabold text-[#C08E5D] hover:text-[#5C3A22] dark:hover:text-[#FBF3E7] transition-colors flex items-center gap-1">
+          <RouterLink :to="`/orders/track/${order.tracking_token || order.order_number}`" class="text-xs font-extrabold text-brand-caramel hover:text-brand-choco dark:hover:text-surface transition-colors flex items-center gap-1">
             <span>View Full Timeline</span>
             <span>→</span>
           </RouterLink>
         </div>
 
         <!-- Items Breakdown -->
-        <div class="divide-y divide-[#C08E5D]/10">
+        <div class="divide-y divide-brand-caramel/10">
           <div
             v-for="item in order.items"
             :key="item.id"
@@ -135,39 +135,39 @@
                 v-if="item.image_url"
                 :src="item.image_url"
                 :alt="item.product_name"
-                class="w-11 h-11 rounded-xl object-cover flex-shrink-0 border border-[#C08E5D]/20 shadow-xs"
+                class="w-11 h-11 rounded-xl object-cover shrink-0 border border-brand-caramel/20 shadow-xs"
               />
               <div>
-                <span class="font-extrabold text-[#1C1410] text-sm block">{{ item.product_name }}</span>
-                <span class="text-[#8C7A68] text-xs">Qty: {{ item.qty }} × ₱{{ (item.price || item.unit_price || 0).toFixed(2) }}</span>
+                <span class="font-extrabold text-ink text-sm block">{{ item.product_name }}</span>
+                <span class="text-warm-gray text-xs">Qty: {{ item.qty }} × ₱{{ (item.price || item.unit_price || 0).toFixed(2) }}</span>
                 <div v-if="item.product_slug" class="mt-1">
                   <RouterLink
                     :to="`/products/${item.product_slug}#reviews`"
                     v-tooltip="'Share your review &amp; rating for this treat'"
-                    class="inline-flex items-center gap-1 text-[11px] font-bold text-[#C08E5D] hover:text-[#5C3A22] transition-colors"
+                    class="inline-flex items-center gap-1 text-[11px] font-bold text-brand-caramel hover:text-brand-choco transition-colors"
                   >
                     ⭐ Write Review
                   </RouterLink>
                 </div>
               </div>
             </div>
-            <span class="font-black text-[#5C3A22] text-sm">₱{{ item.subtotal.toFixed(2) }}</span>
+            <span class="font-black text-brand-choco text-sm">₱{{ item.subtotal.toFixed(2) }}</span>
           </div>
         </div>
 
         <!-- Details Accordion / Footer -->
-        <div class="pt-3 border-t border-[#C08E5D]/15 flex flex-wrap justify-between items-center gap-3">
+        <div class="pt-3 border-t border-brand-caramel/15 flex flex-wrap justify-between items-center gap-3">
           <button
             type="button"
             @click="toggleDetails(order.id)"
-            class="text-xs font-bold text-[#C08E5D] hover:text-[#5C3A22] flex items-center gap-1 transition-colors"
+            class="text-xs font-bold text-brand-caramel hover:text-brand-choco flex items-center gap-1 transition-colors"
           >
             <span>{{ expandedOrders.includes(order.id) ? 'Hide Order Details ▲' : 'View Full Details & Address ▼' }}</span>
           </button>
 
           <div class="text-right">
-            <span class="text-xs text-[#8C7A68] block">Total Amount Paid</span>
-            <span class="text-lg font-black text-[#5C3A22]">₱{{ order.total.toFixed(2) }}</span>
+            <span class="text-xs text-warm-gray block">Total Amount Paid</span>
+            <span class="text-lg font-black text-brand-choco">₱{{ order.total.toFixed(2) }}</span>
           </div>
         </div>
 
@@ -180,30 +180,30 @@
           leave-from-class="opacity-100 max-h-[400px]"
           leave-to-class="opacity-0 max-h-0"
         >
-          <div v-if="expandedOrders.includes(order.id)" class="bg-[#FBF3E7]/60 rounded-2xl p-4 border border-[#C08E5D]/20 space-y-3 text-xs">
+          <div v-if="expandedOrders.includes(order.id)" class="bg-surface/60 rounded-2xl p-4 border border-brand-caramel/20 space-y-3 text-xs">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <span class="text-[#8C7A68] font-bold block mb-0.5">Contact Details:</span>
-                <p class="font-bold text-[#1C1410]">{{ order.customer_name }}</p>
-                <p class="text-[#8C7A68]">{{ order.customer_email }} • {{ order.customer_phone }}</p>
+                <span class="text-warm-gray font-bold block mb-0.5">Contact Details:</span>
+                <p class="font-bold text-ink">{{ order.customer_name }}</p>
+                <p class="text-warm-gray">{{ order.customer_email }} • {{ order.customer_phone }}</p>
               </div>
 
               <div>
-                <span class="text-[#8C7A68] font-bold block mb-0.5">Fulfillment &amp; Payment:</span>
-                <p class="font-bold text-[#1C1410] capitalize">{{ order.fulfillment_type || 'delivery' }} ({{ order.payment_method?.toUpperCase() || 'GCASH' }})</p>
-                <p class="text-[#8C7A68] truncate">{{ order.delivery_address || 'Store Pickup' }}</p>
+                <span class="text-warm-gray font-bold block mb-0.5">Fulfillment &amp; Payment:</span>
+                <p class="font-bold text-ink capitalize">{{ order.fulfillment_type || 'delivery' }} ({{ order.payment_method?.toUpperCase() || 'GCASH' }})</p>
+                <p class="text-warm-gray truncate">{{ order.delivery_address || 'Store Pickup' }}</p>
               </div>
             </div>
 
-            <div class="pt-2 border-t border-[#C08E5D]/15 flex justify-between items-center text-[#8C7A68]">
+            <div class="pt-2 border-t border-brand-caramel/15 flex justify-between items-center text-warm-gray">
               <span>Items Subtotal:</span>
-              <span class="font-bold text-[#1C1410]">₱{{ (order.subtotal || order.total - (order.delivery_fee || 0)).toFixed(2) }}</span>
+              <span class="font-bold text-ink">₱{{ (order.subtotal || order.total - (order.delivery_fee || 0)).toFixed(2) }}</span>
             </div>
-            <div class="flex justify-between items-center text-[#8C7A68]">
+            <div class="flex justify-between items-center text-warm-gray">
               <span>Delivery Shipping Fee:</span>
-              <span class="font-bold text-[#1C1410]">₱{{ (order.delivery_fee || 0).toFixed(2) }}</span>
+              <span class="font-bold text-ink">₱{{ (order.delivery_fee || 0).toFixed(2) }}</span>
             </div>
-            <div v-if="order.notes" class="pt-1 text-[#8C7A68]">
+            <div v-if="order.notes" class="pt-1 text-warm-gray">
               <span class="font-bold">Order Note:</span> {{ order.notes }}
             </div>
           </div>
@@ -222,25 +222,25 @@
       subtitle="Are you sure you want to cancel this pending bakery order?"
     >
       <template #icon>
-        <div class="w-8 h-8 rounded-full bg-red-100 text-[#B84C3C] flex items-center justify-center text-base font-bold">
+        <div class="w-8 h-8 rounded-full bg-red-100 text-error flex items-center justify-center text-base font-bold">
           ⚠️
         </div>
       </template>
 
       <div v-if="selectedOrder" class="space-y-4">
-        <div class="p-4 rounded-2xl bg-red-50 border border-red-200/60 text-xs text-[#B84C3C] leading-relaxed space-y-1">
+        <div class="p-4 rounded-2xl bg-red-50 border border-red-200/60 text-xs text-error leading-relaxed space-y-1">
           <p class="font-extrabold text-sm">Notice:</p>
           <p>Order cancellation cannot be undone once confirmed. Reserved stock items will be automatically returned to our bakery inventory.</p>
         </div>
 
-        <div class="bg-[#FBF3E7]/70 p-4 rounded-2xl border border-[#C08E5D]/20 space-y-2.5 text-xs">
+        <div class="bg-surface/70 p-4 rounded-2xl border border-brand-caramel/20 space-y-2.5 text-xs">
           <div class="flex justify-between items-center">
-            <span class="text-[#8C7A68]">Order Reference:</span>
-            <span class="font-bold text-[#1C1410]">{{ selectedOrder.order_number }}</span>
+            <span class="text-warm-gray">Order Reference:</span>
+            <span class="font-bold text-ink">{{ selectedOrder.order_number }}</span>
           </div>
           <div class="flex justify-between items-center">
-            <span class="text-[#8C7A68]">Total Amount:</span>
-            <span class="font-black text-[#5C3A22]">₱{{ selectedOrder.total.toFixed(2) }}</span>
+            <span class="text-warm-gray">Total Amount:</span>
+            <span class="font-black text-brand-choco">₱{{ selectedOrder.total.toFixed(2) }}</span>
           </div>
         </div>
       </div>
@@ -254,7 +254,7 @@
             variant="primary"
             size="md"
             :loading="cancelling"
-            class="!bg-[#B84C3C] hover:!bg-[#963B2E]"
+            class="!bg-error hover:!bg-[#963B2E]"
             @click="confirmCancelOrder"
           >
             Confirm Cancellation
@@ -416,14 +416,11 @@ function toggleDetails(orderId) {
 function reorderItems(order) {
   if (!order.items || order.items.length === 0) return
   
-  order.items.forEach(item => {
-    cartStore.addItem({
-      id: item.product_id || item.id,
-      name: item.product_name,
-      price: item.price || item.unit_price || 0,
-      image: item.image_url,
-      qty: item.qty || 1
-    })
+  order.items.forEach(async item => {
+    const productId = item.product_id || item.product?.id || item.id
+    if (productId) {
+      await cartStore.addItem(productId, item.qty || 1)
+    }
   })
 
   toast.success(`Re-added ${order.items.length} pastry treats to your shopping basket!`, 'Basket Updated 🧺')

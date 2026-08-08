@@ -12,15 +12,16 @@ class ProductCostingResourceTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected User $admin;
-
     protected function setUp(): void
     {
         parent::setUp();
 
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin']);
+
         $this->admin = User::factory()->create([
             'email' => 'admin@abcdips.test',
         ]);
+        $this->admin->assignRole('admin');
     }
 
     public function test_product_costing_calculates_exact_reference_demo_sample(): void
@@ -160,10 +161,11 @@ class ProductCostingResourceTest extends TestCase
         ]);
 
         // Save costing to trigger auto-sync
+        $costing->unsetRelation('costingItems');
         $costing->save();
 
         $product->refresh();
-        $this->assertTrue($product->price > 0);
+        $this->assertTrue((float) $product->price > 0);
         $this->assertEquals(round($costing->price_per_piece, 2), (float) $product->price);
     }
 }

@@ -1,21 +1,21 @@
 <template>
   <div class="space-y-12">
     <!-- Store & Service Rating Overview Card (Only shown if store reviews exist) -->
-    <div v-if="stats.total_reviews && stats.total_reviews > 0" class="bg-gradient-to-br from-[#5C3A22] to-[#3D2515] text-[#FBF3E7] rounded-3xl p-8 md:p-12 shadow-xl border border-[#C08E5D]/30 relative overflow-hidden">
+    <div v-if="stats.total_reviews && stats.total_reviews > 0" class="bg-gradient-to-br from-brand-choco to-[#3D2515] text-surface rounded-3xl p-8 md:p-12 shadow-xl border border-brand-caramel/30 relative overflow-hidden">
       <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none text-9xl">🧁</div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center relative z-10">
         <!-- Main Score -->
         <div class="text-center lg:text-left space-y-2">
-          <div class="script-accent text-[#D9A876] text-xl">bakery experience &amp; service</div>
+          <div class="script-accent text-brand-tan text-xl">bakery experience &amp; service</div>
           <div class="flex items-baseline justify-center lg:justify-start gap-3">
             <span class="text-6xl font-black tracking-tight">{{ stats.avg_rating }}</span>
-            <span class="text-2xl text-[#D9A876]">/ 5.0</span>
+            <span class="text-2xl text-brand-tan">/ 5.0</span>
           </div>
           <div class="flex items-center justify-center lg:justify-start gap-1 text-2xl text-amber-400">
             <span v-for="s in 5" :key="s">{{ s <= Math.round(stats.avg_rating || 5) ? '⭐' : '☆' }}</span>
           </div>
-          <p class="text-xs text-[#D9A876]">Based on {{ stats.total_reviews }} verified customer review{{ stats.total_reviews > 1 ? 's' : '' }}</p>
+          <p class="text-xs text-brand-tan">Based on {{ stats.total_reviews }} verified customer review{{ stats.total_reviews > 1 ? 's' : '' }}</p>
         </div>
 
         <!-- Service Pillar Scores -->
@@ -54,8 +54,8 @@
         <!-- Write Review Callout -->
         <div class="text-center lg:text-right space-y-4">
           <h4 class="font-extrabold text-xl">How was your bakery experience?</h4>
-          <p class="text-xs text-[#FBF3E7]/80 max-w-xs ml-auto">Share your feedback on our pastries, delivery, or custom orders to help us serve you better!</p>
-          <BaseButton variant="secondary" size="lg" @click="handleToggleForm">
+          <p class="text-xs text-surface/80 max-w-xs ml-auto">Share your feedback on our pastries, delivery, or custom orders to help us serve you better!</p>
+          <BaseButton variant="secondary" size="lg" :v-tooltip="showForm ? 'Close store review form' : 'Share your overall bakery & delivery experience'" @click="handleToggleForm">
             {{ showForm ? 'Close Review Form' : '✍️ Write a Store Review' }}
           </BaseButton>
         </div>
@@ -63,32 +63,33 @@
     </div>
 
     <!-- Banner callout when 0 store reviews exist -->
-    <div v-else class="bg-[#5C3A22] text-[#FBF3E7] rounded-3xl p-8 text-center space-y-4 shadow-lg border border-[#C08E5D]/30">
+    <div v-else class="bg-brand-choco text-surface rounded-3xl p-8 text-center space-y-4 shadow-lg border border-brand-caramel/30">
       <div class="text-4xl">🧁</div>
       <h3 class="text-2xl font-extrabold text-white">Bakery &amp; Store Service Reviews</h3>
-      <p class="text-xs text-[#FBF3E7]/80 max-w-md mx-auto">Have you ordered from ABCDips &amp; Treats? Share your experience with our bakery service, delivery speed, and customer care!</p>
-      <BaseButton variant="secondary" size="lg" @click="handleToggleForm">
+      <p class="text-xs text-surface/80 max-w-md mx-auto">Have you ordered from ABCDips &amp; Treats? Share your experience with our bakery service, delivery speed, and customer care!</p>
+      <BaseButton variant="secondary" size="lg" :v-tooltip="showForm ? 'Close store review form' : 'Share your overall bakery & delivery experience'" @click="handleToggleForm">
         {{ showForm ? 'Close Review Form' : '✍️ Write the First Store Review' }}
       </BaseButton>
     </div>
 
     <!-- Review Submission Form -->
     <Transition name="fade">
-      <form v-if="showForm" @submit.prevent="submitStoreReview" class="bg-white p-8 rounded-3xl border border-[#C08E5D]/30 shadow-md space-y-6">
+      <form v-if="showForm" @submit.prevent="submitStoreReview" class="bg-white p-8 rounded-3xl border border-brand-caramel/30 shadow-md space-y-6">
         <div>
-          <h4 class="font-extrabold text-xl text-[#1C1410]">Write a Bakery Service Review</h4>
-          <p class="text-xs text-[#8C7A68]">Rate your overall experience with ABCDips &amp; Treats store and delivery service.</p>
+          <h4 class="font-extrabold text-xl text-ink">Write a Bakery Service Review</h4>
+          <p class="text-xs text-warm-gray">Rate your overall experience with ABCDips &amp; Treats store and delivery service.</p>
         </div>
 
         <!-- Quick Pre-made Store Review Templates -->
-        <div class="space-y-1.5 bg-[#FBF3E7]/70 p-4 rounded-2xl border border-[#C08E5D]/20">
-          <label class="block text-xs font-bold uppercase text-[#5C3A22]">⚡ Quick Pre-made Store Messages (Click to instant fill)</label>
+        <div class="space-y-1.5 bg-surface/70 p-4 rounded-2xl border border-brand-caramel/20">
+          <label class="block text-xs font-bold uppercase text-brand-choco">⚡ Quick Pre-made Store Messages (Click to instant fill)</label>
           <div class="flex flex-wrap gap-2 pt-1">
             <button
               v-for="(tpl, idx) in storeReviewTemplates"
               :key="idx"
               type="button"
-              class="text-xs bg-white border border-[#C08E5D]/30 hover:border-[#5C3A22] px-3 py-1.5 rounded-xl text-[#5C3A22] font-semibold transition-all hover:bg-[#D9A876]/20 shadow-2xs"
+              v-tooltip="`Click to fill: '${tpl.chipLabel}'`"
+              class="text-xs bg-white border border-brand-caramel/30 hover:border-brand-choco px-3 py-1.5 rounded-xl text-brand-choco font-semibold transition-all hover:bg-brand-tan/20 shadow-2xs"
               @click="applyTemplate(tpl)"
             >
               {{ tpl.chipLabel }}
@@ -98,32 +99,33 @@
 
         <!-- Rating Selector -->
         <div class="space-y-2">
-          <label class="block text-xs font-bold uppercase text-[#5C3A22]">Overall Service Rating</label>
+          <label class="block text-xs font-bold uppercase text-brand-choco">Overall Service Rating</label>
           <div class="flex items-center gap-3">
             <div class="flex gap-1">
               <button
                 v-for="star in 5"
                 :key="star"
                 type="button"
+                v-tooltip="`Rate ${star} star${star > 1 ? 's' : ''}`"
                 class="text-3xl transition-transform hover:scale-125 focus:outline-none"
                 @click="form.rating = star"
               >
                 {{ star <= form.rating ? '⭐' : '☆' }}
               </button>
             </div>
-            <span class="text-sm font-extrabold text-[#5C3A22] bg-[#FBF3E7] px-3 py-1 rounded-full border border-[#C08E5D]/30">
+            <span class="text-sm font-extrabold text-brand-choco bg-surface px-3 py-1 rounded-full border border-brand-caramel/30">
               {{ form.rating }} / 5 Stars
             </span>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div v-if="!authStore.isAuthenticated" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <BaseInput v-model="form.reviewer_name" label="Your Name" placeholder="e.g. Juan Dela Cruz" :disabled="form.is_anonymous" :required="!form.is_anonymous" />
           <BaseInput v-model="form.reviewer_email" type="email" label="Your Email" placeholder="juan@example.com" required />
         </div>
 
-        <label class="flex items-center gap-2 text-xs font-bold text-[#5C3A22] cursor-pointer py-1">
-          <input type="checkbox" v-model="form.is_anonymous" class="rounded text-[#5C3A22] focus:ring-[#5C3A22] w-4 h-4" />
+        <label class="flex items-center gap-2 text-xs font-bold text-brand-choco cursor-pointer py-1">
+          <input type="checkbox" v-model="form.is_anonymous" class="rounded text-brand-choco focus:ring-brand-choco w-4 h-4" />
           <span>Post review anonymously (Your name will appear as "Anonymous" publicly)</span>
         </label>
 
@@ -131,24 +133,29 @@
 
         <BaseTextarea v-model="form.comment" label="Service & Bakery Review" placeholder="Tell us about the delivery speed, packaging, customer service, or overall experience..." rows="4" required />
 
+        <div v-if="!authStore.isAuthenticated" class="text-xs text-brand-choco/80 bg-brand-tan/10 p-3 rounded-xl border border-brand-tan/20 flex items-center gap-2 mt-2">
+          💡 Tip: <RouterLink to="/auth/register" class="font-bold underline hover:text-brand-choco transition-colors">Create a free account</RouterLink> to be recognized as a Verified Buyer!
+        </div>
+
         <div class="flex justify-end gap-3">
-          <BaseButton type="button" variant="ghost" @click="showForm = false">Cancel</BaseButton>
-          <BaseButton type="submit" variant="primary" :loading="submitting">Submit Store Review</BaseButton>
+          <BaseButton type="button" variant="ghost" v-tooltip="'Cancel writing review'" @click="showForm = false">Cancel</BaseButton>
+          <BaseButton type="submit" variant="primary" :loading="submitting" v-tooltip="'Post your store service review'">Submit Store Review</BaseButton>
         </div>
       </form>
     </Transition>
 
     <!-- Rating Filters with Counts -->
-    <div v-if="reviews.length > 0" class="flex flex-wrap items-center justify-between gap-4 border-b border-[#C08E5D]/20 pb-4">
-      <h3 class="font-extrabold text-2xl text-[#1C1410]">Verified Store Reviews</h3>
+    <div v-if="reviews.length > 0" class="flex flex-wrap items-center justify-between gap-4 border-b border-brand-caramel/20 pb-4">
+      <h3 class="font-extrabold text-2xl text-ink">Verified Store Reviews</h3>
 
       <div class="flex items-center gap-2 overflow-x-auto">
         <button
           v-for="filter in [0, 5, 4, 3, 2, 1]"
           :key="filter"
           type="button"
-          class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex-shrink-0"
-          :class="selectedRating === filter ? 'bg-[#5C3A22] text-white shadow-sm' : 'bg-white text-[#5C3A22] border border-[#C08E5D]/20 hover:bg-[#FBF3E7]'"
+          v-tooltip="filter === 0 ? 'Show all store reviews' : `Show only ${filter}-star store reviews`"
+          class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0"
+          :class="selectedRating === filter ? 'bg-brand-choco text-white shadow-sm' : 'bg-white text-brand-choco border border-brand-caramel/20 hover:bg-surface'"
           @click="selectedRating = filter"
         >
           {{ filter === 0 ? `All (${reviews.length})` : `${filter} Stars ⭐ (${getStarCount(filter)})` }}
@@ -161,48 +168,49 @@
       <SkeletonRow v-for="n in 4" :key="n" />
     </div>
 
-    <div v-else-if="filteredReviews.length === 0" class="text-center py-12 bg-white rounded-3xl border border-dashed border-[#C08E5D]/30 p-8">
-      <p class="text-base font-bold text-[#1C1410]">No store reviews found for this star rating.</p>
-      <p class="text-xs text-[#8C7A68] mt-1">Try switching rating filters or leave a review!</p>
+    <div v-else-if="filteredReviews.length === 0" class="text-center py-12 bg-white rounded-3xl border border-dashed border-brand-caramel/30 p-8">
+      <p class="text-base font-bold text-ink">No store reviews found for this star rating.</p>
+      <p class="text-xs text-warm-gray mt-1">Try switching rating filters or leave a review!</p>
     </div>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div
         v-for="review in filteredReviews"
         :key="review.id"
-        class="bg-white rounded-3xl p-6 border border-[#C08E5D]/20 shadow-sm hover:shadow-md transition-all space-y-4 flex flex-col justify-between"
+        class="bg-white rounded-3xl p-6 border border-brand-caramel/20 shadow-sm hover:shadow-md transition-all space-y-4 flex flex-col justify-between"
       >
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-[#5C3A22] text-[#FBF3E7] font-bold text-sm flex items-center justify-center">
+              <div class="w-10 h-10 rounded-full bg-brand-choco text-surface font-bold text-sm flex items-center justify-center">
                 {{ review.reviewer_name?.charAt(0).toUpperCase() || 'A' }}
               </div>
               <div>
-                <div class="font-extrabold text-sm text-[#1C1410]">{{ review.reviewer_name }}</div>
-                <div class="text-[11px] text-[#8C7A68]">Verified Store Customer</div>
+                <div class="font-extrabold text-sm text-ink">{{ review.reviewer_name }}</div>
+                <div class="text-[11px] text-warm-gray">Verified Store Customer</div>
               </div>
             </div>
-            <div class="text-xs text-[#8C7A68]">{{ new Date(review.created_at).toLocaleDateString() }}</div>
+            <div class="text-xs text-warm-gray">{{ new Date(review.created_at).toLocaleDateString() }}</div>
           </div>
 
           <div class="flex items-center gap-1 text-sm text-amber-500">
             <span v-for="s in review.rating" :key="s">⭐</span>
           </div>
 
-          <h5 v-if="review.title" class="font-bold text-base text-[#1C1410]">{{ review.title }}</h5>
+          <h5 v-if="review.title" class="font-bold text-base text-ink">{{ review.title }}</h5>
 
-          <p class="text-xs text-[#8C7A68] leading-relaxed">{{ review.comment }}</p>
+          <p class="text-xs text-warm-gray leading-relaxed">{{ review.comment }}</p>
 
-          <div v-if="review.product_name" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FBF3E7] text-[11px] font-semibold text-[#5C3A22]">
+          <div v-if="review.product_name" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface text-[11px] font-semibold text-brand-choco">
             🛍️ Reviewed item: {{ review.product_name }}
           </div>
         </div>
 
-        <div class="pt-3 border-t border-[#C08E5D]/15 flex items-center justify-between text-xs text-[#8C7A68]">
+        <div class="pt-3 border-t border-brand-caramel/15 flex items-center justify-between text-xs text-warm-gray">
           <span>Was this review helpful?</span>
           <button
-            class="px-3 py-1 rounded-lg bg-[#FBF3E7] hover:bg-[#D9A876]/30 text-[#5C3A22] font-semibold flex items-center gap-1 transition-all"
+            v-tooltip="'Mark this store review as helpful'"
+            class="px-3 py-1 rounded-lg bg-surface hover:bg-brand-tan/30 text-brand-choco font-semibold flex items-center gap-1 transition-all"
             @click="voteHelpful(review.id)"
           >
             👍 Helpful ({{ review.helpful_votes }})
@@ -294,11 +302,6 @@ function populateUserData() {
 watch(() => authStore.user, populateUserData, { immediate: true })
 
 function handleToggleForm() {
-  if (!authStore.isAuthenticated) {
-    toast.warning('Please sign in to post a store review.', 'Sign In Required')
-    router.push({ name: 'login', query: { redirect: route.fullPath } })
-    return
-  }
   populateUserData()
   showForm.value = !showForm.value
 }
@@ -322,11 +325,6 @@ async function fetchStoreReviews() {
 }
 
 async function submitStoreReview() {
-  if (!authStore.isAuthenticated) {
-    toast.warning('Please sign in to submit a store review.', 'Sign In Required')
-    router.push({ name: 'login', query: { redirect: route.fullPath } })
-    return
-  }
 
   submitting.value = true
   try {

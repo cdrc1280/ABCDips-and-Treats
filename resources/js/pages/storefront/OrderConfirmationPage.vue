@@ -15,15 +15,15 @@
 
     <div v-else class="max-w-3xl mx-auto space-y-8">
       <!-- Order Placed Success Banner -->
-      <div class="bg-white rounded-3xl p-8 border border-[#C08E5D]/20 shadow-md text-center space-y-4">
-        <div class="w-16 h-16 rounded-full bg-[#6B8F5E]/20 text-[#6B8F5E] flex items-center justify-center mx-auto">
+      <div class="bg-white rounded-3xl p-8 border border-brand-caramel/20 shadow-md text-center space-y-4">
+        <div class="w-16 h-16 rounded-full bg-success/20 text-success flex items-center justify-center mx-auto">
           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
         </div>
 
-        <span class="script-accent text-[#C08E5D] text-xl block">sweetness is on the way</span>
-        <h1 class="text-3xl md:text-4xl font-extrabold text-[#1C1410]">Order Confirmed!</h1>
-        <p class="text-[#8C7A68] text-base max-w-md mx-auto">
-          Thank you, <strong class="text-[#1C1410]">{{ order.customer_name }}</strong>! We have received your pastry order <strong class="text-[#5C3A22]">{{ order.order_number }}</strong>.
+        <span class="script-accent text-brand-caramel text-xl block">sweetness is on the way</span>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-ink">Order Confirmed!</h1>
+        <p class="text-warm-gray text-base max-w-md mx-auto">
+          Thank you, <strong class="text-ink">{{ order.customer_name }}</strong>! We have received your pastry order <strong class="text-brand-choco">{{ order.order_number }}</strong>.
         </p>
 
         <!-- Live Track Order Button, Invoice & History Links -->
@@ -57,42 +57,42 @@
       </BaseAlert>
 
       <!-- Order Items Breakdown -->
-      <div class="bg-white rounded-3xl p-6 md:p-8 border border-[#C08E5D]/20 shadow-sm space-y-4">
-        <h3 class="font-extrabold text-xl text-[#1C1410] border-b border-[#C08E5D]/20 pb-3 flex justify-between items-center">
+      <div class="bg-white rounded-3xl p-6 md:p-8 border border-brand-caramel/20 shadow-sm space-y-4">
+        <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-3 flex justify-between items-center">
           <span>Order Summary ({{ order.order_number }})</span>
           <button
             type="button"
-            class="text-xs text-[#5C3A22] font-bold hover:underline cursor-pointer flex items-center gap-1"
+            class="text-xs text-brand-choco font-bold hover:underline cursor-pointer flex items-center gap-1"
             @click="showInvoiceModal = true"
           >
             <span>📄 Official Invoice</span>
           </button>
         </h3>
 
-        <div class="divide-y divide-[#C08E5D]/15">
+        <div class="divide-y divide-brand-caramel/15">
           <div v-for="item in order.items" :key="item.id" class="py-3 flex justify-between items-center text-sm">
             <div>
-              <div class="font-bold text-[#1C1410]">{{ item.product_name }}</div>
-              <div class="text-xs text-[#8C7A68]">Qty: {{ item.qty }} × ₱{{ item.unit_price.toFixed(2) }}</div>
+              <div class="font-bold text-ink">{{ item.product_name }}</div>
+              <div class="text-xs text-warm-gray">Qty: {{ item.qty }} × ₱{{ item.unit_price.toFixed(2) }}</div>
             </div>
-            <div class="font-extrabold text-[#5C3A22]">₱{{ item.subtotal.toFixed(2) }}</div>
+            <div class="font-extrabold text-brand-choco">₱{{ item.subtotal.toFixed(2) }}</div>
           </div>
         </div>
 
-        <div class="border-t border-[#C08E5D]/20 pt-4 space-y-2 text-sm">
-          <div class="flex justify-between text-[#8C7A68]">
+        <div class="border-t border-brand-caramel/20 pt-4 space-y-2 text-sm">
+          <div class="flex justify-between text-warm-gray">
             <span>Subtotal</span>
             <span>₱{{ order.subtotal.toFixed(2) }}</span>
           </div>
-          <div v-if="order.discount_amount > 0" class="flex justify-between text-[#6B8F5E]">
+          <div v-if="order.discount_amount > 0" class="flex justify-between text-success">
             <span>Discount</span>
             <span>-₱{{ order.discount_amount.toFixed(2) }}</span>
           </div>
-          <div class="flex justify-between text-[#8C7A68]">
+          <div class="flex justify-between text-warm-gray">
             <span>Delivery Fee</span>
             <span>₱{{ order.delivery_fee.toFixed(2) }}</span>
           </div>
-          <div class="flex justify-between text-xl font-extrabold text-[#5C3A22] border-t border-[#C08E5D]/20 pt-3">
+          <div class="flex justify-between text-xl font-extrabold text-brand-choco border-t border-brand-caramel/20 pt-3">
             <span>Total Paid</span>
             <span>₱{{ order.total.toFixed(2) }}</span>
           </div>

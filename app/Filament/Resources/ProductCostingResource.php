@@ -57,7 +57,38 @@ class ProductCostingResource extends Resource
                                     ->required()
                                     ->searchable()
                                     ->preload()
-                                    ->live(onBlur: false),
+                                    ->live(onBlur: false)
+                                    ->createOptionForm([
+                                        Select::make('category_id')
+                                            ->label('Category')
+                                            ->relationship('category', 'name')
+                                            ->required(),
+                                        TextInput::make('name')
+                                            ->label('Product Name')
+                                            ->required()
+                                            ->maxLength(255)
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(fn($state, callable $set) => $set('slug', \Illuminate\Support\Str::slug($state))),
+                                        TextInput::make('slug')
+                                            ->required()
+                                            ->readOnly()
+                                            ->unique(Product::class, 'slug')
+                                            ->maxLength(255),
+                                        TextInput::make('sku')
+                                            ->label('SKU (Auto-generated)')
+                                            ->default(fn() => 'SKU-' . strtoupper(\Illuminate\Support\Str::random(6)))
+                                            ->readOnly()
+                                            ->required()
+                                            ->unique(Product::class, 'sku'),
+                                        TextInput::make('price')
+                                            ->label('Initial Price')
+                                            ->numeric()
+                                            ->prefix('₱')
+                                            ->default(0.00)
+                                            ->dehydrated(true)
+                                            ->readOnly()
+                                            ->helperText('Will be automatically set when this costing calculation is saved.'),
+                                    ]),
                                 TextInput::make('yield_qty')
                                     ->label('Yield (pieces / tubs produced)')
                                     ->numeric()

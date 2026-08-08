@@ -14,7 +14,7 @@
         @change="$emit('update:modelValue', $event.target.checked)"
       />
       <div
-        class="w-5 h-5 rounded-md border border-[#C08E5D]/40 bg-white transition-all duration-200 peer-checked:bg-[#5C3A22] peer-checked:border-[#5C3A22] peer-focus-visible:ring-2 peer-focus-visible:ring-[#5C3A22]/30 flex items-center justify-center text-white"
+        class="w-5 h-5 rounded-md border border-brand-caramel/40 bg-white transition-all duration-200 peer-checked:bg-brand-choco peer-checked:border-brand-choco peer-focus-visible:ring-2 peer-focus-visible:ring-brand-choco/30 flex items-center justify-center text-white"
       >
         <svg
           v-if="modelValue"
@@ -27,7 +27,7 @@
       </div>
     </div>
 
-    <span v-if="label || $slots.default" class="text-sm text-[#1C1410]">
+    <span v-if="label || $slots.default" class="text-sm text-ink">
       <slot>{{ label }}</slot>
     </span>
   </label>

@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-2xl font-bold text-[#1C1410] mb-1">Create account</h1>
-      <p class="script-accent text-[#C08E5D] text-lg">join the ABCDips family</p>
+      <h1 class="text-2xl font-bold text-ink mb-1">Create account</h1>
+      <p class="script-accent text-brand-caramel text-lg">join the ABCDips family</p>
     </div>
 
     <!-- Error Alert -->
@@ -49,22 +49,22 @@
       />
 
       <!-- Real-time Password Rules Checklist -->
-      <div v-if="form.password" class="bg-[#FBF3E7] p-3 rounded-xl border border-[#C08E5D]/20 space-y-1 text-xs">
-        <p class="font-semibold text-[#5C3A22] mb-1">Password Requirements:</p>
+      <div v-if="form.password" class="bg-surface p-3 rounded-xl border border-brand-caramel/20 space-y-1 text-xs">
+        <p class="font-semibold text-brand-choco mb-1">Password Requirements:</p>
         <div class="grid grid-cols-2 gap-1">
-          <div :class="rules.minLength ? 'text-[#6B8F5E] font-semibold' : 'text-[#8C7A68]'" class="flex items-center gap-1.5">
+          <div :class="rules.minLength ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
             <span>{{ rules.minLength ? '✓' : '○' }}</span> At least 8 characters
           </div>
-          <div :class="rules.hasUpper ? 'text-[#6B8F5E] font-semibold' : 'text-[#8C7A68]'" class="flex items-center gap-1.5">
+          <div :class="rules.hasUpper ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
             <span>{{ rules.hasUpper ? '✓' : '○' }}</span> Uppercase letter (A-Z)
           </div>
-          <div :class="rules.hasLower ? 'text-[#6B8F5E] font-semibold' : 'text-[#8C7A68]'" class="flex items-center gap-1.5">
+          <div :class="rules.hasLower ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
             <span>{{ rules.hasLower ? '✓' : '○' }}</span> Lowercase letter (a-z)
           </div>
-          <div :class="rules.hasNumber ? 'text-[#6B8F5E] font-semibold' : 'text-[#8C7A68]'" class="flex items-center gap-1.5">
+          <div :class="rules.hasNumber ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
             <span>{{ rules.hasNumber ? '✓' : '○' }}</span> Number (0-9)
           </div>
-          <div :class="rules.hasSpecial ? 'text-[#6B8F5E] font-semibold' : 'text-[#8C7A68]'" class="flex items-center gap-1.5 col-span-2">
+          <div :class="rules.hasSpecial ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5 col-span-2">
             <span>{{ rules.hasSpecial ? '✓' : '○' }}</span> Special character (!@#$%^&* etc.)
           </div>
         </div>
@@ -86,10 +86,10 @@
       </div>
     </form>
 
-    <div class="text-center pt-2 border-t border-[#C08E5D]/20">
-      <p class="text-sm text-[#8C7A68]">
+    <div class="text-center pt-2 border-t border-brand-caramel/20">
+      <p class="text-sm text-warm-gray">
         Already have an account?
-        <RouterLink to="/auth/login" class="font-bold text-[#5C3A22] hover:underline">
+        <RouterLink to="/auth/login" class="font-bold text-brand-choco hover:underline">
           Sign in
         </RouterLink>
       </p>

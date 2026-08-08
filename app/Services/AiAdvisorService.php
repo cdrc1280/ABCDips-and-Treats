@@ -5,9 +5,8 @@ namespace App\Services;
 use App\Models\Ingredient;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\Recipe;
-
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AiAdvisorService
 {
@@ -18,55 +17,90 @@ class AiAdvisorService
 
     public function ask(string $prompt, ?string $category = 'general'): array
     {
-        $apiKey = config('services.openai.api_key') ?? env('OPENAI_API_KEY') ?? env('GEMINI_API_KEY');
+        $geminiKey = env('GEMINI_API_KEY') ?: config('services.gemini.key');
+        $openaiKey = env('OPENAI_API_KEY') ?: config('services.openai.key');
 
         // Gather real contextual data from database
         $kpis = $this->analyticsService->getExecutiveSummary();
         $lowStock = Ingredient::whereColumn('stock_qty', '<=', 'min_stock_qty')->get(['name', 'stock_qty', 'min_stock_qty', 'unit']);
-        $topProducts = Product::where('is_active', true)->orderByDesc('stock_qty')->limit(5)->get(['name', 'price', 'stock_qty']);
+        $activeProducts = Product::where('is_active', true)->get(['name', 'price', 'sale_price', 'category_id']);
 
-        $contextSummary = "Bakery Context:\n"
+        $contextSummary = "Bakery Context (ABCDips & Treats, Cavite, Philippines):\n"
             . "- Total Revenue: ₱" . number_format($kpis['total_revenue'], 2) . "\n"
             . "- Total Orders: " . $kpis['total_orders'] . "\n"
-            . "- Low Stock Ingredients Count: " . $lowStock->count() . "\n";
+            . "- Active Menu Products: " . $activeProducts->pluck('name')->implode(', ') . "\n"
+            . "- Accepted Payments: GCash, Maya, BDO/BPI Bank Transfer, Cash on Delivery (COD)\n"
+            . "- Delivery Options: Lalamove Doorstep Delivery & 100% Free Store Pickup\n";
 
-        if ($lowStock->isNotEmpty()) {
-            $contextSummary .= "- Low Stock Items: " . $lowStock->map(fn($i) => "{$i->name} ({$i->stock_qty} {$i->unit} left, min {$i->min_stock_qty})")->implode(', ') . "\n";
-        }
-
-        // Call OpenAI API if API key is provided
-        if (!empty($apiKey)) {
+        // 1. Try Gemini API if GEMINI_API_KEY is available
+        if (!empty($geminiKey)) {
             try {
+                $geminiModel = env('GEMINI_MODEL', 'gemini-2.0-flash');
                 $response = Http::withHeaders([
-                    'Authorization' => "Bearer {$apiKey}",
                     'Content-Type' => 'application/json',
-                ])->post('https://api.openai.com/v1/chat/completions', [
-                            'model' => 'gpt-4o-mini',
-                            'messages' => [
+                ])->post("https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$geminiKey}", [
+                    'contents' => [
+                        [
+                            'role' => 'user',
+                            'parts' => [
                                 [
-                                    'role' => 'system',
-                                    'content' => "You are Antigravity AI, the chief AI Operations Advisor for ABCDips & Treats bakery. Provide concise, expert, practical baking business advice in warm bakery tone. {$contextSummary}"
-                                ],
-                                ['role' => 'user', 'content' => $prompt]
-                            ],
-                            'max_tokens' => 500,
-                        ]);
+                                    'text' => "You are Dips 🧁, the friendly AI Assistant for ABCDips & Treats bakery in Cavite. Keep answers warm, concise, helpful, and formatted with emojis.\n{$contextSummary}\n\nUser Question: {$prompt}"
+                                ]
+                            ]
+                        ]
+                    ]
+                ]);
 
                 if ($response->successful()) {
-                    $aiText = $response->json('choices.0.message.content');
-                    return [
-                        'prompt' => $prompt,
-                        'response' => $aiText,
-                        'source' => 'OpenAI GPT-4o-mini',
-                    ];
+                    $aiText = $response->json('candidates.0.content.parts.0.text');
+                    if ($aiText) {
+                        return [
+                            'prompt' => $prompt,
+                            'response' => trim($aiText),
+                            'source' => 'Gemini 2.0 Flash AI',
+                        ];
+                    }
                 }
             } catch (\Throwable $e) {
-                // Fallback to local intelligence model
+                Log::warning('[AiAdvisorService] Gemini API call failed: ' . $e->getMessage());
             }
         }
 
-        // Smart Local AI Operations Engine (Fallback)
-        $aiText = $this->generateLocalAiResponse($prompt, $lowStock, $kpis, $topProducts);
+        // 2. Try OpenAI API if OPENAI_API_KEY is available
+        if (!empty($openaiKey)) {
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => "Bearer {$openaiKey}",
+                    'Content-Type' => 'application/json',
+                ])->post('https://api.openai.com/v1/chat/completions', [
+                    'model' => 'gpt-4o-mini',
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' => "You are Dips 🧁, the friendly AI Assistant for ABCDips & Treats. Provide warm, concise, expert bakery advice in warm tone. {$contextSummary}"
+                        ],
+                        ['role' => 'user', 'content' => $prompt]
+                    ],
+                    'max_tokens' => 500,
+                ]);
+
+                if ($response->successful()) {
+                    $aiText = $response->json('choices.0.message.content');
+                    if ($aiText) {
+                        return [
+                            'prompt' => $prompt,
+                            'response' => trim($aiText),
+                            'source' => 'OpenAI GPT-4o-mini',
+                        ];
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('[AiAdvisorService] OpenAI API call failed: ' . $e->getMessage());
+            }
+        }
+
+        // 3. Smart Local AI Operations Engine (Fallback)
+        $aiText = $this->generateLocalAiResponse($prompt, $lowStock, $kpis, $activeProducts);
 
         return [
             'prompt' => $prompt,
@@ -75,47 +109,54 @@ class AiAdvisorService
         ];
     }
 
-    private function generateLocalAiResponse(string $prompt, $lowStock, array $kpis, $topProducts): string
+    private function generateLocalAiResponse(string $prompt, $lowStock, array $kpis, $activeProducts): string
     {
-        $promptLower = strtolower($prompt);
+        $p = strtolower($prompt);
 
-        if (str_contains($promptLower, 'best') || str_contains($promptLower, 'popular') || str_contains($promptLower, 'recommend')) {
-            return "🧁 **ABCDips Best Sellers:**\nOur customer favorites are:\n1. **Cheesy Ube Pandesal** (Soft, filled with real ube halaya & cheese)\n2. **Fudge Chocolate Brownies** (Rich Belgian chocolate fudge)\n3. **Banana Bread** (Moist loaf topped with walnuts & chocolate chips)\n4. **Custom Celebration Cakes** (Bespoke multi-tier designs)\n\nCheck out our Shop page to place an order today!";
+        if (str_contains($p, 'best') || str_contains($p, 'popular') || str_contains($p, 'recommend') || str_contains($p, 'pastr') || str_contains($p, 'treat')) {
+            return "🧁 **ABCDips Best Seller Recommendations:**\nOur customer-favorite handcrafted treats:\n1. **Classic Banana Bread Loaf** (Moist, loaded with real bananas & walnuts)\n2. **Cheesy Ube Pandesal** (Super soft, stuffed with real ube halaya & cheese)\n3. **Belgian Chocolate Fudge Brownies** (Decadent, rich chocolate fudge)\n4. **Custom Celebration Cakes** (Multi-tier designs for birthdays & weddings)\n\nHead over to our **Shop** page to add these treats to your basket!";
         }
 
-        if (str_contains($promptLower, 'custom') || str_contains($promptLower, 'cake') || str_contains($promptLower, 'wedding') || str_contains($promptLower, 'birthday')) {
-            return "🎂 **Custom Cake Orders:**\nWe create custom multi-tier cakes for birthdays, weddings, and special events!\n• You can use our **Custom Cake Builder** on the storefront to choose your tiers, guest count, flavors, and frosting style.\n• Our head chef will review your inquiry and send you a formal quote within 24 hours.";
+        if (str_contains($p, 'custom') || str_contains($p, 'cake') || str_contains($p, 'wedding') || str_contains($p, 'birthday') || str_contains($p, 'event')) {
+            return "🎂 **Custom Cake Orders:**\nWe bake custom cakes tailored for birthdays, anniversaries, and weddings!\n• Visit our **Custom Orders** page to select tier count, guest servings, cake flavors, and custom frosting colors.\n• Submit your order inquiry and our pastry team will confirm your quote within 24 hours.";
         }
 
-        if (str_contains($promptLower, 'delivery') || str_contains($promptLower, 'lalamove') || str_contains($promptLower, 'ship') || str_contains($promptLower, 'rate')) {
-            return "🛵 **Doorstep Delivery Info:**\n• We offer dynamic **Lalamove Doorstep Delivery** across Cavite and nearby areas!\n• Delivery rates are calculated live at Checkout based on your exact pin distance from our store.\n• You can also select **Store Pickup** for 100% FREE pickup!";
+        if (str_contains($p, 'delivery') || str_contains($p, 'lalamove') || str_contains($p, 'ship') || str_contains($p, 'fee') || str_contains($p, 'hour')) {
+            return "🚚 **Delivery & Pickup Details:**\n• **Lalamove Doorstep Delivery**: Real-time delivery quotes calculated at checkout based on your exact pin distance across Cavite & Metro Manila.\n• **Store Pickup**: 100% FREE pickup directly at our Cavite bakery store!\n• **Baking Hours**: 8:00 AM – 6:00 PM (Monday to Saturday).";
         }
 
-        if (str_contains($promptLower, 'pay') || str_contains($promptLower, 'gcash') || str_contains($promptLower, 'maya') || str_contains($promptLower, 'bank') || str_contains($promptLower, 'bdo') || str_contains($promptLower, 'cod')) {
-            return "💳 **Accepted Payment Methods:**\nWe accept:\n• **GCash** & **Maya** (PayMaya) E-Wallets\n• **Bank Transfer** (BDO, BPI, Metrobank, UnionBank, Landbank, etc.)\n• **Cash on Delivery (COD)** for doorstep delivery\n• **Store Pickup** (Pay at counter or online)";
+        if (str_contains($p, 'pay') || str_contains($p, 'gcash') || str_contains($p, 'maya') || str_contains($p, 'bank') || str_contains($p, 'bdo') || str_contains($p, 'bpi') || str_contains($p, 'cod') || str_contains($p, 'cash')) {
+            return "💳 **Accepted Payment Methods:**\nWe support flexible payment options:\n• **GCash & Maya E-Wallets** (Instant online redirect)\n• **Bank Transfer** (BDO, BPI, UnionBank, Metrobank)\n• **Cash on Delivery (COD)** for doorstep delivery\n• **Store Pickup** (Pay at counter)";
         }
 
-        if (str_contains($promptLower, 'allergy') || str_contains($promptLower, 'gluten') || str_contains($promptLower, 'nut') || str_contains($promptLower, 'dairy')) {
-            return "🥜 **Allergen & Ingredient Notice:**\nAll our pastries are baked fresh using 100% real butter, fresh eggs, and high-grade flour. Each product listing displays specific allergen tags (Gluten, Dairy, Eggs, Nuts, Soy). Please review product tags before ordering if you have severe allergies.";
+        if (str_contains($p, 'allergy') || str_contains($p, 'gluten') || str_contains($p, 'nut') || str_contains($p, 'dairy') || str_contains($p, 'egg') || str_contains($p, 'ingredient')) {
+            return "🌾 **Allergen & Ingredient Notice:**\nAll ABCDips pastries are baked using 100% real creamery butter, fresh farm eggs, and premium ingredients. Each product page lists specific allergen badges (Gluten, Dairy, Eggs, Nuts, Soy). Please check product tags or include special instructions upon checkout if you have dietary restrictions.";
         }
 
-        if (str_contains($promptLower, 'stock') || str_contains($promptLower, 'reorder') || str_contains($promptLower, 'inventory')) {
-            if ($lowStock->isEmpty()) {
-                return "🥐 **Inventory Advisory:** All raw ingredients are currently above minimum stock thresholds. No immediate reorders are required today!";
+        if (str_contains($p, 'track') || str_contains($p, 'order') || str_contains($p, 'status') || str_contains($p, 'invoice')) {
+            return "📦 **Order Tracking & Invoices:**\n• You can track your live order progress under **My Account -> My Orders** or using your tracking token on the **Track Order** page.\n• Official printable PDF invoices can be downloaded directly from your account order details.";
+        }
+
+        if (str_contains($p, 'perk') || str_contains($p, 'discount') || str_contains($p, 'account') || str_contains($p, 'reward') || str_contains($p, 'loyalty')) {
+            return "🎉 **Account Perks & Rewards:**\nCreating a free ABCDips account unlocks:\n• Real-time delivery tracking\n• Birthday month special discounts\n• Loyalty reward points on every purchase\n• Exclusive members-only flash sales!";
+        }
+
+        if (str_contains($p, 'suggest') || str_contains($p, 'idea') || str_contains($p, 'feedback') || str_contains($p, 'request')) {
+            return "💡 **Share Your Ideas:**\nWe'd love to hear your feedback! Visit our **/suggestions** page to submit product ideas, service feedback, or feature requests directly to our management team.";
+        }
+
+        if (str_contains($p, 'contact') || str_contains($p, 'location') || str_contains($p, 'where') || str_contains($p, 'facebook') || str_contains($p, 'instagram') || str_contains($p, 'address')) {
+            return "📍 **Contact & Store Info:**\n• **Location**: Cavite, Philippines\n• **Facebook**: facebook.com/abcdipsandtreats\n• **Instagram**: @abcdips_treats\n• **Message Us**: Use our **Contact Us** page to send a direct message and we will get back to you within 24 hours!";
+        }
+
+        if (str_contains($p, 'stock') || str_contains($p, 'reorder') || str_contains($p, 'inventory') || str_contains($p, 'revenue') || str_contains($p, 'sales')) {
+            if ($lowStock->isNotEmpty()) {
+                $itemsList = $lowStock->map(fn($i) => "• **{$i->name}**: Only {$i->stock_qty} {$i->unit} remaining (Reorder threshold: {$i->min_stock_qty} {$i->unit})")->implode("\n");
+                return "⚠️ **Inventory Alert:**\nThe following ingredients are below safe threshold levels:\n{$itemsList}";
             }
-
-            $itemsList = $lowStock->map(fn($i) => "• **{$i->name}**: Only {$i->stock_qty} {$i->unit} remaining (Reorder threshold: {$i->min_stock_qty} {$i->unit})")->implode("\n");
-            return "⚠️ **Inventory Alert & Reorder Advisory:**\nThe following raw ingredients have dropped below safe threshold levels and should be reordered from suppliers immediately:\n\n{$itemsList}";
+            return "📊 **Bakery Performance Summary:**\n• Total Revenue: **₱" . number_format($kpis['total_revenue'], 2) . "** across **{$kpis['completed_orders']} orders**.\n• All raw ingredients are currently well-stocked above minimum thresholds!";
         }
 
-        if (str_contains($promptLower, 'price') || str_contains($promptLower, 'margin') || str_contains($promptLower, 'cost')) {
-            return "💡 **Pricing & Gross Margin Advisor:**\nTo achieve a target **65% Gross Margin** on a pastry batch with a raw ingredient cost of ₱150:\n• Target RRP = `Cost / (1 - 0.65)` = **₱428.50**\n• Recommended Price: **₱450.00** (provides 66.7% gross margin).";
-        }
-
-        if (str_contains($promptLower, 'sales') || str_contains($promptLower, 'revenue')) {
-            return "📊 **Sales Performance Summary:**\n• Total Bakery Revenue: **₱" . number_format($kpis['total_revenue'], 2) . "** across **{$kpis['completed_orders']} completed orders**.\n• Current Top Products in Stock: " . $topProducts->pluck('name')->implode(', ') . ".";
-        }
-
-        return "🥖 **Dips AI Assistant:**\nHello! I'm Dips 🧁, your AI assistant for ABCDips & Treats.\nI can answer questions about our fresh pastries, custom cake inquiries, Lalamove doorstep delivery rates, payment methods, allergen details, and store pickup options.\n\nHow can I help you today?";
+        return "🧁 **ABCDips AI Helper:**\nHello! I'm Dips 🧁, your AI assistant for ABCDips & Treats.\nI can help you with pastry recommendations, custom cake orders, Lalamove delivery fees, payment options, allergen information, order tracking, and store pickup options.\n\nWhat can I assist you with today?";
     }
 }
