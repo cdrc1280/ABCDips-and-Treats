@@ -63,9 +63,13 @@ class CategoryResource extends Resource
 
                         FileUpload::make('image_path')
                             ->label('Category Image')
+                            ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+                            ->maxSize(5120)
+                            ->imageEditor()
                             ->disk('public')
                             ->directory('categories')
-                            ->image()
+                            ->visibility('public')
                             ->columnSpanFull(),
 
                         TextInput::make('sort_order')

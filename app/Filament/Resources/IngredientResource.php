@@ -6,7 +6,9 @@ use App\Filament\Resources\IngredientResource\Pages\CreateIngredient;
 use App\Filament\Resources\IngredientResource\Pages\EditIngredient;
 use App\Filament\Resources\IngredientResource\Pages\ListIngredients;
 use App\Models\Ingredient;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
@@ -95,6 +97,25 @@ class IngredientResource extends Resource
                     ->query(fn($query) => $query->whereColumn('stock_qty', '<=', 'min_stock_qty')),
             ])
             ->actions([
+                Action::make('quick_restock')
+                    ->label('Restock 📦')
+                    ->icon('heroicon-o-plus-circle')
+                    ->color('success')
+                    ->form([
+                        TextInput::make('add_qty')
+                            ->label('Add Stock Quantity')
+                            ->numeric()
+                            ->minValue(0.01)
+                            ->required()
+                            ->suffix(fn(Ingredient $record) => $record->unit),
+                    ])
+                    ->action(function (Ingredient $record, array $data) {
+                        $record->increment('stock_qty', $data['add_qty']);
+                        Notification::make()
+                            ->title("Added {$data['add_qty']} {$record->unit} to {$record->name} stock! 📦")
+                            ->success()
+                            ->send();
+                    }),
                 EditAction::make(),
             ]);
     }

@@ -6,7 +6,9 @@ use App\Filament\Resources\EmployeeResource\Pages\CreateEmployee;
 use App\Filament\Resources\EmployeeResource\Pages\EditEmployee;
 use App\Filament\Resources\EmployeeResource\Pages\ListEmployees;
 use App\Models\Employee;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -74,6 +76,17 @@ class EmployeeResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
+                Action::make('toggle_active')
+                    ->label(fn(Employee $record) => $record->is_active ? 'Deactivate' : 'Activate Employee')
+                    ->icon('heroicon-o-power')
+                    ->color(fn(Employee $record) => $record->is_active ? 'danger' : 'success')
+                    ->action(function (Employee $record) {
+                        $record->update(['is_active' => !$record->is_active]);
+                        Notification::make()
+                            ->title($record->is_active ? 'Employee Profile Activated 👤' : 'Employee Profile Deactivated')
+                            ->info()
+                            ->send();
+                    }),
                 EditAction::make(),
             ]);
     }

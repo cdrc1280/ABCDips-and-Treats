@@ -110,7 +110,7 @@ class ProductController extends Controller
             'hero_tagline' => Setting::get('about_hero_tagline', 'our story'),
             'hero_title' => Setting::get('about_hero_title', "Baked with Heart,\nserved with love"),
             'hero_subtitle' => Setting::get('about_hero_subtitle', 'ABCDips & Treats began as a small home bakery with a simple dream: to share the joy of freshly baked, handcrafted pastries with every Filipino household.'),
-            
+
             'timeline_tagline' => Setting::get('about_timeline_tagline', 'the journey'),
             'timeline_title' => Setting::get('about_timeline_title', 'The ABCDips Story'),
             'timeline' => Setting::getJson('about_timeline', $defaultTimeline),
@@ -133,7 +133,7 @@ class ProductController extends Controller
             'hero_badge' => Setting::get('home_hero_badge', 'OVEN FRESH TODAY IN CAVITE'),
             'hero_title' => Setting::get('home_hero_title', 'Handcrafted Pastries'),
             'hero_subtitle' => Setting::get('home_hero_subtitle', 'baked with love & real butter'),
-            'hero_description' => Setting::get('home_hero_description', 'From our famous Classic Banana Bread Loaves and ultra-fudgy Belgian chocolate brownies to cheesecakes and fresh cinnamon rolls.'),
+            'hero_description' => Setting::get('home_hero_des   cription', 'From our famous Classic Banana Bread Loaves and ultra-fudgy Belgian chocolate brownies to cheesecakes and fresh cinnamon rolls.'),
             'hero_btn_primary_text' => Setting::get('home_hero_btn_primary_text', 'Browse Full Menu'),
             'hero_btn_primary_url' => Setting::get('home_hero_btn_primary_url', '/shop'),
             'hero_btn_secondary_text' => Setting::get('home_hero_btn_secondary_text', 'Explore Best Sellers'),
@@ -143,21 +143,21 @@ class ProductController extends Controller
             'hero_card_badge' => Setting::get('home_hero_card_badge', 'Signature Treat'),
             'hero_card_title' => Setting::get('home_hero_card_title', 'Classic Banana Bread'),
             'hero_card_subtitle' => Setting::get('home_hero_card_subtitle', 'Starts at ₱280.00'),
-            'hero_card_image' => $this->formatSettingImage(Setting::get('home_hero_card_image'), '/images/blog-banana-bread.jpg'),
+            'hero_card_image' => $this->formatSettingImage(Setting::get('home_hero_card_image')),
 
             'spotlight_tagline' => Setting::get('home_spotlight_tagline', 'weekly special spotlight'),
             'spotlight_title' => Setting::get('home_spotlight_title', 'Signature Ube Cheesecake'),
             'spotlight_description' => Setting::get('home_spotlight_description', 'Real Philippine Ube Halaya folded into silky baked cream cheese set over a coconut Graham crust. Baked fresh in limited batches.'),
             'spotlight_btn_text' => Setting::get('home_spotlight_btn_text', 'Order Spotlight Treat — ₱680.00'),
             'spotlight_btn_url' => Setting::get('home_spotlight_btn_url', '/products/signature-ube-cheesecake-6-inch'),
-            'spotlight_image' => $this->formatSettingImage(Setting::get('home_spotlight_image'), '/images/blog-custom-cake.jpg'),
+            'spotlight_image' => $this->formatSettingImage(Setting::get('home_spotlight_image')),
         ]);
     }
 
-    private function formatSettingImage(?string $path, string $default): string
+    private function formatSettingImage(?string $path): ?string
     {
         if (empty($path)) {
-            return asset($default);
+            return null;
         }
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
             return $path;

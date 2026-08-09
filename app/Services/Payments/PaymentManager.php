@@ -17,6 +17,7 @@ class PaymentManager
             'maya'          => new MayaGateway(),
             'bank_transfer' => new BankTransferGateway(),
             'cod'           => new CodGateway(),
+            'qrph'          => new QrPhGateway(),
             default         => throw new InvalidArgumentException("Unsupported payment method: {$method}"),
         };
     }

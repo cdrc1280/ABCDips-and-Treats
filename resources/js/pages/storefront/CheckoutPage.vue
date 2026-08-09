@@ -5,7 +5,7 @@
 
     <!-- Empty Basket State -->
     <div v-if="cartStore.items.length === 0"
-      class="py-12 text-center bg-white rounded-3xl border border-brand-caramel/20 shadow-sm">
+      class="py-12 text-center bg-white dark:bg-[#1E1510] rounded-3xl border border-brand-caramel/20 shadow-sm">
       <EmptyState title="Your Basket is Empty" description="Add items to your basket before checking out.">
         <template #action>
           <RouterLink to="/shop">
@@ -39,21 +39,21 @@
             'px-4 py-2 rounded-xl text-xs font-bold transition-all',
             verificationTab === 'email'
               ? 'bg-brand-choco text-surface shadow-xs'
-              : 'bg-white/80 text-amber-900 hover:bg-white border border-amber-200'
+              : 'bg-white/80 dark:bg-[#1E1510]/80 text-amber-900 hover:bg-white dark:bg-[#1E1510] border border-amber-200'
           ]">✉️ Verify via Email</button>
 
           <button type="button" @click="verificationTab = 'phone'" :class="[
             'px-4 py-2 rounded-xl text-xs font-bold transition-all',
             verificationTab === 'phone'
               ? 'bg-brand-choco text-surface shadow-xs'
-              : 'bg-white/80 text-amber-900 hover:bg-white border border-amber-200'
+              : 'bg-white/80 dark:bg-[#1E1510]/80 text-amber-900 hover:bg-white dark:bg-[#1E1510] border border-amber-200'
           ]">📱 Verify via Mobile Number (SMS Code)</button>
         </div>
 
         <!-- Tab 1: Email Verification -->
         <div v-if="verificationTab === 'email'"
-          class="space-y-4 bg-white/80 rounded-2xl p-5 border border-amber-200/80">
-          <p class="text-sm text-ink">
+          class="space-y-4 bg-white/80 dark:bg-[#1E1510]/80 rounded-2xl p-5 border border-amber-200/80">
+          <p class="text-sm text-ink dark:text-[#FBF3E7]">
             We will send a secure verification link to <strong>{{ authStore.user.email }}</strong>.
           </p>
           <div class="flex items-center gap-3 flex-wrap">
@@ -67,14 +67,14 @@
 
         <!-- Tab 2: Mobile Phone Verification -->
         <div v-else-if="verificationTab === 'phone'"
-          class="space-y-4 bg-white/80 rounded-2xl p-5 border border-amber-200/80">
+          class="space-y-4 bg-white/80 dark:bg-[#1E1510]/80 rounded-2xl p-5 border border-amber-200/80">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-ink mb-1">Mobile Phone Number</label>
+              <label class="block text-xs font-bold text-ink dark:text-[#FBF3E7] mb-1">Mobile Phone Number</label>
               <div class="flex gap-2">
                 <input v-model="otpPhone" type="tel" inputmode="tel" placeholder="09171234567"
                   @keydown="onNumericKeydown" @input="otpPhone = $event.target.value.replace(/(?!^\+)[^\d]/g, '')"
-                  class="flex-1 bg-white border border-brand-caramel/30 rounded-xl px-3.5 py-2 text-sm text-ink focus:ring-2 focus:ring-brand-choco" />
+                  class="flex-1 bg-white dark:bg-[#271C15] border border-brand-caramel/30 dark:border-[#C08E5D]/30 px-3.5 py-2 text-sm text-ink dark:text-[#FBF3E7] focus:ring-2 focus:ring-brand-choco" />
                 <button type="button" @click="sendPhoneOtp" :disabled="sendingOtp || !otpPhone"
                   class="px-3.5 py-2 bg-brand-choco text-white text-xs font-bold rounded-xl hover:bg-choco-600 disabled:opacity-50 transition-all shrink-0">
                   {{ sendingOtp ? 'Sending...' : 'Send SMS Code' }}
@@ -85,11 +85,11 @@
             </div>
 
             <div v-if="otpSent">
-              <label class="block text-xs font-bold text-ink mb-1">Enter 6-Digit SMS Code</label>
+              <label class="block text-xs font-bold text-ink dark:text-[#FBF3E7] mb-1">Enter 6-Digit SMS Code</label>
               <div class="flex gap-2">
                 <input v-model="otpCode" type="text" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit code"
                   @keydown="onNumericKeydown" @input="otpCode = $event.target.value.replace(/\D/g, '')"
-                  class="w-36 bg-white border border-brand-caramel/30 rounded-xl px-3.5 py-2 text-sm font-extrabold text-center tracking-widest text-ink focus:ring-2 focus:ring-brand-choco" />
+                  class="w-36 bg-white dark:bg-[#271C15] border border-brand-caramel/30 dark:border-[#C08E5D]/30 px-3.5 py-2 text-sm font-extrabold text-center tracking-widest text-ink dark:text-[#FBF3E7] focus:ring-2 focus:ring-brand-choco" />
                 <button type="button" @click="verifyPhoneOtp" :disabled="verifyingOtp || otpCode.length !== 6"
                   class="px-4 py-2 bg-success text-white text-xs font-bold rounded-xl hover:bg-green-700 disabled:opacity-50 transition-all shrink-0">
                   {{ verifyingOtp ? 'Verifying...' : 'Verify & Unlock Checkout' }}
@@ -109,9 +109,9 @@
       <div class="lg:col-span-7 space-y-6">
 
         <!-- 1. Fulfillment Method -->
-        <div class="bg-white rounded-3xl p-6 md:p-8 border border-brand-caramel/20 shadow-sm space-y-4">
+        <div class="bg-white dark:bg-[#1E1510] rounded-3xl p-6 md:p-8 border border-brand-caramel/20 shadow-sm space-y-4">
           <h3
-            class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-3 flex items-center justify-between">
+            class="font-extrabold text-xl text-ink dark:text-[#FBF3E7] border-b border-brand-caramel/20 pb-3 flex items-center justify-between">
             <span>1. Fulfillment Method</span>
             <span v-if="storeInfo.store_address" class="text-xs font-normal text-warm-gray">
               📍 Store: {{ storeInfo.store_address }}
@@ -122,12 +122,12 @@
             <!-- Doorstep Delivery -->
             <label v-tooltip="'Real-time delivery quote calculated via Lalamove based on your location'"
               class="border-2 rounded-2xl p-4 cursor-pointer flex flex-col items-center justify-center text-center transition-all"
-              :class="form.fulfillment_type === 'delivery' ? 'border-brand-choco bg-surface' : 'border-brand-caramel/20 bg-white opacity-70 hover:opacity-100'">
+              :class="form.fulfillment_type === 'delivery' ? 'border-brand-choco bg-surface' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
               <input type="radio" v-model="form.fulfillment_type" value="delivery" class="sr-only" />
               <div class="w-10 h-10 rounded-full bg-brand-tan/30 flex items-center justify-center text-brand-choco mb-2">
                 🛵
               </div>
-              <div class="font-bold text-sm text-ink">Doorstep Delivery</div>
+              <div class="font-bold text-sm text-ink dark:text-[#FBF3E7]">Doorstep Delivery</div>
               <div class="text-xs text-warm-gray mt-0.5">
                 <span v-if="quotingDelivery" class="animate-pulse text-brand-caramel">Quoting...</span>
                 <span v-else-if="quotedFee !== null">₱{{ quotedFee.toFixed(2) }} ({{ quoteProvider }})</span>
@@ -138,12 +138,12 @@
             <!-- Store Pickup -->
             <label v-tooltip="'Pick up your fresh pastries directly at our store — 100% FREE!'"
               class="border-2 rounded-2xl p-4 cursor-pointer flex flex-col items-center justify-center text-center transition-all"
-              :class="form.fulfillment_type === 'pickup' ? 'border-brand-choco bg-surface' : 'border-brand-caramel/20 bg-white opacity-70 hover:opacity-100'">
+              :class="form.fulfillment_type === 'pickup' ? 'border-brand-choco bg-surface' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
               <input type="radio" v-model="form.fulfillment_type" value="pickup" class="sr-only" />
               <div class="w-10 h-10 rounded-full bg-brand-tan/30 flex items-center justify-center text-brand-choco mb-2">
                 🏪
               </div>
-              <div class="font-bold text-sm text-ink">Store Pickup</div>
+              <div class="font-bold text-sm text-ink dark:text-[#FBF3E7]">Store Pickup</div>
               <div class="text-xs text-success font-semibold mt-0.5">FREE</div>
               <div class="text-[11px] text-warm-gray mt-1 max-w-[200px] truncate"
                 :title="storeInfo.store_address || 'Bacoor, Cavite, Philippines'">
@@ -154,8 +154,8 @@
         </div>
 
         <!-- 2. Customer & Address Details -->
-        <div class="bg-white rounded-3xl p-6 md:p-8 border border-brand-caramel/20 shadow-sm space-y-4">
-          <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-3">
+        <div class="bg-white dark:bg-[#1E1510] rounded-3xl p-6 md:p-8 border border-brand-caramel/20 shadow-sm space-y-4">
+          <h3 class="font-extrabold text-xl text-ink dark:text-[#FBF3E7] border-b border-brand-caramel/20 pb-3">
             2. Customer Details
           </h3>
 
@@ -216,8 +216,8 @@
         </div>
 
         <!-- 3. Payment Method Selection -->
-        <div class="bg-white rounded-3xl p-6 md:p-8 border border-brand-caramel/20 shadow-sm space-y-4">
-          <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-3">
+        <div class="bg-white dark:bg-[#1E1510] rounded-3xl p-6 md:p-8 border border-brand-caramel/20 shadow-sm space-y-4">
+          <h3 class="font-extrabold text-xl text-ink dark:text-[#FBF3E7] border-b border-brand-caramel/20 pb-3">
             3. Select Payment Method
           </h3>
 
@@ -225,14 +225,14 @@
             <!-- GCash -->
             <label v-tooltip="'Pay securely via GCash E-Wallet redirect'"
               class="border-2 rounded-2xl p-4 cursor-pointer flex items-center gap-3 transition-all"
-              :class="form.payment_method === 'gcash' ? 'border-brand-choco bg-surface' : 'border-brand-caramel/20 bg-white opacity-70 hover:opacity-100'">
+              :class="form.payment_method === 'gcash' ? 'border-brand-choco bg-surface' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
               <input type="radio" v-model="form.payment_method" value="gcash" class="sr-only" />
               <div
                 class="w-10 h-10 rounded-xl bg-blue-500 text-white font-bold text-xs flex items-center justify-center shrink-0">
                 GCash
               </div>
               <div>
-                <div class="font-bold text-sm text-ink">GCash E-Wallet</div>
+                <div class="font-bold text-sm text-ink dark:text-[#FBF3E7]">GCash E-Wallet</div>
                 <div class="text-[11px] text-warm-gray">Instant payment via PayMongo</div>
               </div>
             </label>
@@ -240,14 +240,14 @@
             <!-- Maya -->
             <label v-tooltip="'Pay securely via Maya App / Card redirect'"
               class="border-2 rounded-2xl p-4 cursor-pointer flex items-center gap-3 transition-all"
-              :class="form.payment_method === 'maya' ? 'border-brand-choco bg-surface' : 'border-brand-caramel/20 bg-white opacity-70 hover:opacity-100'">
+              :class="form.payment_method === 'maya' ? 'border-brand-choco bg-surface' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
               <input type="radio" v-model="form.payment_method" value="maya" class="sr-only" />
               <div
                 class="w-10 h-10 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
                 Maya
               </div>
               <div>
-                <div class="font-bold text-sm text-ink">Maya Wallet / Card</div>
+                <div class="font-bold text-sm text-ink dark:text-[#FBF3E7]">Maya Wallet / Card</div>
                 <div class="text-[11px] text-warm-gray">Pay via Maya App / Card</div>
               </div>
             </label>
@@ -255,14 +255,14 @@
             <!-- Bank Transfer (Static BDO) -->
             <label v-tooltip="'Manual BDO Online Transfer / Bank Deposit'"
               class="border-2 rounded-2xl p-4 cursor-pointer flex items-center gap-3 transition-all"
-              :class="form.payment_method === 'bank_transfer' ? 'border-brand-choco bg-surface' : 'border-brand-caramel/20 bg-white opacity-70 hover:opacity-100'">
+              :class="form.payment_method === 'bank_transfer' ? 'border-brand-choco bg-surface' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
               <input type="radio" v-model="form.payment_method" value="bank_transfer" class="sr-only" />
               <div
                 class="w-10 h-10 rounded-xl bg-[#003366] text-white font-black text-xs flex items-center justify-center shrink-0">
                 BDO
               </div>
               <div>
-                <div class="font-bold text-sm text-ink">BDO Bank Transfer</div>
+                <div class="font-bold text-sm text-ink dark:text-[#FBF3E7]">BDO Bank Transfer</div>
                 <div class="text-[11px] text-warm-gray">Manual BDO online transfer / deposit</div>
               </div>
             </label>
@@ -270,22 +270,36 @@
             <!-- Cash on Delivery -->
             <label v-tooltip="'Pay cash directly upon delivery / store pickup'"
               class="border-2 rounded-2xl p-4 cursor-pointer flex items-center gap-3 transition-all"
-              :class="form.payment_method === 'cod' ? 'border-brand-choco bg-surface' : 'border-brand-caramel/20 bg-white opacity-70 hover:opacity-100'">
+              :class="form.payment_method === 'cod' ? 'border-brand-choco bg-surface dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
               <input type="radio" v-model="form.payment_method" value="cod" class="sr-only" />
               <div
                 class="w-10 h-10 rounded-xl bg-amber-700 text-white font-bold text-xs flex items-center justify-center shrink-0">
                 COD
               </div>
               <div>
-                <div class="font-bold text-sm text-ink">Cash on Delivery</div>
+                <div class="font-bold text-sm text-ink dark:text-[#FBF3E7]">Cash on Delivery</div>
                 <div class="text-[11px] text-warm-gray">Pay cash upon arrival</div>
+              </div>
+            </label>
+
+            <!-- QR Ph (Any Bank via PayMongo) -->
+            <label v-tooltip="'Pay via QR Ph - scan with any Philippine bank app'"
+              class="border-2 rounded-2xl p-4 cursor-pointer flex items-center gap-3 transition-all"
+              :class="form.payment_method === 'qrph' ? 'border-brand-choco bg-surface dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
+              <input type="radio" v-model="form.payment_method" value="qrph" class="sr-only" />
+              <div class="w-10 h-10 rounded-xl bg-[#0066CC] text-white font-bold text-[10px] flex items-center justify-center shrink-0 leading-tight text-center">
+                QR Ph
+              </div>
+              <div>
+                <div class="font-bold text-sm text-ink dark:text-[#FBF3E7]">QR Ph (Any Bank)</div>
+                <div class="text-[11px] text-warm-gray">Scan QR code via any PH bank app</div>
               </div>
             </label>
           </div>
 
           <!-- Dynamic BDO Account Info Box (Configured via Store Settings) -->
           <div v-if="form.payment_method === 'bank_transfer'"
-            class="p-4 bg-surface border border-brand-caramel/30 rounded-2xl text-xs space-y-1 text-ink">
+            class="p-4 bg-surface border border-brand-caramel/30 rounded-2xl text-xs space-y-1 text-ink dark:text-[#FBF3E7]">
             <p class="font-bold text-sm text-brand-choco flex items-center gap-1.5">
               <span>🏦 BDO Unibank Account Details</span>
             </p>
@@ -303,8 +317,8 @@
 
       <!-- Order Summary Right Column -->
       <div class="lg:col-span-5 space-y-6">
-        <div class="bg-white rounded-3xl p-6 md:p-8 border border-brand-caramel/20 shadow-sm space-y-6">
-          <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-3">
+        <div class="bg-white dark:bg-[#1E1510] rounded-3xl p-6 md:p-8 border border-brand-caramel/20 shadow-sm space-y-6">
+          <h3 class="font-extrabold text-xl text-ink dark:text-[#FBF3E7] border-b border-brand-caramel/20 pb-3">
             Order Items ({{ cartStore.itemCount }})
           </h3>
 
@@ -315,7 +329,7 @@
                 <img :src="item.image_url || '/images/placeholder-bakery.png'"
                   class="w-10 h-10 rounded-lg object-cover shrink-0" />
                 <div class="truncate">
-                  <div class="font-bold text-ink truncate">{{ item.options?.is_custom ? item.options.custom_title
+                  <div class="font-bold text-ink dark:text-[#FBF3E7] truncate">{{ item.options?.is_custom ? item.options.custom_title
                     :
                     item.name }}</div>
 
@@ -323,7 +337,7 @@
                     <div class="flex items-center border border-brand-caramel/30 rounded-lg overflow-hidden bg-surface">
                       <button type="button" @click.prevent="adjustItemQty(item, -1)" v-tooltip="'Decrease quantity'"
                         class="px-2 py-0.5 text-xs font-bold text-brand-choco hover:bg-brand-tan/40 transition-colors">-</button>
-                      <span class="px-2 text-[11px] font-bold text-ink">{{ item.qty }}</span>
+                      <span class="px-2 text-[11px] font-bold text-ink dark:text-[#FBF3E7]">{{ item.qty }}</span>
                       <button type="button" @click.prevent="adjustItemQty(item, 1)" v-tooltip="'Increase quantity'"
                         class="px-2 py-0.5 text-xs font-bold text-brand-choco hover:bg-brand-tan/40 transition-colors">+</button>
                     </div>
@@ -351,7 +365,7 @@
             </div>
             <div v-else class="flex gap-2">
               <input v-model="couponCode" type="text" placeholder="Coupon / Voucher code..."
-                class="flex-1 px-3 py-1.5 text-xs rounded-xl border border-brand-caramel/30 bg-surface/50 text-ink focus:outline-none focus:border-brand-choco"
+                class="flex-1 px-3 py-1.5 text-xs rounded-xl border border-brand-caramel/30 bg-surface/50 dark:bg-[#271C15] text-ink dark:text-[#FBF3E7] dark:border-[#C08E5D]/30 focus:outline-none focus:border-brand-choco"
                 @keyup.enter="handleApplyCoupon" />
               <BaseButton size="sm" variant="secondary" :loading="applyingCoupon" @click="handleApplyCoupon">Apply
               </BaseButton>
@@ -362,7 +376,7 @@
           <div class="space-y-3 text-sm pt-2">
             <div class="flex justify-between text-warm-gray">
               <span>Subtotal</span>
-              <span class="font-semibold text-ink">₱{{ cartStore.subtotal.toFixed(2) }}</span>
+              <span class="font-semibold text-ink dark:text-[#FBF3E7]">₱{{ cartStore.subtotal.toFixed(2) }}</span>
             </div>
 
             <div v-if="cartStore.discount > 0" class="flex justify-between text-success">
@@ -376,7 +390,7 @@
                 class="cursor-help">
                 Delivery Fee ({{ form.fulfillment_type === 'pickup' ? 'Pickup' : quoteProvider }})
               </span>
-              <span class="font-semibold text-ink">
+              <span class="font-semibold text-ink dark:text-[#FBF3E7]">
                 <span v-if="quotingDelivery" class="text-xs text-brand-caramel">Quoting...</span>
                 <span v-else>₱{{ deliveryFee.toFixed(2) }}</span>
               </span>
@@ -402,13 +416,13 @@
       <Transition name="fade">
         <div v-if="bdoModalOpen"
           class="fixed inset-0 z-100 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div class="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full border border-brand-caramel/20 shadow-2xl space-y-6">
+          <div class="bg-white dark:bg-[#1E1510] rounded-3xl p-6 md:p-8 max-w-md w-full border border-brand-caramel/20 shadow-2xl space-y-6">
             <div class="text-center space-y-2">
               <div
                 class="w-16 h-16 bg-brand-choco text-surface font-bold text-lg rounded-2xl flex items-center justify-center mx-auto shadow-md uppercase px-1">
                 {{ (bdoDetails.bank_name || storeInfo.bank_name || 'BANK').slice(0, 5) }}
               </div>
-              <h3 class="text-2xl font-extrabold text-ink">{{ bdoDetails.bank_name || storeInfo.bank_name ||
+              <h3 class="text-2xl font-extrabold text-ink dark:text-[#FBF3E7]">{{ bdoDetails.bank_name || storeInfo.bank_name ||
                 'Bank' }}
                 Transfer</h3>
               <p class="text-xs text-warm-gray">Please complete your transfer to finalize your order.</p>
@@ -417,12 +431,12 @@
             <div class="bg-surface p-4 rounded-2xl border border-brand-caramel/30 space-y-3 text-xs">
               <div class="flex justify-between border-b border-brand-caramel/20 pb-2">
                 <span class="text-warm-gray">Bank:</span>
-                <span class="font-bold text-ink">{{ bdoDetails.bank_name || storeInfo.bank_name || 'Bank Transfer'
+                <span class="font-bold text-ink dark:text-[#FBF3E7]">{{ bdoDetails.bank_name || storeInfo.bank_name || 'Bank Transfer'
                   }}</span>
               </div>
               <div class="flex justify-between border-b border-brand-caramel/20 pb-2">
                 <span class="text-warm-gray">Account Name:</span>
-                <span class="font-bold text-ink">{{ bdoDetails.account_name || storeInfo.bank_account_name || 'ABCDips & Treats' }}</span>
+                <span class="font-bold text-ink dark:text-[#FBF3E7]">{{ bdoDetails.account_name || storeInfo.bank_account_name || 'ABCDips & Treats' }}</span>
               </div>
               <div class="flex justify-between items-center border-b border-brand-caramel/20 pb-2">
                 <span class="text-warm-gray">Account Number:</span>
@@ -754,7 +768,7 @@ async function handleCheckout() {
     cartStore.clearLocalCart()
 
     // 2. Handle Payment Method Routing
-    if (form.value.payment_method === 'gcash' || form.value.payment_method === 'maya') {
+    if (form.value.payment_method === 'gcash' || form.value.payment_method === 'maya' || form.value.payment_method === 'qrph') {
       toast.info(`Redirecting to ${form.value.payment_method.toUpperCase()} payment gateway...`, 'Processing Payment')
       try {
         const payRes = await axios.post('/api/payments/create-source', {

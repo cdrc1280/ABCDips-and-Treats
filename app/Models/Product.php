@@ -26,6 +26,8 @@ class Product extends Model implements HasMedia
         'description',
         'image_path',
         'gallery',
+        'variation_type',
+        'variations',
         'price',
         'sale_price',
         'sale_ends_at',
@@ -44,6 +46,7 @@ class Product extends Model implements HasMedia
 
     protected $casts = [
         'gallery'           => 'array',
+        'variations'        => 'array',
         'price'             => 'decimal:2',
         'sale_price'        => 'decimal:2',
         'sale_ends_at'      => 'datetime',
@@ -149,6 +152,22 @@ class Product extends Model implements HasMedia
         }
         $media = $this->getFirstMediaUrl('primary_image');
         return $media ?: asset('images/logo.png');
+    }
+
+    public function getGalleryImageUrlsAttribute(): array
+    {
+        $urls = [];
+        if (is_array($this->gallery)) {
+            foreach ($this->gallery as $path) {
+                if ($path) {
+                    $urls[] = str_starts_with($path, 'http')
+                        ? $path
+                        : asset('storage/' . ltrim($path, '/'));
+                }
+            }
+        }
+        $spatieUrls = $this->getMedia('gallery')->map(fn($m) => $m->getUrl())->toArray();
+        return array_values(array_unique(array_merge($urls, $spatieUrls)));
     }
 
     public function registerMediaCollections(): void

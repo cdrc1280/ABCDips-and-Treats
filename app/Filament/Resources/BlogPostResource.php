@@ -6,8 +6,10 @@ use App\Filament\Resources\BlogPostResource\Pages\CreateBlogPost;
 use App\Filament\Resources\BlogPostResource\Pages\EditBlogPost;
 use App\Filament\Resources\BlogPostResource\Pages\ListBlogPosts;
 use App\Models\BlogPost;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -39,7 +41,16 @@ class BlogPostResource extends Resource
                 TextInput::make('slug')->required()->readOnly()->unique(BlogPost::class, 'slug', ignoreRecord: true),
                 Textarea::make('excerpt')->rows(3)->columnSpanFull(),
                 RichEditor::make('body')->required()->columnSpanFull(),
-                FileUpload::make('cover_image')->image()->disk('public')->directory('blog')->columnSpanFull(),
+                FileUpload::make('cover_image')
+                    ->label('Cover Image')
+                    ->image()
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+                    ->maxSize(5120)
+                    ->imageEditor()
+                    ->disk('public')
+                    ->directory('blog')
+                    ->visibility('public')
+                    ->columnSpanFull(),
             ]),
             Section::make('Publishing')->components([
                 Select::make('status')
@@ -85,6 +96,21 @@ class BlogPostResource extends Resource
                     ->options(['draft' => 'Draft', 'published' => 'Published', 'archived' => 'Archived']),
             ])
             ->actions([
+                Action::make('toggle_publish')
+                    ->label(fn(BlogPost $record) => $record->status === 'published' ? 'Unpublish' : 'Publish Post 🚀')
+                    ->icon(fn(BlogPost $record) => $record->status === 'published' ? 'heroicon-o-x-circle' : 'heroicon-o-paper-airplane')
+                    ->color(fn(BlogPost $record) => $record->status === 'published' ? 'warning' : 'success')
+                    ->action(function (BlogPost $record) {
+                        $newStatus = $record->status === 'published' ? 'draft' : 'published';
+                        $record->update([
+                            'status' => $newStatus,
+                            'published_at' => $newStatus === 'published' ? ($record->published_at ?? now()) : $record->published_at,
+                        ]);
+                        Notification::make()
+                            ->title($newStatus === 'published' ? 'Blog Post Published Live 🚀' : 'Blog Post Moved to Drafts 📝')
+                            ->success()
+                            ->send();
+                    }),
                 EditAction::make(),
                 DeleteAction::make(),
             ]);

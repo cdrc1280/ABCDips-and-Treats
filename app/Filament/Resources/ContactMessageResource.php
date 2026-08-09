@@ -5,7 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ContactMessageResource\Pages\EditContactMessage;
 use App\Filament\Resources\ContactMessageResource\Pages\ListContactMessages;
 use App\Models\ContactMessage;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -56,7 +58,31 @@ class ContactMessageResource extends Resource
                     ->options(['unread' => 'Unread', 'read' => 'Read', 'replied' => 'Replied', 'archived' => 'Archived']),
             ])
             ->actions([
-                EditAction::make()->label('View/Reply'),
+                Action::make('mark_replied')
+                    ->label('Replied ✉️')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn(ContactMessage $record) => $record->status !== 'replied')
+                    ->action(function (ContactMessage $record) {
+                        $record->update(['status' => 'replied']);
+                        Notification::make()
+                            ->title('Contact Message Marked as Replied ✉️')
+                            ->success()
+                            ->send();
+                    }),
+                Action::make('mark_read')
+                    ->label('Read 👁️')
+                    ->icon('heroicon-o-eye')
+                    ->color('info')
+                    ->visible(fn(ContactMessage $record) => $record->status === 'unread')
+                    ->action(function (ContactMessage $record) {
+                        $record->update(['status' => 'read']);
+                        Notification::make()
+                            ->title('Contact Message Marked as Read')
+                            ->info()
+                            ->send();
+                    }),
+                EditAction::make()->label('View/Edit'),
             ]);
     }
 

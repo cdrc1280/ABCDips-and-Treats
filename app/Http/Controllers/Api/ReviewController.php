@@ -12,7 +12,8 @@ class ReviewController extends Controller
 {
     public function __construct(
         private readonly ReviewService $reviewService
-    ) {}
+    ) {
+    }
 
     public function index(int $productId): JsonResponse
     {
@@ -31,22 +32,22 @@ class ReviewController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'product_id'     => ['nullable', 'exists:products,id'],
-            'rating'         => ['required', 'integer', 'min:1', 'max:5'],
-            'title'          => ['nullable', 'string', 'max:255'],
-            'comment'        => ['required', 'string', 'min:10'],
-            'is_anonymous'   => ['nullable', 'boolean'],
-            'reviewer_name'  => ['nullable', 'string', 'max:255'],
+            'product_id' => ['nullable', 'exists:products,id'],
+            'rating' => ['required', 'integer', 'min:1', 'max:5'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'comment' => ['required', 'string', 'min:10'],
+            'is_anonymous' => ['nullable', 'boolean'],
+            'reviewer_name' => ['nullable', 'string', 'max:255'],
             'reviewer_email' => ['nullable', 'email', 'max:255'],
-            'photos'         => ['nullable', 'array'],
-            'photos.*'       => ['image', 'max:2048'],
+            'photos' => ['nullable', 'array'],
+            'photos.*' => ['file', 'image', 'mimes:jpeg,jpg,png,webp,gif', 'max:5120'],
         ]);
 
         $review = $this->reviewService->createReview($validated, $request->user('sanctum'));
 
         return response()->json([
             'message' => 'Thank you for your review! It has been posted.',
-            'data'    => new ReviewResource($review->load('media')),
+            'data' => new ReviewResource($review->load('media')),
         ], 201);
     }
 
@@ -54,7 +55,7 @@ class ReviewController extends Controller
     {
         $voted = $this->reviewService->voteHelpful($id, $request->ip(), $request->user('sanctum'));
 
-        if (! $voted) {
+        if (!$voted) {
             return response()->json(['message' => 'You have already voted on this review.'], 422);
         }
 

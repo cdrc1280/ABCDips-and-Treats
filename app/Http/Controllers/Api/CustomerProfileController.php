@@ -58,7 +58,7 @@ class CustomerProfileController extends Controller
     public function updateAvatar(Request $request): JsonResponse
     {
         $request->validate([
-            'avatar' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
+            'avatar' => ['required', 'file', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
         ]);
 
         $user = $this->customerService->updateAvatar($request->user(), $request->file('avatar'));

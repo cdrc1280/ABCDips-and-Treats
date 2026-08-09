@@ -55,15 +55,70 @@
 
                 <!-- Left Column: Main Image Showcase + Thumbnails -->
                 <div class="md:col-span-5 space-y-4">
-                  <!-- Main Image -->
-                  <div class="aspect-square rounded-2xl overflow-hidden bg-surface/50 border border-brand-caramel/20 relative">
-                    <img
-                      :src="activeImage || modalStore.product.primary_image_url || '/images/placeholder-bakery.png'"
-                      :alt="modalStore.product.name"
-                      class="w-full h-full object-cover object-center transition-all duration-300"
-                    />
+                  <!-- Swipeable Main Image Carousel -->
+                  <div
+                    class="relative aspect-square rounded-2xl overflow-hidden bg-surface/50 border border-brand-caramel/20 select-none"
+                    @touchstart="onTouchStart"
+                    @touchmove="onTouchMove"
+                    @touchend="onTouchEnd"
+                  >
+                    <!-- Image Slides -->
+                    <div
+                      class="flex h-full transition-transform duration-300 ease-out"
+                      :style="{ transform: `translateX(-${allImages.length ? (activeIndex * 100) / allImages.length : 0}%)`, width: `${allImages.length * 100}%` }"
+                    >
+                      <div
+                        v-for="(img, idx) in allImages"
+                        :key="idx"
+                        class="h-full shrink-0"
+                        :style="{ width: `${100 / allImages.length}%` }"
+                      >
+                        <img
+                          :src="img"
+                          :alt="`${modalStore.product.name} - Image ${idx + 1}`"
+                          class="w-full h-full object-cover object-center"
+                        />
+                      </div>
+                    </div>
 
-                    <!-- Badges -->
+                    <!-- Left Arrow -->
+                    <button
+                      v-if="allImages.length > 1 && activeIndex > 0"
+                      type="button"
+                      class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all cursor-pointer"
+                      @click="prevImage"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+
+                    <!-- Right Arrow -->
+                    <button
+                      v-if="allImages.length > 1 && activeIndex < allImages.length - 1"
+                      type="button"
+                      class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all cursor-pointer"
+                      @click="nextImage"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" /></svg>
+                    </button>
+
+                    <!-- Dot Indicators -->
+                    <div v-if="allImages.length > 1" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                      <button
+                        v-for="(_, idx) in allImages"
+                        :key="idx"
+                        type="button"
+                        class="rounded-full transition-all cursor-pointer"
+                        :class="activeIndex === idx ? 'w-5 h-2 bg-white' : 'w-2 h-2 bg-white/50 hover:bg-white/80'"
+                        @click="activeIndex = idx"
+                      />
+                    </div>
+
+                    <!-- Main Image Badge (first image only) -->
+                    <div v-if="activeIndex === 0" class="absolute top-3 right-3 z-20 bg-brand-choco/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      Main
+                    </div>
+
+                    <!-- Product Badges -->
                     <div class="absolute top-3 left-3 flex flex-col gap-1.5 items-start z-10">
                       <BaseBadge v-if="modalStore.product.is_best_seller" variant="brand">Best Seller</BaseBadge>
                       <BaseBadge v-else-if="modalStore.product.is_highly_rated" variant="warning">⭐ Highly Rated</BaseBadge>
@@ -73,43 +128,21 @@
                     </div>
                   </div>
 
-                  <!-- Thumbnails Carousel (Only if gallery images exist) -->
-                  <div
-                    v-if="allImages.length > 1"
-                    class="relative flex items-center"
-                  >
+                  <!-- Thumbnail Strip -->
+                  <div v-if="allImages.length > 1" class="flex gap-2 overflow-x-auto no-scrollbar px-1 pb-1">
                     <button
-                      v-if="allImages.length > 4"
+                      v-for="(img, idx) in allImages"
+                      :key="idx"
                       type="button"
-                      class="absolute -left-2 z-10 w-6 h-10 bg-brand-choco/70 hover:bg-brand-choco text-white flex items-center justify-center rounded-r cursor-pointer text-xs"
-                      @click="scrollThumbnails('left')"
+                      class="w-16 h-16 rounded-xl border-2 shrink-0 overflow-hidden cursor-pointer transition-all relative"
+                      :class="activeIndex === idx ? 'border-brand-choco scale-95 shadow-md' : 'border-brand-caramel/20 opacity-60 hover:opacity-100'"
+                      @click="activeIndex = idx"
                     >
-                      ‹
-                    </button>
-
-                    <div
-                      ref="thumbContainer"
-                      class="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth w-full px-1"
-                    >
-                      <button
-                        v-for="(img, idx) in allImages"
-                        :key="idx"
-                        type="button"
-                        class="w-16 h-16 rounded-xl border-2 transition-all shrink-0 overflow-hidden cursor-pointer"
-                        :class="activeImage === img ? 'border-brand-choco scale-95' : 'border-brand-caramel/20 opacity-70 hover:opacity-100'"
-                        @click="activeImage = img"
-                      >
-                        <img :src="img" :alt="`Thumb ${idx}`" class="w-full h-full object-cover" />
-                      </button>
-                    </div>
-
-                    <button
-                      v-if="allImages.length > 4"
-                      type="button"
-                      class="absolute -right-2 z-10 w-6 h-10 bg-brand-choco/70 hover:bg-brand-choco text-white flex items-center justify-center rounded-l cursor-pointer text-xs"
-                      @click="scrollThumbnails('right')"
-                    >
-                      ›
+                      <img :src="img" :alt="`Thumb ${idx + 1}`" class="w-full h-full object-cover" />
+                      <!-- Main image indicator badge on thumbnail -->
+                      <div v-if="idx === 0" class="absolute bottom-0.5 left-0.5 bg-brand-choco text-white text-[8px] font-bold px-1 rounded leading-tight">
+                        Main
+                      </div>
                     </button>
                   </div>
 
@@ -152,16 +185,22 @@
                   </div>
 
                   <!-- Price Container -->
-                  <div class="bg-surface p-4 rounded-xl border border-brand-caramel/20 flex flex-wrap items-baseline gap-3">
-                    <span class="text-3xl font-extrabold text-brand-choco">
-                      ₱{{ (modalStore.product.sale_price || modalStore.product.price).toFixed(2) }}
-                    </span>
-                    <span v-if="modalStore.product.is_on_sale" class="text-base text-warm-gray line-through">
-                      ₱{{ modalStore.product.price.toFixed(2) }}
-                    </span>
-                    <BaseBadge v-if="modalStore.product.is_on_sale" variant="error">
-                      Save ₱{{ (modalStore.product.price - modalStore.product.sale_price).toFixed(2) }}
-                    </BaseBadge>
+                  <div class="bg-surface p-4 rounded-xl border border-brand-caramel/20 dark:border-[#C08E5D]/20 flex flex-wrap items-baseline gap-3">
+                    <template v-if="hasPrice">
+                      <span class="text-3xl font-extrabold text-brand-choco dark:text-[#E2C08A]">
+                        ₱{{ effectivePrice.toFixed(2) }}
+                      </span>
+                      <span v-if="modalStore.product.is_on_sale && !selectedVariation" class="text-base text-warm-gray line-through">
+                        ₱{{ modalStore.product.price.toFixed(2) }}
+                      </span>
+                      <BaseBadge v-if="modalStore.product.is_on_sale && !selectedVariation" variant="error">
+                        Save ₱{{ (modalStore.product.price - modalStore.product.sale_price).toFixed(2) }}
+                      </BaseBadge>
+                    </template>
+                    <template v-else>
+                      <span class="text-lg font-semibold text-warm-gray dark:text-[#C5B4A4] italic">Price on Request</span>
+                      <span class="text-xs text-warm-gray dark:text-[#A89686]">Contact us for pricing</span>
+                    </template>
                   </div>
 
                   <p class="text-xs sm:text-sm text-warm-gray leading-relaxed">
@@ -204,6 +243,30 @@
                       >
                         ⚠️ {{ alg.name }} ({{ alg.type }})
                       </span>
+                    </div>
+                  </div>
+
+                  <!-- Variation Selector (if product has variations) -->
+                  <div v-if="modalStore.product.variation_type && modalStore.product.variation_type !== 'none' && modalStore.product.variations && modalStore.product.variations.length > 0" class="space-y-2">
+                    <span class="block text-xs font-bold uppercase tracking-wider text-brand-choco dark:text-[#E2C08A]">
+                      {{ variationLabel }}
+                    </span>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        v-for="(v, idx) in modalStore.product.variations"
+                        :key="idx"
+                        type="button"
+                        class="px-3.5 py-1.5 rounded-xl border-2 text-xs font-bold transition-all cursor-pointer"
+                        :class="selectedVariationIdx === idx
+                          ? 'border-brand-choco bg-brand-choco text-white dark:border-[#E2C08A] dark:bg-[#E2C08A] dark:text-[#1C1410]'
+                          : 'border-brand-caramel/30 dark:border-[#C08E5D]/30 text-brand-choco dark:text-[#E2C08A] hover:border-brand-choco dark:hover:border-[#E2C08A]'"
+                        @click="selectedVariationIdx = idx"
+                      >
+                        {{ v.label }}
+                        <span v-if="v.price_modifier && v.price_modifier !== 0" class="ml-1 font-normal opacity-80">
+                          {{ v.price_modifier > 0 ? '+' : '' }}₱{{ Number(v.price_modifier).toFixed(2) }}
+                        </span>
+                      </button>
                     </div>
                   </div>
 
@@ -251,7 +314,7 @@
                         :disabled="adding || !modalStore.product.is_in_stock"
                         @click="handleBuyNow"
                       >
-                        Buy Now &bull; ₱{{ ((modalStore.product.sale_price || modalStore.product.price) * quantity).toFixed(2) }}
+                        Buy Now<template v-if="hasPrice"> • ₱{{ (effectivePrice * quantity).toFixed(2) }}</template>
                       </button>
                     </div>
                   </div>
@@ -347,11 +410,15 @@ const wishlistStore = useWishlistStore()
 const toast = useToast()
 const router = useRouter()
 
-const activeImage = ref('')
+const activeIndex = ref(0)
 const activeTab = ref('description')
 const quantity = ref(1)
 const adding = ref(false)
-const thumbContainer = ref(null)
+
+// Touch swipe state
+const touchStartX = ref(0)
+const touchCurrentX = ref(0)
+const selectedVariationIdx = ref(null)
 
 const allImages = computed(() => {
   if (!modalStore.product) return []
@@ -367,24 +434,68 @@ const allImages = computed(() => {
   return list.length > 0 ? list : ['/images/placeholder-bakery.png']
 })
 
+const variationLabel = computed(() => {
+  const type = modalStore.product?.variation_type
+  if (type === 'weight') return 'Select Weight'
+  if (type === 'pieces') return 'Select Quantity (Pieces)'
+  if (type === 'size') return 'Select Size'
+  return 'Select Option'
+})
+
+const selectedVariation = computed(() => {
+  if (selectedVariationIdx.value === null) return null
+  return modalStore.product?.variations?.[selectedVariationIdx.value] ?? null
+})
+
+const effectivePrice = computed(() => {
+  const base = modalStore.product?.sale_price || modalStore.product?.price || 0
+  const mod = selectedVariation.value?.price_modifier ?? 0
+  return parseFloat(base) + parseFloat(mod)
+})
+
+const hasPrice = computed(() => {
+  return modalStore.product?.price && parseFloat(modalStore.product.price) > 0
+})
+
 watch(() => modalStore.product, (newVal) => {
   if (newVal) {
-    activeImage.value = newVal.primary_image_url || '/images/placeholder-bakery.png'
+    activeIndex.value = 0
     quantity.value = 1
     activeTab.value = 'description'
+    selectedVariationIdx.value = null
   }
 }, { immediate: true })
 
-function scrollThumbnails(direction) {
-  if (!thumbContainer.value) return
-  const scrollAmount = direction === 'left' ? -150 : 150
-  thumbContainer.value.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+function prevImage() {
+  if (activeIndex.value > 0) activeIndex.value--
+}
+
+function nextImage() {
+  if (activeIndex.value < allImages.value.length - 1) activeIndex.value++
+}
+
+function onTouchStart(e) {
+  touchStartX.value = e.touches[0].clientX
+  touchCurrentX.value = e.touches[0].clientX
+}
+
+function onTouchMove(e) {
+  touchCurrentX.value = e.touches[0].clientX
+}
+
+function onTouchEnd() {
+  const diff = touchStartX.value - touchCurrentX.value
+  if (Math.abs(diff) > 40) {
+    if (diff > 0) nextImage()
+    else prevImage()
+  }
 }
 
 async function handleAddToCart() {
   if (!modalStore.product) return
   adding.value = true
-  const res = await cartStore.addItem(modalStore.product.id, quantity.value)
+  const options = selectedVariation.value ? { variation: selectedVariation.value.label } : {}
+  const res = await cartStore.addItem(modalStore.product.id, quantity.value, options)
   adding.value = false
 
   if (res.success) {
@@ -396,7 +507,8 @@ async function handleAddToCart() {
 async function handleBuyNow() {
   if (!modalStore.product) return
   adding.value = true
-  const res = await cartStore.addItem(modalStore.product.id, quantity.value)
+  const options = selectedVariation.value ? { variation: selectedVariation.value.label } : {}
+  const res = await cartStore.addItem(modalStore.product.id, quantity.value, options)
   adding.value = false
 
   if (res.success) {

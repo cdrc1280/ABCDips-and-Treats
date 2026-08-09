@@ -6,7 +6,9 @@ use App\Filament\Resources\CustomOrderResource\Pages\CreateCustomOrder;
 use App\Filament\Resources\CustomOrderResource\Pages\EditCustomOrder;
 use App\Filament\Resources\CustomOrderResource\Pages\ListCustomOrders;
 use App\Models\CustomOrder;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -53,10 +55,14 @@ class CustomOrderResource extends Resource
                     ->columnSpanFull()
                     ->components([
                         FileUpload::make('reference_photos')
+                            ->label('Reference Photos')
+                            ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+                            ->maxSize(5120)
+                            ->multiple()
                             ->disk('public')
                             ->directory('custom_orders')
-                            ->multiple()
-                            ->image(),
+                            ->visibility('public'),
                     ]),
 
                 Section::make('Quote & Pipeline Status')
@@ -140,6 +146,30 @@ class CustomOrderResource extends Resource
                     ]),
             ])
             ->actions([
+                Action::make('mark_production')
+                    ->label('Production 👨‍🍳')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->visible(fn(CustomOrder $record) => in_array($record->status, [CustomOrder::STATUS_INQUIRY, CustomOrder::STATUS_QUOTED, CustomOrder::STATUS_DEPOSIT_PAID]))
+                    ->action(function (CustomOrder $record) {
+                        $record->update(['status' => CustomOrder::STATUS_IN_PRODUCTION]);
+                        Notification::make()
+                            ->title('Custom Order Moved to Production 👨‍🍳')
+                            ->warning()
+                            ->send();
+                    }),
+                Action::make('mark_completed')
+                    ->label('Completed ✅')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn(CustomOrder $record) => $record->status !== CustomOrder::STATUS_COMPLETED)
+                    ->action(function (CustomOrder $record) {
+                        $record->update(['status' => CustomOrder::STATUS_COMPLETED]);
+                        Notification::make()
+                            ->title('Custom Order Marked as Completed ✅')
+                            ->success()
+                            ->send();
+                    }),
                 EditAction::make(),
             ]);
     }

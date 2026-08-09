@@ -5,8 +5,10 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\SuggestionResource\Pages\EditSuggestion;
 use App\Filament\Resources\SuggestionResource\Pages\ListSuggestions;
 use App\Models\Suggestion;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -89,6 +91,30 @@ class SuggestionResource extends Resource
                     ]),
             ])
             ->actions([
+                Action::make('mark_implemented')
+                    ->label('Implemented 🎉')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn(Suggestion $record) => $record->status !== 'implemented')
+                    ->action(function (Suggestion $record) {
+                        $record->update(['status' => 'implemented']);
+                        Notification::make()
+                            ->title('Suggestion Marked as Implemented 🎉')
+                            ->success()
+                            ->send();
+                    }),
+                Action::make('mark_reviewing')
+                    ->label('Reviewing 🔍')
+                    ->icon('heroicon-o-clock')
+                    ->color('warning')
+                    ->visible(fn(Suggestion $record) => $record->status === 'new')
+                    ->action(function (Suggestion $record) {
+                        $record->update(['status' => 'reviewing']);
+                        Notification::make()
+                            ->title('Suggestion Moved to Reviewing')
+                            ->warning()
+                            ->send();
+                    }),
                 ViewAction::make(),
                 EditAction::make(),
             ]);

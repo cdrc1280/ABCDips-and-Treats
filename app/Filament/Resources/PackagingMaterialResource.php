@@ -6,7 +6,9 @@ use App\Filament\Resources\PackagingMaterialResource\Pages\CreatePackagingMateri
 use App\Filament\Resources\PackagingMaterialResource\Pages\EditPackagingMaterial;
 use App\Filament\Resources\PackagingMaterialResource\Pages\ListPackagingMaterials;
 use App\Models\PackagingMaterial;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -73,7 +75,26 @@ class PackagingMaterialResource extends Resource
                     ->options(['box' => 'Box', 'bag' => 'Bag', 'board' => 'Board', 'container' => 'Container', 'ribbon' => 'Ribbon', 'label' => 'Label', 'sticker' => 'Sticker', 'tape' => 'Tape', 'wrap' => 'Wrap', 'other' => 'Other']),
             ])
             ->actions([
-                EditAction::make()
+                Action::make('quick_restock')
+                    ->label('Restock 📦')
+                    ->icon('heroicon-o-plus-circle')
+                    ->color('success')
+                    ->form([
+                        TextInput::make('add_qty')
+                            ->label('Add Stock Quantity')
+                            ->integer()
+                            ->minValue(1)
+                            ->required()
+                            ->suffix(fn(PackagingMaterial $record) => $record->unit),
+                    ])
+                    ->action(function (PackagingMaterial $record, array $data) {
+                        $record->increment('stock_qty', $data['add_qty']);
+                        Notification::make()
+                            ->title("Added {$data['add_qty']} {$record->unit} to {$record->name} stock! 📦")
+                            ->success()
+                            ->send();
+                    }),
+                EditAction::make(),
             ]);
     }
 

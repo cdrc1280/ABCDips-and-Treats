@@ -11,28 +11,32 @@ use App\Models\Payroll;
 use App\Models\Product;
 use App\Models\ProductionBatch;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ReportExportService
 {
     /**
      * Get report dataset, headings, title, and summary totals for any of the 6 report types.
      */
-    public function getReportData(string $type): array
+    public function getReportData(string $type, ?\Carbon\Carbon $startDate = null, ?\Carbon\Carbon $endDate = null): array
     {
         return match ($type) {
-            'sales'      => $this->getSalesReportData(),
-            'products'   => $this->getProductPerformanceReportData(),
+            'sales'      => $this->getSalesReportData($startDate, $endDate),
+            'products'   => $this->getProductPerformanceReportData($startDate, $endDate),
             'inventory'  => $this->getInventoryReportData(),
-            'production' => $this->getProductionReportData(),
-            'payroll'    => $this->getPayrollReportData(),
-            'coupons'    => $this->getCouponReportData(),
-            default      => $this->getSalesReportData(),
+            'production' => $this->getProductionReportData($startDate, $endDate),
+            'payroll'    => $this->getPayrollReportData($startDate, $endDate),
+            'coupons'    => $this->getCouponReportData($startDate, $endDate),
+            default      => $this->getSalesReportData($startDate, $endDate),
         };
     }
 
-    private function getSalesReportData(): array
+    private function getSalesReportData(?\Carbon\Carbon $startDate = null, ?\Carbon\Carbon $endDate = null): array
     {
-        $orders = Order::orderBy('created_at', 'desc')->get();
+        $query = Order::orderBy('created_at', 'desc');
+        if ($startDate) $query->where('created_at', '>=', $startDate);
+        if ($endDate) $query->where('created_at', '<=', $endDate);
+        $orders = $query->get();
 
         $rows = [];
         $totalRevenue = 0;
@@ -72,7 +76,7 @@ class ReportExportService
         ];
     }
 
-    private function getProductPerformanceReportData(): array
+    private function getProductPerformanceReportData(?\Carbon\Carbon $startDate = null, ?\Carbon\Carbon $endDate = null): array
     {
         $products = Product::with('category')->get();
 
@@ -81,8 +85,14 @@ class ReportExportService
         $totalRevenue = 0;
 
         foreach ($products as $product) {
-            $unitsSold = (int) OrderItem::where('product_id', $product->id)->sum('qty');
-            $revenue   = (float) OrderItem::where('product_id', $product->id)->sum('subtotal');
+            $unitsSold = (int) OrderItem::where('product_id', $product->id)
+                ->when($startDate, fn($q) => $q->where('created_at', '>=', $startDate))
+                ->when($endDate, fn($q) => $q->where('created_at', '<=', $endDate))
+                ->sum('qty');
+            $revenue = (float) OrderItem::where('product_id', $product->id)
+                ->when($startDate, fn($q) => $q->where('created_at', '>=', $startDate))
+                ->when($endDate, fn($q) => $q->where('created_at', '<=', $endDate))
+                ->sum('subtotal');
 
             $totalUnitsSold += $unitsSold;
             $totalRevenue   += $revenue;
@@ -174,9 +184,12 @@ class ReportExportService
         ];
     }
 
-    private function getProductionReportData(): array
+    private function getProductionReportData(?\Carbon\Carbon $startDate = null, ?\Carbon\Carbon $endDate = null): array
     {
-        $batches = ProductionBatch::with(['recipe', 'product', 'baker'])->orderBy('created_at', 'desc')->get();
+        $query = ProductionBatch::with(['recipe', 'product', 'baker'])->orderBy('created_at', 'desc');
+        if ($startDate) $query->where('created_at', '>=', $startDate);
+        if ($endDate) $query->where('created_at', '<=', $endDate);
+        $batches = $query->get();
 
         $rows = [];
         $totalPlanned = 0;
@@ -211,9 +224,12 @@ class ReportExportService
         ];
     }
 
-    private function getPayrollReportData(): array
+    private function getPayrollReportData(?\Carbon\Carbon $startDate = null, ?\Carbon\Carbon $endDate = null): array
     {
-        $payrolls = Payroll::with('items.employee')->orderBy('created_at', 'desc')->get();
+        $query = Payroll::with('items.employee')->orderBy('created_at', 'desc');
+        if ($startDate) $query->where('created_at', '>=', $startDate);
+        if ($endDate) $query->where('created_at', '<=', $endDate);
+        $payrolls = $query->get();
 
         $rows = [];
         $totalNetPay = 0;
@@ -261,9 +277,12 @@ class ReportExportService
         ];
     }
 
-    private function getCouponReportData(): array
+    private function getCouponReportData(?\Carbon\Carbon $startDate = null, ?\Carbon\Carbon $endDate = null): array
     {
-        $coupons = Coupon::orderBy('created_at', 'desc')->get();
+        $query = Coupon::orderBy('created_at', 'desc');
+        if ($startDate) $query->where('created_at', '>=', $startDate);
+        if ($endDate) $query->where('created_at', '<=', $endDate);
+        $coupons = $query->get();
 
         $rows = [];
         $totalUses = 0;

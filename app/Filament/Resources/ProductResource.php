@@ -10,14 +10,17 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -73,19 +76,68 @@ class ProductResource extends Resource
                         FileUpload::make('image_path')
                             ->label('Primary Image')
                             ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+                            ->maxSize(5120)
+                            ->imageEditor()
                             ->disk('public')
                             ->directory('products')
-                            ->maxSize(5120),
+                            ->visibility('public'),
 
                         FileUpload::make('gallery')
-                            ->label('Gallery Images')
+                            ->label('Gallery Images (Multiple Display Images)')
                             ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+                            ->maxSize(5120)
                             ->multiple()
                             ->reorderable()
+                            ->appendFiles()
+                            ->panelLayout('grid')
+                            ->openable()
+                            ->downloadable()
+                            ->imageEditor()
                             ->disk('public')
                             ->directory('products/gallery')
-                            ->maxSize(5120),
+                            ->visibility('public'),
                     ])->columns(2),
+
+                Section::make('Product Variations')
+                    ->columnSpanFull()
+                    ->description('Set up size, weight, or pieces options customers can choose from in the cart.')
+                    ->components([
+                        Select::make('variation_type')
+                            ->label('Variation Type')
+                            ->options([
+                                'none'   => 'No Variations',
+                                'weight' => 'Weight (e.g. 250g, 500g, 1kg)',
+                                'pieces' => 'Pieces (e.g. 6 pcs, 12 pcs, 24 pcs)',
+                                'size'   => 'Size (e.g. Small, Medium, Large)',
+                            ])
+                            ->default('none')
+                            ->live()
+                            ->required(),
+
+                        Repeater::make('variations')
+                            ->label('Variation Options')
+                            ->schema([
+                                TextInput::make('label')
+                                    ->label('Option Label (e.g. 250g, 6 pcs, Small)')
+                                    ->required()
+                                    ->maxLength(100),
+                                TextInput::make('price_modifier')
+                                    ->label('Price Adjustment (₱)')
+                                    ->helperText('Use positive or negative value. 0 = same price.')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->step('0.01')
+                                    ->prefix('₱')
+                                    ->extraInputAttributes(['inputmode' => 'decimal']),
+                            ])
+                            ->columns(2)
+                            ->addActionLabel('Add Option')
+                            ->reorderable()
+                            ->collapsible()
+                            ->hidden(fn(callable $get) => $get('variation_type') === 'none' || !$get('variation_type')),
+                    ])->columns(1),
 
                 Section::make('Pricing & Inventory')
                     ->columnSpanFull()
@@ -268,6 +320,28 @@ class ProductResource extends Resource
             ])
             ->actions([
                 ActionGroup::make([
+                    Action::make('toggle_featured')
+                        ->label(fn(Product $record) => $record->is_featured ? 'Unfeature' : 'Feature on Homepage ⭐')
+                        ->icon('heroicon-o-star')
+                        ->color('warning')
+                        ->action(function (Product $record) {
+                            $record->update(['is_featured' => !$record->is_featured]);
+                            Notification::make()
+                                ->title($record->is_featured ? 'Product Featured on Homepage ⭐' : 'Product Removed from Featured')
+                                ->success()
+                                ->send();
+                        }),
+                    Action::make('toggle_active')
+                        ->label(fn(Product $record) => $record->is_active ? 'Deactivate' : 'Activate Product')
+                        ->icon('heroicon-o-power')
+                        ->color(fn(Product $record) => $record->is_active ? 'danger' : 'success')
+                        ->action(function (Product $record) {
+                            $record->update(['is_active' => !$record->is_active]);
+                            Notification::make()
+                                ->title($record->is_active ? 'Product Activated for Sale 🟢' : 'Product Deactivated 🔴')
+                                ->info()
+                                ->send();
+                        }),
                     Action::make('costing')
                         ->label('Costing')
                         ->icon('heroicon-o-calculator')

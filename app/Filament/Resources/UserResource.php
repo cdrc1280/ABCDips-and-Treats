@@ -61,10 +61,14 @@ class UserResource extends Resource
                     ->required(),
 
                 FileUpload::make('avatar')
+                    ->label('Profile Avatar')
                     ->avatar()
+                    ->image()
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                    ->maxSize(2048)
                     ->disk('public')
                     ->directory('avatars')
-                    ->image()
+                    ->visibility('public')
                     ->columnSpanFull(),
 
                 TextInput::make('phone')

@@ -244,14 +244,14 @@ const homeContent = ref({
     hero_card_badge: 'Signature Treat',
     hero_card_title: 'Classic Banana Bread',
     hero_card_subtitle: 'Starts at ₱280.00',
-    hero_card_image: '/images/blog-banana-bread.jpg',
+    hero_card_image: null,
 
     spotlight_tagline: 'weekly special spotlight',
     spotlight_title: 'Signature Ube Cheesecake',
     spotlight_description: 'Real Philippine Ube Halaya folded into silky baked cream cheese set over a coconut Graham crust. Baked fresh in limited batches.',
     spotlight_btn_text: 'Order Spotlight Treat — ₱680.00',
     spotlight_btn_url: '/products/signature-ube-cheesecake-6-inch',
-    spotlight_image: '/images/blog-custom-cake.jpg',
+    spotlight_image: null,
 })
 
 async function fetchHomeContent() {

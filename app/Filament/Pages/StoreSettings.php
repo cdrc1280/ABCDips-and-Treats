@@ -68,7 +68,7 @@ class StoreSettings extends Page implements HasForms
             'about_hero_tagline' => Setting::get('about_hero_tagline', 'our story'),
             'about_hero_title' => Setting::get('about_hero_title', "Baked with Heart,\nserved with love"),
             'about_hero_subtitle' => Setting::get('about_hero_subtitle', 'ABCDips & Treats began as a small home bakery with a simple dream: to share the joy of freshly baked, handcrafted pastries with every Filipino household.'),
-            
+
             'about_timeline_tagline' => Setting::get('about_timeline_tagline', 'the journey'),
             'about_timeline_title' => Setting::get('about_timeline_title', 'The ABCDips Story'),
             'about_timeline' => Setting::getJson('about_timeline', $defaultTimeline),
@@ -96,14 +96,14 @@ class StoreSettings extends Page implements HasForms
             'home_hero_card_badge' => Setting::get('home_hero_card_badge', 'Signature Treat'),
             'home_hero_card_title' => Setting::get('home_hero_card_title', 'Classic Banana Bread'),
             'home_hero_card_subtitle' => Setting::get('home_hero_card_subtitle', 'Starts at ₱280.00'),
-            'home_hero_card_image' => Setting::get('home_hero_card_image', '/images/blog-banana-bread.jpg'),
+            'home_hero_card_image' => Setting::get('home_hero_card_image'),
 
             'home_spotlight_tagline' => Setting::get('home_spotlight_tagline', 'weekly special spotlight'),
             'home_spotlight_title' => Setting::get('home_spotlight_title', 'Signature Ube Cheesecake'),
             'home_spotlight_description' => Setting::get('home_spotlight_description', 'Real Philippine Ube Halaya folded into silky baked cream cheese set over a coconut Graham crust. Baked fresh in limited batches.'),
             'home_spotlight_btn_text' => Setting::get('home_spotlight_btn_text', 'Order Spotlight Treat — ₱680.00'),
             'home_spotlight_btn_url' => Setting::get('home_spotlight_btn_url', '/products/signature-ube-cheesecake-6-inch'),
-            'home_spotlight_image' => Setting::get('home_spotlight_image', '/images/blog-custom-cake.jpg'),
+            'home_spotlight_image' => Setting::get('home_spotlight_image'),
         ]);
     }
 
@@ -212,9 +212,12 @@ class StoreSettings extends Page implements HasForms
 
                         FileUpload::make('home_hero_card_image')
                             ->label('Showcase Card Product Image')
+                            ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+                            ->maxSize(5120)
                             ->disk('public')
                             ->directory('settings')
-                            ->image()
+                            ->visibility('public')
                             ->imageEditor()
                             ->columnSpanFull(),
                     ]),
@@ -251,9 +254,12 @@ class StoreSettings extends Page implements HasForms
 
                         FileUpload::make('home_spotlight_image')
                             ->label('Spotlight Product Image')
+                            ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+                            ->maxSize(5120)
                             ->disk('public')
                             ->directory('settings')
-                            ->image()
+                            ->visibility('public')
                             ->imageEditor()
                             ->columnSpanFull(),
                     ]),

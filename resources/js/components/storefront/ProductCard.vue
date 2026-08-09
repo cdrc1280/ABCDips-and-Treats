@@ -44,7 +44,7 @@
           v-tooltip="'View options & add to basket'"
           @click.stop.prevent="openModal"
         >
-          View &amp; Add • ₱{{ (product.is_on_sale && !isExpired ? product.sale_price : product.price).toFixed(2) }}
+          View &amp; Add<template v-if="hasPrice"> • ₱{{ (product.is_on_sale && !isExpired ? product.sale_price : product.price).toFixed(2) }}</template>
         </BaseButton>
       </div>
     </div>
@@ -83,12 +83,17 @@
       <div class="pt-2.5 sm:pt-3 border-t border-brand-caramel/10 dark:border-[#C08E5D]/20 flex flex-col gap-1.5 sm:gap-2">
         <div class="flex items-center justify-between">
           <div class="flex items-baseline gap-1.5 sm:gap-2">
-            <span class="font-extrabold text-brand-choco dark:text-[#E2C08A] text-base sm:text-lg">
-              ₱{{ (product.is_on_sale && !isExpired ? product.sale_price : product.price).toFixed(2) }}
-            </span>
-            <span v-if="product.is_on_sale && !isExpired" class="text-xs text-warm-gray dark:text-[#A89686] line-through">
-              ₱{{ product.price.toFixed(2) }}
-            </span>
+            <template v-if="hasPrice">
+              <span class="font-extrabold text-brand-choco dark:text-[#E2C08A] text-base sm:text-lg">
+                ₱{{ (product.is_on_sale && !isExpired ? product.sale_price : product.price).toFixed(2) }}
+              </span>
+              <span v-if="product.is_on_sale && !isExpired" class="text-xs text-warm-gray dark:text-[#A89686] line-through">
+                ₱{{ product.price.toFixed(2) }}
+              </span>
+            </template>
+            <template v-else>
+              <span class="text-sm font-semibold text-warm-gray dark:text-[#C5B4A4] italic">Price on Request</span>
+            </template>
           </div>
 
           <div
@@ -125,6 +130,10 @@ const props = defineProps({
 const wishlistStore = useWishlistStore()
 const productModalStore = useProductModalStore()
 const { days, hours, minutes, seconds, isExpired, isNearExpiry } = useSaleCountdown(computed(() => props.product.sale_ends_at))
+
+const hasPrice = computed(() => {
+  return props.product.price && parseFloat(props.product.price) > 0
+})
 
 function openModal() {
   productModalStore.openModal(props.product)
