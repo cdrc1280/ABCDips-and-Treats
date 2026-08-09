@@ -14,7 +14,6 @@ export const useProductModalStore = defineStore('productModal', () => {
 
     if (typeof productOrSlug === 'object') {
       product.value = productOrSlug
-      // Fetch fresh complete details (gallery, reviews, allergens) if slug is available
       if (productOrSlug.slug) {
         fetchProductDetails(productOrSlug.slug)
       }

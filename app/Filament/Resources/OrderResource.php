@@ -119,7 +119,22 @@ class OrderResource extends Resource
 
                 TextColumn::make('payment_method')
                     ->badge()
-                    ->formatStateUsing(fn($state) => strtoupper($state)),
+                    ->formatStateUsing(fn($state) => match(strtolower($state ?? '')) {
+                        'qrph'          => 'QR PH',
+                        'gcash'         => 'GCASH',
+                        'maya'          => 'MAYA',
+                        'bank_transfer' => 'BDO BANK',
+                        'cod'           => 'COD',
+                        default         => strtoupper($state ?? ''),
+                    })
+                    ->color(fn($state) => match(strtolower($state ?? '')) {
+                        'qrph'          => 'info',
+                        'gcash'         => 'primary',
+                        'maya'          => 'success',
+                        'bank_transfer' => 'warning',
+                        'cod'           => 'gray',
+                        default         => 'gray',
+                    }),
 
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -137,6 +152,15 @@ class OrderResource extends Resource
                         Order::STATUS_READY_FOR_PICKUP => 'Ready for Pickup',
                         Order::STATUS_COMPLETED => 'Completed',
                         Order::STATUS_CANCELLED => 'Cancelled',
+                    ]),
+
+                SelectFilter::make('payment_method')
+                    ->options([
+                        'gcash'         => 'GCash E-Wallet',
+                        'maya'          => 'Maya Wallet / Card',
+                        'qrph'          => 'QR Ph (Any Bank)',
+                        'bank_transfer' => 'BDO Bank Transfer',
+                        'cod'           => 'Cash on Delivery (COD)',
                     ]),
 
                 SelectFilter::make('fulfillment_type')

@@ -283,7 +283,7 @@
             </label>
 
             <!-- QR Ph (Any Bank via PayMongo) -->
-            <label v-tooltip="'Pay via QR Ph - scan with any Philippine bank app'"
+            <label v-if="storeInfo.enable_qrph !== false" v-tooltip="'Pay via QR Ph - scan with any Philippine bank app'"
               class="border-2 rounded-2xl p-4 cursor-pointer flex items-center gap-3 transition-all"
               :class="form.payment_method === 'qrph' ? 'border-brand-choco bg-surface dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
               <input type="radio" v-model="form.payment_method" value="qrph" class="sr-only" />
@@ -332,6 +332,10 @@
                   <div class="font-bold text-ink dark:text-[#FBF3E7] truncate">{{ item.options?.is_custom ? item.options.custom_title
                     :
                     item.name }}</div>
+
+                  <div v-if="item.options?.variation" class="text-[11px] font-semibold text-brand-caramel dark:text-[#E2C08A] truncate">
+                    Option: {{ item.options.variation }}
+                  </div>
 
                   <div class="flex items-center gap-2 mt-1">
                     <div class="flex items-center border border-brand-caramel/30 rounded-lg overflow-hidden bg-surface">

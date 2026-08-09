@@ -58,6 +58,11 @@
                   {{ item.options?.is_custom ? item.options.custom_title : item.name }}
                 </h3>
 
+                <!-- Variation Option Badge -->
+                <div v-if="item.options?.variation" class="text-xs font-semibold text-brand-caramel dark:text-[#E2C08A] mt-0.5">
+                  Option: {{ item.options.variation }}
+                </div>
+
                 <!-- Custom Spec Box -->
                 <div v-if="item.options?.is_custom" class="mt-1 bg-surface p-3 rounded-xl text-xs text-brand-choco border border-brand-caramel/20 space-y-1">
                   <div class="font-extrabold text-brand-choco">🎂 Custom Cake Configuration:</div>

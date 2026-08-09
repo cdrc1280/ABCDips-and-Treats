@@ -164,6 +164,7 @@ class PaymentController extends Controller
             'bank_account_number' => Setting::get('bank_account_number', ''),
             'bank_instructions' => Setting::get('bank_instructions', ''),
             'paymongo_public_key' => Setting::get('paymongo_public_key', ''),
+            'enable_qrph' => Setting::get('enable_qrph', '1') === '1',
         ]);
     }
 }

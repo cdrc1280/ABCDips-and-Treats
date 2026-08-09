@@ -110,9 +110,13 @@ router.beforeEach(async (to) => {
   document.title = to.meta.title || 'ABCDips & Treats'
   const authStore = useAuthStore()
 
-  // Restore authenticated session from cookies before checking route guards
+  // Restore authenticated session from token/API before checking route guards
   if (!authStore.initialized) {
-    await authStore.fetchUser()
+    try {
+      await authStore.fetchUser()
+    } catch (err) {
+      console.error('Error during router auth initialization:', err)
+    }
   }
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {

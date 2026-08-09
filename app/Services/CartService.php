@@ -56,19 +56,23 @@ class CartService
     {
         $product = Product::findOrFail($productId);
 
-        // Respect custom bake price set in options if present
+        // Respect custom unit_price or variation price_modifier set in options
         $unitPrice = (isset($options['unit_price']) && (float) $options['unit_price'] > 0)
             ? (float) $options['unit_price']
-            : $product->effective_price;
-
-        $isCustom = !empty($options['is_custom']);
+            : ((isset($options['price_modifier']) && is_numeric($options['price_modifier']))
+                ? $product->effective_price + (float) $options['price_modifier']
+                : $product->effective_price);
 
         $query = CartItem::where('cart_id', $cart->id)
             ->where('product_id', $productId)
             ->whereNull('deleted_at');
 
-        if ($isCustom) {
-            $query->where('options', json_encode($options));
+        if (!empty($options['variation'])) {
+            $query->where('options->variation', $options['variation']);
+        } elseif (!empty($options['is_custom'])) {
+            $query->where('options->is_custom', true);
+        } else {
+            $query->whereNull('options');
         }
 
         $existingItem = $query->first();

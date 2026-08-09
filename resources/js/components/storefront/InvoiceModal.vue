@@ -94,8 +94,10 @@
                                             class="hover:bg-surface/40 text-xs">
                                             <td class="p-2.5 text-center font-mono border-r border-[#E5D5C5]">{{ idx + 1
                                                 }}</td>
-                                            <td class="p-2.5 font-semibold text-ink border-r border-[#E5D5C5]">{{
-                                                item.product_name }}</td>
+                                            <td class="p-2.5 font-semibold text-ink border-r border-[#E5D5C5]">
+                                                {{ item.product_name }}
+                                                <span v-if="item.options?.variation" class="block text-[10px] font-semibold text-brand-choco">Option: {{ item.options.variation }}</span>
+                                            </td>
                                             <td class="p-2.5 text-center font-mono border-r border-[#E5D5C5]">{{
                                                 item.qty }}</td>
                                             <td class="p-2.5 text-right font-mono border-r border-[#E5D5C5]">₱{{

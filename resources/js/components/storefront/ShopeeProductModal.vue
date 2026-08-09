@@ -494,7 +494,11 @@ function onTouchEnd() {
 async function handleAddToCart() {
   if (!modalStore.product) return
   adding.value = true
-  const options = selectedVariation.value ? { variation: selectedVariation.value.label } : {}
+  const options = selectedVariation.value ? {
+    variation: selectedVariation.value.label,
+    price_modifier: parseFloat(selectedVariation.value.price_modifier || 0),
+    unit_price: parseFloat(effectivePrice.value)
+  } : {}
   const res = await cartStore.addItem(modalStore.product.id, quantity.value, options)
   adding.value = false
 
@@ -507,7 +511,11 @@ async function handleAddToCart() {
 async function handleBuyNow() {
   if (!modalStore.product) return
   adding.value = true
-  const options = selectedVariation.value ? { variation: selectedVariation.value.label } : {}
+  const options = selectedVariation.value ? {
+    variation: selectedVariation.value.label,
+    price_modifier: parseFloat(selectedVariation.value.price_modifier || 0),
+    unit_price: parseFloat(effectivePrice.value)
+  } : {}
   const res = await cartStore.addItem(modalStore.product.id, quantity.value, options)
   adding.value = false
 

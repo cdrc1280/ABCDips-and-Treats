@@ -371,8 +371,8 @@ class StoreSettings extends Page implements HasForms
                             ->default(true),
                     ]),
 
-                Section::make('PayMongo (GCash & Maya)')
-                    ->description('Powers GCash & Maya checkout. Get test keys at dashboard.paymongo.com → API Keys.')
+                Section::make('PayMongo Payment Gateway (GCash, Maya & QR Ph)')
+                    ->description('Powers GCash, Maya & QR Ph checkout. Get test keys at dashboard.paymongo.com → API Keys.')
                     ->columns(2)
                     ->components([
                         TextInput::make('paymongo_public_key')
@@ -387,8 +387,12 @@ class StoreSettings extends Page implements HasForms
                         Toggle::make('paymongo_sandbox')
                             ->label('Sandbox Mode')
                             ->helperText(app()->environment(['local', 'testing']) ? 'Use PayMongo test environment (Test GCash number: 09123456789, OTP: 123456)' : null)
-                            ->default(true)
-                            ->columnSpanFull(),
+                            ->default(true),
+
+                        Toggle::make('enable_qrph')
+                            ->label('Enable QR Ph Payment Option')
+                            ->helperText('Allow customers to pay via QR Ph (scan using any Philippine bank or e-wallet app at checkout).')
+                            ->default(true),
                     ]),
 
                 Section::make('BDO Payment Details')

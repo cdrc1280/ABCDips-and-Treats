@@ -73,6 +73,9 @@
           <div v-for="item in order.items" :key="item.id" class="py-3 flex justify-between items-center text-sm">
             <div>
               <div class="font-bold text-ink">{{ item.product_name }}</div>
+              <div v-if="item.options?.variation" class="text-xs font-semibold text-brand-caramel dark:text-[#E2C08A]">
+                Option: {{ item.options.variation }}
+              </div>
               <div class="text-xs text-warm-gray">Qty: {{ item.qty }} × ₱{{ item.unit_price.toFixed(2) }}</div>
             </div>
             <div class="font-extrabold text-brand-choco">₱{{ item.subtotal.toFixed(2) }}</div>

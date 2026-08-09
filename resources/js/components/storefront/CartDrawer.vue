@@ -49,6 +49,11 @@
                                 {{ item.options?.is_custom ? item.options.custom_title : item.name }}
                             </h4>
 
+                            <!-- Variation Option Badge -->
+                            <div v-if="item.options?.variation" class="text-xs font-semibold text-brand-caramel dark:text-[#E2C08A] mt-0.5">
+                                Option: {{ item.options.variation }}
+                            </div>
+
                             <!-- Custom Cake Spec Pill -->
                             <div v-if="item.options?.is_custom"
                                 class="mt-1 bg-surface p-2.5 rounded-xl text-[11px] text-brand-choco border border-brand-caramel/20 space-y-0.5">

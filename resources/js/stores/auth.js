@@ -26,19 +26,21 @@ export const useAuthStore = defineStore('auth', () => {
       loading.value = true
       const { data } = await axios.get('/api/me')
       user.value = data.data
-      const { useCartStore } = await import('@/stores/cart')
-      const cartStore = useCartStore()
-      await cartStore.fetchCart()
     } catch {
       user.value = null
       localStorage.removeItem('auth_token')
       delete axios.defaults.headers.common['Authorization']
-      const { useCartStore } = await import('@/stores/cart')
-      const cartStore = useCartStore()
-      await cartStore.fetchCart()
     } finally {
       loading.value = false
       initialized.value = true
+    }
+
+    try {
+      const { useCartStore } = await import('@/stores/cart')
+      const cartStore = useCartStore()
+      await cartStore.fetchCart()
+    } catch {
+      // Cart fetch failure shouldn't crash auth initialization or router navigation
     }
   }
 
