@@ -333,6 +333,10 @@
                     :
                     item.name }}</div>
 
+                  <div v-if="item.options?.flavor" class="text-[11px] font-semibold text-amber-700 dark:text-amber-300 truncate">
+                    Flavor: {{ item.options.flavor }}
+                  </div>
+
                   <div v-if="item.options?.variation" class="text-[11px] font-semibold text-brand-caramel dark:text-[#E2C08A] truncate">
                     Option: {{ item.options.variation }}
                   </div>

@@ -67,8 +67,17 @@ class CartService
             ->where('product_id', $productId)
             ->whereNull('deleted_at');
 
-        if (!empty($options['variation'])) {
-            $query->where('options->variation', $options['variation']);
+        if (!isset($options['flavor']) && !empty($product->flavor)) {
+            $options = array_merge($options ?? [], ['flavor' => $product->flavor]);
+        }
+
+        if (isset($options['variation']) || isset($options['flavor'])) {
+            if (!empty($options['variation'])) {
+                $query->where('options->variation', $options['variation']);
+            }
+            if (!empty($options['flavor'])) {
+                $query->where('options->flavor', $options['flavor']);
+            }
         } elseif (!empty($options['is_custom'])) {
             $query->where('options->is_custom', true);
         } else {
@@ -224,6 +233,22 @@ class CartService
 
     public function recalculateCartTotals(Cart $cart): Cart
     {
+        $cart->load(['items' => fn ($q) => $q->whereNull('deleted_at'), 'items.product']);
+
+        // Dynamically sync item unit prices with updated admin product prices & option modifiers
+        foreach ($cart->items as $item) {
+            if ($item->product) {
+                $basePrice = (float) $item->product->effective_price;
+                $varMod    = (float) ($item->options['price_modifier'] ?? $item->options['variation_price_modifier'] ?? 0);
+                $flvMod    = (float) ($item->options['flavor_price_modifier'] ?? 0);
+                $currentUnitPrice = round($basePrice + $varMod + $flvMod, 2);
+
+                if (abs((float) $item->unit_price - $currentUnitPrice) > 0.001) {
+                    $item->update(['unit_price' => $currentUnitPrice]);
+                }
+            }
+        }
+
         $cart->load(['items' => fn ($q) => $q->whereNull('deleted_at'), 'items.product']);
         $subtotal = $cart->subtotal;
 

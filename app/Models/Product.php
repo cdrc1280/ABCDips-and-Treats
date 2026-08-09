@@ -23,6 +23,8 @@ class Product extends Model implements HasMedia
         'name',
         'slug',
         'short_description',
+        'flavor',
+        'flavors',
         'description',
         'image_path',
         'gallery',
@@ -47,6 +49,7 @@ class Product extends Model implements HasMedia
     protected $casts = [
         'gallery'           => 'array',
         'variations'        => 'array',
+        'flavors'           => 'array',
         'price'             => 'decimal:2',
         'sale_price'        => 'decimal:2',
         'sale_ends_at'      => 'datetime',

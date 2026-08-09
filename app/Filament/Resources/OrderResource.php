@@ -48,6 +48,41 @@ class OrderResource extends Resource
                         Textarea::make('notes')->columnSpanFull(),
                     ])->columns(2),
 
+                Section::make('Order Items & Specifications')
+                    ->columnSpanFull()
+                    ->components([
+                        Placeholder::make('items_breakdown')
+                            ->label('')
+                            ->content(function (Order $record) {
+                                if (!$record || !$record->items || $record->items->isEmpty()) {
+                                    return 'No items found in this order.';
+                                }
+                                $html = '<div class="overflow-x-auto"><table class="w-full text-left text-sm border-collapse border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">';
+                                $html .= '<thead class="bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300"><tr>';
+                                $html .= '<th class="p-2.5 border border-gray-200 dark:border-gray-700">Item Name</th>';
+                                $html .= '<th class="p-2.5 border border-gray-200 dark:border-gray-700">Flavor Profile</th>';
+                                $html .= '<th class="p-2.5 border border-gray-200 dark:border-gray-700">Variation / Size</th>';
+                                $html .= '<th class="p-2.5 border border-gray-200 dark:border-gray-700 text-center">Qty</th>';
+                                $html .= '<th class="p-2.5 border border-gray-200 dark:border-gray-700 text-right">Unit Price</th>';
+                                $html .= '<th class="p-2.5 border border-gray-200 dark:border-gray-700 text-right">Subtotal</th>';
+                                $html .= '</tr></thead><tbody>';
+                                foreach ($record->items as $item) {
+                                    $flavor = !empty($item->options['flavor']) ? e($item->options['flavor']) : '—';
+                                    $variation = !empty($item->options['variation']) ? e($item->options['variation']) : '—';
+                                    $html .= "<tr class='border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/50'>";
+                                    $html .= "<td class='p-2.5 font-bold text-gray-900 dark:text-white'>{$item->product_name}</td>";
+                                    $html .= "<td class='p-2.5'><span class='inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-700/50'>✨ {$flavor}</span></td>";
+                                    $html .= "<td class='p-2.5'><span class='inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-700/50'>🏷️ {$variation}</span></td>";
+                                    $html .= "<td class='p-2.5 text-center font-bold'>{$item->qty}</td>";
+                                    $html .= "<td class='p-2.5 text-right font-mono'>₱" . number_format($item->unit_price, 2) . "</td>";
+                                    $html .= "<td class='p-2.5 text-right font-mono font-extrabold text-amber-700 dark:text-amber-400'>₱" . number_format($item->subtotal, 2) . "</td>";
+                                    $html .= "</tr>";
+                                }
+                                $html .= '</tbody></table></div>';
+                                return new \Illuminate\Support\HtmlString($html);
+                            }),
+                    ]),
+
                 Section::make('Status & Payment')
                     ->columnSpanFull()
                     ->components([

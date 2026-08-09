@@ -246,7 +246,39 @@
                     </div>
                   </div>
 
-                  <!-- Variation Selector (if product has variations) -->
+                  <!-- Flavor Selector (if product has multiple encoded flavors) -->
+                  <div v-if="modalStore.product.flavors && modalStore.product.flavors.length > 0" class="space-y-2">
+                    <span class="block text-xs font-bold uppercase tracking-wider text-brand-choco dark:text-[#E2C08A]">
+                      Select Flavor <span class="text-[10px] font-normal text-warm-gray dark:text-[#A89686] lowercase">(optional)</span>
+                    </span>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        v-for="(flv, idx) in modalStore.product.flavors"
+                        :key="idx"
+                        type="button"
+                        class="px-3.5 py-1.5 rounded-xl border-2 text-xs font-bold transition-all cursor-pointer"
+                        :class="selectedFlavorIdx === idx
+                          ? 'border-amber-600 bg-amber-600 text-white dark:border-amber-400 dark:bg-amber-400 dark:text-[#1C1410]'
+                          : 'border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-200 bg-amber-50/50 dark:bg-amber-950/30 hover:border-amber-500'"
+                        @click="selectedFlavorIdx = selectedFlavorIdx === idx ? null : idx"
+                      >
+                        {{ flv.name }}
+                        <span v-if="flv.price_modifier && flv.price_modifier !== 0" class="ml-1 font-normal opacity-80">
+                          {{ flv.price_modifier > 0 ? '+' : '' }}₱{{ Number(flv.price_modifier).toFixed(2) }}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Single Flavor Badge (if product has static single flavor string) -->
+                  <div v-else-if="modalStore.product.flavor" class="space-y-1.5">
+                    <span class="block text-xs font-bold uppercase tracking-wider text-brand-choco dark:text-[#E2C08A]">Flavor Profile</span>
+                    <div class="px-3.5 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 font-bold text-xs border border-amber-200 dark:border-amber-800/50 flex items-center gap-2">
+                      <span>✨ {{ modalStore.product.flavor }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Variation Selector (if product has variations like grams, pieces, size) -->
                   <div v-if="modalStore.product.variation_type && modalStore.product.variation_type !== 'none' && modalStore.product.variations && modalStore.product.variations.length > 0" class="space-y-2">
                     <span class="block text-xs font-bold uppercase tracking-wider text-brand-choco dark:text-[#E2C08A]">
                       {{ variationLabel }}
@@ -434,20 +466,23 @@ const allImages = computed(() => {
   return list.length > 0 ? list : ['/images/placeholder-bakery.png']
 })
 
+const selectedFlavorIdx = ref(null)
+
 const variationLabel = computed(() => {
   const type = modalStore.product?.variation_type
   if (!type || type === 'none') return 'Select Option'
 
   const lower = type.toLowerCase().trim()
+  if (lower === 'flavor') return 'Select Option / Quantity'
+
   if (lower.startsWith('select ')) {
     return type
   }
 
   const known = {
-    weight: 'Select Weight',
+    weight: 'Select Weight / Grams',
     pieces: 'Select Quantity (Pieces)',
     size: 'Select Size',
-    flavor: 'Select Flavor',
     packaging: 'Select Packaging',
     bundle: 'Select Bundle',
   }
@@ -465,10 +500,16 @@ const selectedVariation = computed(() => {
   return modalStore.product?.variations?.[selectedVariationIdx.value] ?? null
 })
 
+const selectedFlavor = computed(() => {
+  if (selectedFlavorIdx.value === null) return null
+  return modalStore.product?.flavors?.[selectedFlavorIdx.value] ?? null
+})
+
 const effectivePrice = computed(() => {
   const base = modalStore.product?.sale_price || modalStore.product?.price || 0
-  const mod = selectedVariation.value?.price_modifier ?? 0
-  return parseFloat(base) + parseFloat(mod)
+  const varMod = selectedVariation.value?.price_modifier ?? 0
+  const flvMod = selectedFlavor.value?.price_modifier ?? 0
+  return parseFloat(base) + parseFloat(varMod) + parseFloat(flvMod)
 })
 
 const hasPrice = computed(() => {
@@ -481,6 +522,7 @@ watch(() => modalStore.product, (newVal) => {
     quantity.value = 1
     activeTab.value = 'description'
     selectedVariationIdx.value = null
+    selectedFlavorIdx.value = null
   }
 }, { immediate: true })
 
@@ -512,11 +554,16 @@ function onTouchEnd() {
 async function handleAddToCart() {
   if (!modalStore.product) return
   adding.value = true
-  const options = selectedVariation.value ? {
-    variation: selectedVariation.value.label,
-    price_modifier: parseFloat(selectedVariation.value.price_modifier || 0),
+  const chosenFlavor = selectedFlavor.value ? selectedFlavor.value.name : (modalStore.product.flavor || null)
+  const options = {
+    ...(chosenFlavor ? { flavor: chosenFlavor } : {}),
+    ...(selectedFlavor.value?.price_modifier ? { flavor_price_modifier: parseFloat(selectedFlavor.value.price_modifier) } : {}),
+    ...(selectedVariation.value ? {
+      variation: selectedVariation.value.label,
+      price_modifier: parseFloat(selectedVariation.value.price_modifier || 0),
+    } : {}),
     unit_price: parseFloat(effectivePrice.value)
-  } : {}
+  }
   const res = await cartStore.addItem(modalStore.product.id, quantity.value, options)
   adding.value = false
 
@@ -529,11 +576,16 @@ async function handleAddToCart() {
 async function handleBuyNow() {
   if (!modalStore.product) return
   adding.value = true
-  const options = selectedVariation.value ? {
-    variation: selectedVariation.value.label,
-    price_modifier: parseFloat(selectedVariation.value.price_modifier || 0),
+  const chosenFlavor = selectedFlavor.value ? selectedFlavor.value.name : (modalStore.product.flavor || null)
+  const options = {
+    ...(chosenFlavor ? { flavor: chosenFlavor } : {}),
+    ...(selectedFlavor.value?.price_modifier ? { flavor_price_modifier: parseFloat(selectedFlavor.value.price_modifier) } : {}),
+    ...(selectedVariation.value ? {
+      variation: selectedVariation.value.label,
+      price_modifier: parseFloat(selectedVariation.value.price_modifier || 0),
+    } : {}),
     unit_price: parseFloat(effectivePrice.value)
-  } : {}
+  }
   const res = await cartStore.addItem(modalStore.product.id, quantity.value, options)
   adding.value = false
 

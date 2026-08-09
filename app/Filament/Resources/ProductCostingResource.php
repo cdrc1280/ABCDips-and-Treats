@@ -49,7 +49,7 @@ class ProductCostingResource extends Resource
 
                         // 1. Section "Product"
                         Section::make('Product')
-                            ->description('Select a product to calculate costing and automatically update its selling price.')
+                            ->description('Select a product to calculate costing for financial reference.')
                             ->components([
                                 Select::make('product_id')
                                     ->label('Product')
@@ -86,8 +86,7 @@ class ProductCostingResource extends Resource
                                             ->prefix('₱')
                                             ->default(0.00)
                                             ->dehydrated(true)
-                                            ->readOnly()
-                                            ->helperText('Will be automatically set when this costing calculation is saved.'),
+                                            ->helperText('Manual initial selling price for reference.'),
                                     ]),
                                 TextInput::make('yield_qty')
                                     ->label('Yield (pieces / tubs produced)')

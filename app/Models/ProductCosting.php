@@ -28,16 +28,6 @@ class ProductCosting extends Model
         'labor_pct'    => 'decimal:2',
     ];
 
-    protected static function booted(): void
-    {
-        static::saved(function (ProductCosting $costing) {
-            if ($costing->product_id && $costing->price_per_piece > 0) {
-                $newPrice = round($costing->price_per_piece, 2);
-                $costing->product()->update(['price' => $newPrice]);
-            }
-        });
-    }
-
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);

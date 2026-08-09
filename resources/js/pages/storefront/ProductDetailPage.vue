@@ -334,7 +334,8 @@ async function fetchProduct() {
 async function addToCart() {
     if (!product.value) return
     adding.value = true
-    const res = await cartStore.addItem(product.value.id, quantity.value)
+    const options = product.value.flavor ? { flavor: product.value.flavor } : {}
+    const res = await cartStore.addItem(product.value.id, quantity.value, options)
     adding.value = false
     if (res.success) {
         toast.success(`Added ${quantity.value}x ${product.value.name} to your basket!`, 'Pastry Added')

@@ -58,6 +58,11 @@
                   {{ item.options?.is_custom ? item.options.custom_title : item.name }}
                 </h3>
 
+                <!-- Flavor Option Badge -->
+                <div v-if="item.options?.flavor" class="text-xs font-semibold text-amber-700 dark:text-amber-300 mt-0.5">
+                  Flavor: {{ item.options.flavor }}
+                </div>
+
                 <!-- Variation Option Badge -->
                 <div v-if="item.options?.variation" class="text-xs font-semibold text-brand-caramel dark:text-[#E2C08A] mt-0.5">
                   Option: {{ item.options.variation }}

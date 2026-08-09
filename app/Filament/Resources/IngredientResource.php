@@ -45,7 +45,17 @@ class IngredientResource extends Resource
                             ->unique(Ingredient::class, 'sku', ignoreRecord: true),
                         TextInput::make('name')->required(),
                         Select::make('unit')
-                            ->options(['kg' => 'Kilograms (kg)', 'g' => 'Grams (g)', 'L' => 'Liters (L)', 'ml' => 'Milliliters (ml)', 'pcs' => 'Pieces (pcs)', 'box' => 'Box'])
+                            ->label('Stock Unit / Measurement')
+                            ->options([
+                                'pcs' => 'Pieces (pcs)',
+                                'qty' => 'Quantity / Units',
+                                'box' => 'Box / Pack',
+                                'g'   => 'Grams (g)',
+                                'kg'  => 'Kilograms (kg)',
+                                'ml'  => 'Milliliters (ml)',
+                                'L'   => 'Liters (L)',
+                            ])
+                            ->default('pcs')
                             ->required(),
                         TextInput::make('cost_per_unit')
                             ->numeric()

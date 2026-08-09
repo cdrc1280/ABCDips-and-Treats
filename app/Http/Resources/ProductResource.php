@@ -20,6 +20,8 @@ class ProductResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'short_description' => $this->short_description,
+            'flavor' => $this->flavor,
+            'flavors' => $this->flavors ?? [],
             'description' => $this->description,
             'price' => (float) $this->price,
             'variation_type'   => $this->variation_type ?? 'none',

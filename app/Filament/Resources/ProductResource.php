@@ -66,6 +66,12 @@ class ProductResource extends Resource
                             ->rows(2)
                             ->columnSpanFull(),
 
+                        TextInput::make('flavor')
+                            ->label('Product Flavor / Sub-variant')
+                            ->placeholder('e.g. Belgian Dark Chocolate, Ube Halaya, Cinnamon Butter')
+                            ->maxLength(100)
+                            ->columnSpanFull(),
+
                         RichEditor::make('description')
                             ->columnSpanFull(),
                     ])->columns(2),
@@ -100,25 +106,50 @@ class ProductResource extends Resource
                             ->visibility('public'),
                     ])->columns(2),
 
-                Section::make('Product Variations')
+                Section::make('Flavor Options (Separate Flavor Encoding)')
                     ->columnSpanFull()
-                    ->description('Set up size, weight, pieces, flavor, or custom options customers can choose from in the cart.')
+                    ->description('Set up separate flavor choices (e.g. Belgian Dark Chocolate, Strawberry, Ube Halaya) with optional price adjustments.')
+                    ->components([
+                        Repeater::make('flavors')
+                            ->label('Selectable Flavor Variations')
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Flavor Name (e.g. Strawberry, Dark Chocolate, Ube)')
+                                    ->required()
+                                    ->maxLength(100),
+                                TextInput::make('price_modifier')
+                                    ->label('Flavor Price Adjustment (₱)')
+                                    ->helperText('Use positive or negative value. 0 = same price.')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->step('0.01')
+                                    ->prefix('₱')
+                                    ->extraInputAttributes(['inputmode' => 'decimal']),
+                            ])
+                            ->columns(2)
+                            ->addActionLabel('Add Flavor Option')
+                            ->reorderable()
+                            ->collapsible(),
+                    ])->columns(1),
+
+                Section::make('Product Variations (Weight, Grams, Pieces, Size)')
+                    ->columnSpanFull()
+                    ->description('Set up size, weight/grams, pieces, or custom options (e.g. 250g, 500g, 6 pcs) with optional price modifiers.')
                     ->components([
                         Select::make('variation_type')
-                            ->label('Variation Type')
+                            ->label('Variation Type (e.g. Grams, Weight, Size, Pieces)')
                             ->options([
                                 'none'      => 'No Variations',
-                                'weight'    => 'Weight (e.g. 250g, 500g, 1kg)',
+                                'weight'    => 'Weight / Grams (e.g. 250g, 500g, 1kg)',
                                 'pieces'    => 'Pieces (e.g. 6 pcs, 12 pcs, 24 pcs)',
                                 'size'      => 'Size (e.g. Small, Medium, Large)',
-                                'flavor'    => 'Flavor (e.g. Chocolate, Ube, Red Velvet)',
                                 'packaging' => 'Packaging (e.g. Solo Box, Sharing Box)',
                                 'custom'    => '✏️ Custom Variation Type...',
                             ])
                             ->default('none')
                             ->live()
                             ->afterStateHydrated(function (Select $component, $state, callable $set) {
-                                $presetKeys = ['none', 'weight', 'pieces', 'size', 'flavor', 'packaging'];
+                                $presetKeys = ['none', 'weight', 'pieces', 'size', 'packaging'];
                                 if (!empty($state) && !in_array($state, $presetKeys)) {
                                     $set('variation_type', 'custom');
                                     $set('custom_variation_name', $state);
@@ -188,8 +219,7 @@ class ProductResource extends Resource
                             ->minValue(0)
                             ->step('0.01')
                             ->prefix('₱')
-                            ->readOnly()
-                            ->helperText('Automatically calculated & set by Product Costing.')
+                            ->helperText('Encode selling price manually. Product Costing can be used as a financial reference.')
                             ->extraInputAttributes(['inputmode' => 'decimal']),
 
                         TextInput::make('sale_price')
@@ -293,6 +323,14 @@ class ProductResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
+
+                TextColumn::make('flavor')
+                    ->label('Flavor')
+                    ->searchable()
+                    ->placeholder('—')
+                    ->badge()
+                    ->color('warning')
+                    ->toggleable(),
 
                 TextColumn::make('category.name')
                     ->sortable()
