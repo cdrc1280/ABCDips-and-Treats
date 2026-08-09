@@ -458,12 +458,16 @@ const selectedFlavorIdx = ref(null)
 
 const allImages = computed(() => {
   if (!modalStore.product) return []
+  const p = modalStore.product
   const list = []
-  if (modalStore.product.primary_image_url) {
-    list.push(modalStore.product.primary_image_url)
-  }
-  if (modalStore.product.secondary_images_urls?.length) {
-    list.push(...modalStore.product.secondary_images_urls)
+  if (p.primary_image_url) list.push(p.primary_image_url)
+
+  const gallery = p.gallery_images || p.gallery_image_urls || p.secondary_images_urls || p.images || []
+  if (Array.isArray(gallery)) {
+    gallery.forEach(img => {
+      const url = typeof img === 'string' ? img : (img?.url || img?.src)
+      if (url && !list.includes(url)) list.push(url)
+    })
   }
   return list.length ? list : ['/images/placeholder-bakery.png']
 })
@@ -560,11 +564,14 @@ function onTouchMove(e) {
 }
 
 function onTouchEnd() {
+  if (!touchStartX.value || !touchCurrentX.value) return
   const diff = touchStartX.value - touchCurrentX.value
-  if (Math.abs(diff) > 40) {
+  if (Math.abs(diff) > 30) {
     if (diff > 0) nextImage()
     else prevImage()
   }
+  touchStartX.value = 0
+  touchCurrentX.value = 0
 }
 
 async function handleAddToCart() {

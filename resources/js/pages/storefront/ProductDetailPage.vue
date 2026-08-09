@@ -41,10 +41,62 @@
                 <!-- Left Image Showcase -->
                 <div class="space-y-4">
                     <div
-                        class="aspect-square rounded-3xl overflow-hidden bg-white border border-brand-caramel/20 shadow-md relative">
-                        <img :src="activeImage || product.primary_image_url" :alt="product.name"
-                            class="w-full h-full object-cover object-center transition-all duration-300" />
-                        <div class="absolute top-4 left-4 flex flex-col gap-2">
+                        class="aspect-square rounded-3xl overflow-hidden bg-white border border-brand-caramel/20 shadow-md relative select-none"
+                        @touchstart="onTouchStart"
+                        @touchmove="onTouchMove"
+                        @touchend="onTouchEnd"
+                    >
+                        <div
+                            class="flex h-full transition-transform duration-300 ease-out"
+                            :style="{ transform: `translateX(-${allImages.length ? (activeIndex * 100) / allImages.length : 0}%)`, width: `${allImages.length * 100}%` }"
+                        >
+                            <div
+                                v-for="(img, idx) in allImages"
+                                :key="idx"
+                                class="h-full shrink-0"
+                                :style="{ width: `${100 / allImages.length}%` }"
+                            >
+                                <img
+                                    :src="img"
+                                    :alt="`${product.name} - Image ${idx + 1}`"
+                                    class="w-full h-full object-cover object-center"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Left Arrow -->
+                        <button
+                            v-if="allImages.length > 1 && activeIndex > 0"
+                            type="button"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all cursor-pointer shadow-md"
+                            @click="prevImage"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+
+                        <!-- Right Arrow -->
+                        <button
+                            v-if="allImages.length > 1 && activeIndex < allImages.length - 1"
+                            type="button"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-all cursor-pointer shadow-md"
+                            @click="nextImage"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" /></svg>
+                        </button>
+
+                        <!-- Dot Indicators -->
+                        <div v-if="allImages.length > 1" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                            <button
+                                v-for="(_, idx) in allImages"
+                                :key="idx"
+                                type="button"
+                                class="rounded-full transition-all cursor-pointer"
+                                :class="activeIndex === idx ? 'w-6 h-2 bg-white shadow-sm' : 'w-2 h-2 bg-white/50 hover:bg-white/80'"
+                                @click="activeIndex = idx"
+                            />
+                        </div>
+
+                        <div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
                             <BaseBadge v-if="product.is_best_seller" variant="brand">Best Seller</BaseBadge>
                             <BaseBadge v-else-if="product.is_highly_rated" variant="warning">⭐ Highly Rated</BaseBadge>
                             <BaseBadge v-if="product.is_on_sale" variant="error">Sale</BaseBadge>
@@ -53,19 +105,13 @@
                     </div>
 
                     <!-- Gallery Thumbnails -->
-                    <div v-if="product.gallery_images && product.gallery_images.length > 0"
+                    <div v-if="allImages.length > 1"
                         class="flex items-center gap-3 overflow-x-auto pb-2">
-                        <button type="button" v-tooltip="'View main product photo'"
-                            class="w-20 h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0"
-                            :class="activeImage === product.primary_image_url ? 'border-brand-choco scale-95' : 'border-brand-caramel/20 opacity-70 hover:opacity-100'"
-                            @click="activeImage = product.primary_image_url">
-                            <img :src="product.primary_image_url" class="w-full h-full object-cover" />
-                        </button>
-                        <button v-for="(img, idx) in product.gallery_images" :key="idx" type="button"
-                            v-tooltip="`View gallery photo ${idx + 2}`"
-                            class="w-20 h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0"
-                            :class="activeImage === img ? 'border-brand-choco scale-95' : 'border-brand-caramel/20 opacity-70 hover:opacity-100'"
-                            @click="activeImage = img">
+                        <button v-for="(img, idx) in allImages" :key="idx" type="button"
+                            v-tooltip="`View photo ${idx + 1}`"
+                            class="w-20 h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer"
+                            :class="activeIndex === idx ? 'border-brand-choco scale-95 shadow-md' : 'border-brand-caramel/20 opacity-70 hover:opacity-100'"
+                            @click="activeIndex = idx">
                             <img :src="img" class="w-full h-full object-cover" />
                         </button>
                     </div>
@@ -314,9 +360,55 @@ const toast = useToast()
 const product = ref(null)
 const loading = ref(true)
 const quantity = ref(1)
-const activeImage = ref('')
+const activeIndex = ref(0)
 const activeTab = ref('description')
 const adding = ref(false)
+const touchStartX = ref(0)
+const touchCurrentX = ref(0)
+
+const allImages = computed(() => {
+    if (!product.value) return ['/images/placeholder-bakery.png']
+    const p = product.value
+    const list = []
+    if (p.primary_image_url) list.push(p.primary_image_url)
+
+    const gallery = p.gallery_images || p.gallery_image_urls || p.secondary_images_urls || p.images || []
+    if (Array.isArray(gallery)) {
+        gallery.forEach(img => {
+            const url = typeof img === 'string' ? img : (img?.url || img?.src)
+            if (url && !list.includes(url)) list.push(url)
+        })
+    }
+    return list.length ? list : ['/images/placeholder-bakery.png']
+})
+
+function prevImage() {
+    if (activeIndex.value > 0) activeIndex.value--
+}
+
+function nextImage() {
+    if (activeIndex.value < allImages.value.length - 1) activeIndex.value++
+}
+
+function onTouchStart(e) {
+    touchStartX.value = e.touches[0].clientX
+    touchCurrentX.value = e.touches[0].clientX
+}
+
+function onTouchMove(e) {
+    touchCurrentX.value = e.touches[0].clientX
+}
+
+function onTouchEnd() {
+    if (!touchStartX.value || !touchCurrentX.value) return
+    const diff = touchStartX.value - touchCurrentX.value
+    if (Math.abs(diff) > 30) {
+        if (diff > 0) nextImage()
+        else prevImage()
+    }
+    touchStartX.value = 0
+    touchCurrentX.value = 0
+}
 
 const { days, hours, minutes, seconds, isExpired, isNearExpiry } = useSaleCountdown(computed(() => product.value?.sale_ends_at))
 
@@ -326,7 +418,7 @@ async function fetchProduct() {
         const slug = route.params.slug
         const { data } = await axios.get(`/api/products/${slug}`)
         product.value = data.data
-        activeImage.value = product.value.primary_image_url
+        activeIndex.value = 0
     } catch (err) {
         console.error('Failed to load product detail', err)
     } finally {
