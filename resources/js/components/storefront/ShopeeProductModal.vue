@@ -436,10 +436,28 @@ const allImages = computed(() => {
 
 const variationLabel = computed(() => {
   const type = modalStore.product?.variation_type
-  if (type === 'weight') return 'Select Weight'
-  if (type === 'pieces') return 'Select Quantity (Pieces)'
-  if (type === 'size') return 'Select Size'
-  return 'Select Option'
+  if (!type || type === 'none') return 'Select Option'
+
+  const lower = type.toLowerCase().trim()
+  if (lower.startsWith('select ')) {
+    return type
+  }
+
+  const known = {
+    weight: 'Select Weight',
+    pieces: 'Select Quantity (Pieces)',
+    size: 'Select Size',
+    flavor: 'Select Flavor',
+    packaging: 'Select Packaging',
+    bundle: 'Select Bundle',
+  }
+
+  if (known[lower]) {
+    return known[lower]
+  }
+
+  const capitalized = type.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+  return `Select ${capitalized}`
 })
 
 const selectedVariation = computed(() => {

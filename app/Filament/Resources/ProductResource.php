@@ -102,25 +102,50 @@ class ProductResource extends Resource
 
                 Section::make('Product Variations')
                     ->columnSpanFull()
-                    ->description('Set up size, weight, or pieces options customers can choose from in the cart.')
+                    ->description('Set up size, weight, pieces, flavor, or custom options customers can choose from in the cart.')
                     ->components([
                         Select::make('variation_type')
                             ->label('Variation Type')
                             ->options([
-                                'none'   => 'No Variations',
-                                'weight' => 'Weight (e.g. 250g, 500g, 1kg)',
-                                'pieces' => 'Pieces (e.g. 6 pcs, 12 pcs, 24 pcs)',
-                                'size'   => 'Size (e.g. Small, Medium, Large)',
+                                'none'      => 'No Variations',
+                                'weight'    => 'Weight (e.g. 250g, 500g, 1kg)',
+                                'pieces'    => 'Pieces (e.g. 6 pcs, 12 pcs, 24 pcs)',
+                                'size'      => 'Size (e.g. Small, Medium, Large)',
+                                'flavor'    => 'Flavor (e.g. Chocolate, Ube, Red Velvet)',
+                                'packaging' => 'Packaging (e.g. Solo Box, Sharing Box)',
+                                'custom'    => '✏️ Custom Variation Type...',
                             ])
                             ->default('none')
                             ->live()
+                            ->afterStateHydrated(function (Select $component, $state, callable $set) {
+                                $presetKeys = ['none', 'weight', 'pieces', 'size', 'flavor', 'packaging'];
+                                if (!empty($state) && !in_array($state, $presetKeys)) {
+                                    $set('variation_type', 'custom');
+                                    $set('custom_variation_name', $state);
+                                }
+                            })
+                            ->dehydrateStateUsing(function ($state, callable $get) {
+                                if ($state === 'custom') {
+                                    return $get('custom_variation_name') ?: 'custom';
+                                }
+                                return $state;
+                            })
                             ->required(),
+
+                        TextInput::make('custom_variation_name')
+                            ->label('Custom Variation Label')
+                            ->placeholder('e.g. Dip Flavor, Frosting, Box Type, Grammage')
+                            ->helperText('Customers will see this label on the storefront (e.g. "Select Dip Flavor").')
+                            ->required(fn(callable $get) => $get('variation_type') === 'custom')
+                            ->hidden(fn(callable $get) => $get('variation_type') !== 'custom')
+                            ->dehydrated(false)
+                            ->live(),
 
                         Repeater::make('variations')
                             ->label('Variation Options')
                             ->schema([
                                 TextInput::make('label')
-                                    ->label('Option Label (e.g. 250g, 6 pcs, Small)')
+                                    ->label('Option Label (e.g. 250g, 6 pcs, Small, Dark Chocolate)')
                                     ->required()
                                     ->maxLength(100),
                                 TextInput::make('price_modifier')
