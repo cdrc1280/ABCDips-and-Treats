@@ -80,7 +80,7 @@ class ProductController extends Controller
             Order::distinct('customer_email')->count()
         );
 
-        $recipesCount = Product::where('is_active', true)->count();
+        $recipesCount = Product::forCustomer()->count();
 
         $avgRating = Review::where('is_approved', true)->avg('rating');
         $avgRatingFormatted = $avgRating ? number_format((float) $avgRating, 1) : '5.0';

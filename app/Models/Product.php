@@ -143,6 +143,13 @@ class Product extends Model implements HasMedia
         return $this->created_at && $this->created_at->gte(now()->subDays(30));
     }
 
+    public function scopeForCustomer($query)
+    {
+        return $query->where('is_active', true)
+                     ->whereNotNull('price')
+                     ->where('price', '>', 0);
+    }
+
     public function getPrimaryImageUrlAttribute(): string
     {
         if ($this->image_path) {

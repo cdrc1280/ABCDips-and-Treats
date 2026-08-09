@@ -13,7 +13,7 @@ class ProductRepository
     {
         $query = Product::query()
             ->with(['category', 'tags', 'allergens', 'nutrition', 'media'])
-            ->where('is_active', true);
+            ->forCustomer();
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
@@ -79,8 +79,8 @@ class ProductRepository
     {
         return Product::query()
             ->with(['category', 'tags', 'allergens', 'nutrition', 'media'])
+            ->forCustomer()
             ->where('slug', $slug)
-            ->where('is_active', true)
             ->first();
     }
 
@@ -88,7 +88,7 @@ class ProductRepository
     {
         return Product::query()
             ->with(['category', 'tags', 'media'])
-            ->where('is_active', true)
+            ->forCustomer()
             ->where('is_featured', true)
             ->take($limit)
             ->get();
@@ -99,7 +99,7 @@ class ProductRepository
         return Product::query()
             ->with(['category', 'tags', 'media'])
             ->withSum('orderItems', 'qty')
-            ->where('is_active', true)
+            ->forCustomer()
             ->where(function ($q) {
                 $q->where('is_best_seller', true)
                   ->orWhereHas('orderItems');
@@ -114,7 +114,7 @@ class ProductRepository
     {
         return Product::query()
             ->with(['category', 'tags', 'media'])
-            ->where('is_active', true)
+            ->forCustomer()
             ->where(function ($q) {
                 $q->where('is_new_arrival', true)
                   ->orWhere('created_at', '>=', now()->subDays(30));

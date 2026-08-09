@@ -23,7 +23,7 @@ class AiAdvisorService
         // Gather real contextual data from database
         $kpis = $this->analyticsService->getExecutiveSummary();
         $lowStock = Ingredient::whereColumn('stock_qty', '<=', 'min_stock_qty')->get(['name', 'stock_qty', 'min_stock_qty', 'unit']);
-        $activeProducts = Product::where('is_active', true)->get(['name', 'price', 'sale_price', 'category_id']);
+        $activeProducts = Product::forCustomer()->get(['name', 'price', 'sale_price', 'category_id']);
 
         $contextSummary = "Bakery Context (ABCDips & Treats, Cavite, Philippines):\n"
             . "- Total Revenue: ₱" . number_format($kpis['total_revenue'], 2) . "\n"
