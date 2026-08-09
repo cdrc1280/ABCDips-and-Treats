@@ -318,9 +318,18 @@ html.dark .text-ink {
   color: #FBF3E7 !important;
 }
 
-/* Brand Choco text — map to warm golden caramel in dark mode for readable contrast */
-html.dark .text-\[\#5C3A22\] {
+/* Brand Choco & Caramel text — map to warm golden caramel in dark mode for readable contrast */
+html.dark .text-\[\#5C3A22\],
+html.dark .text-brand-choco {
   color: #E2C08A !important;
+}
+
+html.dark .text-brand-caramel {
+  color: #E2C08A !important;
+}
+
+html.dark .text-brand-tan {
+  color: #FBF3E7 !important;
 }
 
 /* Secondary muted text */
@@ -330,6 +339,16 @@ html.dark .text-warm-gray {
 }
 
 /* Borders */
+html.dark .border-brand-choco {
+  border-color: rgba(226, 192, 138, 0.4) !important;
+}
+
+html.dark .border-brand-caramel,
+html.dark .border-brand-caramel\/10,
+html.dark .border-brand-caramel\/15,
+html.dark .border-brand-caramel\/20,
+html.dark .border-brand-caramel\/30,
+html.dark .border-brand-caramel\/40,
 html.dark .border-\[\#C08E5D\]\/20,
 html.dark .border-\[\#C08E5D\]\/30,
 html.dark .border-\[\#C08E5D\]\/10,
@@ -360,6 +379,10 @@ html.dark .bg-\[\#5C3A22\] {
 }
 
 /* Soft gold background pills in dark mode */
+html.dark .bg-brand-tan\/10,
+html.dark .bg-brand-tan\/20,
+html.dark .bg-brand-tan\/30,
+html.dark .bg-brand-tan\/35,
 html.dark .bg-\[\#D9A876\]\/20,
 html.dark .bg-\[\#D9A876\]\/35 {
   background-color: rgba(217, 168, 118, 0.18) !important;

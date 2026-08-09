@@ -161,25 +161,25 @@
             </div>
             <div class="flex justify-between">
               <span>Flavor:</span>
-              <span class="font-semibold text-brand-choco">{{ form.flavor_preference }}</span>
+              <span class="font-semibold text-brand-choco dark:text-[#E2C08A]">{{ form.flavor_preference }}</span>
             </div>
             <div class="flex justify-between">
               <span>Frosting:</span>
-              <span class="font-semibold text-brand-choco">{{ form.frosting_type }}</span>
+              <span class="font-semibold text-brand-choco dark:text-[#E2C08A]">{{ form.frosting_type }}</span>
             </div>
             <div class="flex justify-between border-t border-brand-caramel/15 pt-1.5">
               <span>Preferred Budget:</span>
-              <span class="font-bold text-brand-choco">₱{{ form.budget_range_min }} - ₱{{ form.budget_range_max }}</span>
+              <span class="font-bold text-brand-choco dark:text-[#E2C08A]">₱{{ form.budget_range_min }} - ₱{{ form.budget_range_max }}</span>
             </div>
-            <div v-if="form.cake_inscription" class="pt-1 font-semibold text-brand-choco italic">
+            <div v-if="form.cake_inscription" class="pt-1 font-semibold text-brand-choco dark:text-[#E2C08A] italic">
               "{{ form.cake_inscription }}"
             </div>
           </div>
 
           <!-- Estimated Price Display -->
           <div class="border-t border-brand-caramel/20 pt-4 flex justify-between items-baseline">
-            <span class="text-sm font-bold text-warm-gray">Estimated Price:</span>
-            <span class="text-3xl font-black text-brand-choco">₱{{ estimatedPrice.toFixed(2) }}</span>
+            <span class="text-sm font-bold text-warm-gray dark:text-[#C5B4A4]">Estimated Price:</span>
+            <span class="text-3xl font-black text-brand-choco dark:text-[#E2C08A]">₱{{ estimatedPrice.toFixed(2) }}</span>
           </div>
 
           <!-- Dual Action Buttons -->

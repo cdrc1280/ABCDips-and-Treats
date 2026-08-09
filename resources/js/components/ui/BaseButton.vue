@@ -69,16 +69,16 @@ const sizeClasses = computed(() => {
 const variantClasses = computed(() => {
   switch (props.variant) {
     case 'secondary':
-      return 'bg-brand-tan text-ink hover:bg-brand-caramel hover:text-white focus-visible:ring-brand-caramel shadow-sm'
+      return 'bg-brand-tan text-ink hover:bg-brand-caramel hover:text-white focus-visible:ring-brand-caramel shadow-sm dark:bg-[#E2C08A] dark:text-[#1C1410] dark:hover:bg-[#D9A876]'
     case 'outline':
-      return 'border border-brand-caramel/40 text-brand-choco bg-transparent hover:bg-brand-tan/20 focus-visible:ring-brand-choco'
+      return 'border border-brand-caramel/40 text-brand-choco bg-transparent hover:bg-brand-tan/20 focus-visible:ring-brand-choco dark:border-[#C08E5D]/50 dark:text-[#FBF3E7] dark:hover:bg-[#2A1C13]'
     case 'ghost':
-      return 'text-brand-choco bg-transparent hover:bg-brand-tan/20 focus-visible:ring-brand-choco'
+      return 'text-brand-choco bg-transparent hover:bg-brand-tan/20 focus-visible:ring-brand-choco dark:text-[#FBF3E7] dark:hover:bg-[#2A1C13]'
     case 'danger':
       return 'bg-error text-white hover:bg-[#a03f30] focus-visible:ring-error shadow-sm'
     case 'primary':
     default:
-      return 'bg-brand-choco text-surface hover:bg-choco-600 focus-visible:ring-brand-choco shadow-sm hover:shadow-md'
+      return 'bg-brand-choco text-surface hover:bg-choco-600 focus-visible:ring-brand-choco shadow-sm hover:shadow-md dark:bg-[#E2C08A] dark:text-[#1C1410] dark:hover:bg-[#D9A876]'
   }
 })
 </script>

@@ -5,6 +5,7 @@ import axios from 'axios'
 export const useProductModalStore = defineStore('productModal', () => {
   const isOpen = ref(false)
   const product = ref(null)
+  const editingCartItem = ref(null)
   const loading = ref(false)
 
   async function openModal(productOrSlug) {
@@ -24,6 +25,13 @@ export const useProductModalStore = defineStore('productModal', () => {
     }
   }
 
+  async function openModalForEdit(cartItem) {
+    if (!cartItem) return
+    editingCartItem.value = cartItem
+    const prod = cartItem.product || { id: cartItem.product_id, name: cartItem.name, price: cartItem.unit_price }
+    await openModal(prod)
+  }
+
   async function fetchProductDetails(slug) {
     try {
       const { data } = await axios.get(`/api/products/${slug}`)
@@ -38,14 +46,17 @@ export const useProductModalStore = defineStore('productModal', () => {
   function closeModal() {
     isOpen.value = false
     product.value = null
+    editingCartItem.value = null
     loading.value = false
   }
 
   return {
     isOpen,
     product,
+    editingCartItem,
     loading,
     openModal,
+    openModalForEdit,
     closeModal,
   }
 })

@@ -41,20 +41,39 @@
           </div>
         </Transition>
 
-        <div class="bg-white rounded-3xl p-6 border border-brand-caramel/20 shadow-sm divide-y divide-brand-caramel/15">
+        <!-- Bulk Selection Bar -->
+        <div class="bg-white dark:bg-[#1E1510] rounded-2xl p-4 border border-brand-caramel/20 dark:border-[#C08E5D]/20 shadow-sm flex flex-wrap items-center justify-between gap-4">
+          <label class="flex items-center gap-2 text-xs font-bold text-ink dark:text-[#FBF3E7] cursor-pointer">
+            <input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll" class="rounded text-brand-choco focus:ring-brand-choco w-4 h-4" />
+            <span>Select All ({{ cartStore.items.length }} Items)</span>
+          </label>
+
+          <div v-if="selectedItemIds.length > 0" class="flex items-center gap-2 sm:gap-3">
+            <span class="text-xs text-warm-gray dark:text-[#C5B4A4] font-semibold">{{ selectedItemIds.length }} selected</span>
+            <BaseButton size="sm" variant="secondary" v-tooltip="'Edit variations & quantity for selected items'" @click="openBulkEdit">
+              Bulk Edit ({{ selectedItemIds.length }})
+            </BaseButton>
+            <BaseButton size="sm" variant="danger" v-tooltip="'Remove all selected items from basket'" @click="promptRemoveBulk">
+              Delete ({{ selectedItemIds.length }})
+            </BaseButton>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-[#1E1510] rounded-3xl p-6 border border-brand-caramel/20 dark:border-[#C08E5D]/20 shadow-sm divide-y divide-brand-caramel/15 dark:divide-[#C08E5D]/15">
           <div
             v-for="item in cartStore.items"
             :key="item.id"
             class="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
           >
-            <div class="flex items-start gap-4">
+            <div class="flex items-start gap-3 sm:gap-4">
+              <input type="checkbox" :value="item.id" v-model="selectedItemIds" class="mt-1 rounded text-brand-choco focus:ring-brand-choco w-4 h-4 shrink-0 cursor-pointer" />
               <img
                 :src="item.image_url || '/images/placeholder-bakery.png'"
                 :alt="item.name"
                 class="w-20 h-20 rounded-2xl object-cover border border-brand-caramel/20 shrink-0"
               />
               <div>
-                <h3 class="font-bold text-base text-ink">
+                <h3 class="font-bold text-base text-ink dark:text-[#FBF3E7]">
                   {{ item.options?.is_custom ? item.options.custom_title : item.name }}
                 </h3>
 
@@ -69,51 +88,59 @@
                 </div>
 
                 <!-- Custom Spec Box -->
-                <div v-if="item.options?.is_custom" class="mt-1 bg-surface p-3 rounded-xl text-xs text-brand-choco border border-brand-caramel/20 space-y-1">
-                  <div class="font-extrabold text-brand-choco">🎂 Custom Cake Configuration:</div>
+                <div v-if="item.options?.is_custom" class="mt-1 bg-surface dark:bg-[#140D09] p-3 rounded-xl text-xs text-brand-choco dark:text-[#E2C08A] border border-brand-caramel/20 dark:border-[#C08E5D]/20 space-y-1">
+                  <div class="font-extrabold text-brand-choco dark:text-[#E2C08A]">🎂 Custom Cake Configuration:</div>
                   <div>Flavor: <strong>{{ item.options.flavor_preference }}</strong></div>
                   <div>Frosting: <strong>{{ item.options.frosting_type }}</strong></div>
-                  <div v-if="item.options.budget_range_min" class="text-warm-gray">
+                  <div v-if="item.options.budget_range_min" class="text-warm-gray dark:text-[#C5B4A4]">
                     Preferred Budget: <strong>₱{{ item.options.budget_range_min }} - ₱{{ item.options.budget_range_max }}</strong>
                   </div>
-                  <div v-if="item.options.cake_inscription" class="italic text-warm-gray">"{{ item.options.cake_inscription }}"</div>
-                  <div v-if="item.options.event_date" class="text-warm-gray">Event Date: {{ item.options.event_date }}</div>
+                  <div v-if="item.options.cake_inscription" class="italic text-warm-gray dark:text-[#C5B4A4]">"{{ item.options.cake_inscription }}"</div>
+                  <div v-if="item.options.event_date" class="text-warm-gray dark:text-[#C5B4A4]">Event Date: {{ item.options.event_date }}</div>
                 </div>
 
-                <div v-else class="text-xs text-warm-gray mt-0.5">SKU: {{ item.sku }}</div>
-                <div class="text-sm font-semibold text-brand-choco mt-1">₱{{ item.unit_price.toFixed(2) }} each</div>
+                <div v-else class="text-xs text-warm-gray dark:text-[#C5B4A4] mt-0.5">SKU: {{ item.sku }}</div>
+                <div class="text-sm font-semibold text-brand-choco dark:text-[#E2C08A] mt-1">₱{{ item.unit_price.toFixed(2) }} each</div>
               </div>
             </div>
 
             <div class="flex items-center justify-between sm:justify-end gap-6 pt-2 sm:pt-0">
               <!-- Quantity Controls -->
-              <div class="flex items-center border border-brand-caramel/30 rounded-xl bg-surface/40 p-1">
+              <div class="flex items-center border border-brand-caramel/30 dark:border-[#C08E5D]/30 rounded-xl bg-surface/40 dark:bg-[#140D09] p-1">
                 <button
                   v-tooltip="'Decrease quantity'"
-                  class="w-8 h-8 rounded-lg flex items-center justify-center text-brand-choco font-bold hover:bg-surface"
+                  class="w-8 h-8 rounded-lg flex items-center justify-center text-brand-choco dark:text-[#E2C08A] font-bold hover:bg-surface dark:hover:bg-[#1E1510]"
                   @click="cartStore.updateItem(item.id, item.qty - 1)"
                 >
                   -
                 </button>
-                <span v-tooltip="`${item.qty} item${item.qty > 1 ? 's' : ''} selected`" class="w-8 text-center font-bold text-sm text-ink cursor-help">{{ item.qty }}</span>
+                <span v-tooltip="`${item.qty} item${item.qty > 1 ? 's' : ''} selected`" class="w-8 text-center font-bold text-sm text-ink dark:text-[#FBF3E7] cursor-help">{{ item.qty }}</span>
                 <button
                   v-tooltip="'Increase quantity'"
-                  class="w-8 h-8 rounded-lg flex items-center justify-center text-brand-choco font-bold hover:bg-surface"
+                  class="w-8 h-8 rounded-lg flex items-center justify-center text-brand-choco dark:text-[#E2C08A] font-bold hover:bg-surface dark:hover:bg-[#1E1510]"
                   @click="cartStore.updateItem(item.id, item.qty + 1)"
                 >
                   +
                 </button>
               </div>
 
-              <div class="text-right">
-                <div class="font-extrabold text-base text-brand-choco">₱{{ item.subtotal.toFixed(2) }}</div>
-                <button
-                  v-tooltip="'Remove from basket (you can undo this right after)'"
-                  class="text-xs text-error hover:underline mt-0.5"
-                  @click="handleRemove(item)"
-                >
-                  Remove
-                </button>
+              <div class="text-right flex flex-col items-end gap-1">
+                <div class="font-extrabold text-base text-brand-choco dark:text-[#E2C08A]">₱{{ item.subtotal.toFixed(2) }}</div>
+                <div class="flex items-center gap-3">
+                  <button v-if="!item.options?.is_custom"
+                    v-tooltip="'Edit variation or flavor options'"
+                    class="text-xs text-brand-choco dark:text-[#E2C08A] hover:underline font-semibold flex items-center gap-1"
+                    @click="handleEditItem(item)">
+                    Edit
+                  </button>
+                  <button
+                    v-tooltip="'Remove from basket (you can undo this right after)'"
+                    class="text-xs text-error hover:underline"
+                    @click="promptRemoveSingle(item)"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -191,6 +218,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
+import { useProductModalStore } from '@/stores/productModal'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -198,11 +226,16 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 
 const cartStore = useCartStore()
 const authStore = useAuthStore()
+const productModal = useProductModalStore()
 const router = useRouter()
 
 const couponCode = ref('')
 const applyingCoupon = ref(false)
 const lastRemovedItem = ref(null)
+
+function handleEditItem(item) {
+  productModal.openModalForEdit(item)
+}
 
 onMounted(() => {
   if (!authStore.isAuthenticated) {

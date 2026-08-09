@@ -169,7 +169,6 @@
                       <span v-if="modalStore.product.category?.name" class="text-xs font-bold uppercase tracking-wider text-brand-caramel">
                         {{ modalStore.product.category.name }}
                       </span>
-
                       <span
                         v-if="modalStore.product.reviews_count && modalStore.product.reviews_count > 0"
                         class="inline-flex items-center gap-1 bg-surface border border-brand-caramel/30 px-2.5 py-0.5 rounded-full text-xs font-extrabold text-brand-choco"
@@ -177,6 +176,10 @@
                         <span>⭐ {{ modalStore.product.avg_rating }}</span>
                         <span class="text-warm-gray font-normal">({{ modalStore.product.reviews_count }} reviews)</span>
                       </span>
+                    </div>
+
+                    <div v-if="modalStore.editingCartItem" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-tan/30 border border-brand-caramel/40 text-brand-choco dark:text-[#E2C08A] text-xs font-bold mb-1">
+                      Editing item in your basket
                     </div>
 
                     <h1 class="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight leading-snug">
@@ -337,7 +340,7 @@
                         @click="handleAddToCart"
                       >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 0a2 2 0 100 4 2 2 0 000-4z" /></svg>
-                        <span>Add To Cart</span>
+                        <span>{{ modalStore.editingCartItem ? 'Update Basket Item' : 'Add To Cart' }}</span>
                       </button>
 
                       <button
@@ -346,7 +349,7 @@
                         :disabled="adding || !modalStore.product.is_in_stock"
                         @click="handleBuyNow"
                       >
-                        Buy Now<template v-if="hasPrice"> • ₱{{ (effectivePrice * quantity).toFixed(2) }}</template>
+                        {{ modalStore.editingCartItem ? 'Save Changes' : 'Buy Now' }}<template v-if="hasPrice"> • ₱{{ (effectivePrice * quantity).toFixed(2) }}</template>
                       </button>
                     </div>
                   </div>
@@ -451,6 +454,7 @@ const adding = ref(false)
 const touchStartX = ref(0)
 const touchCurrentX = ref(0)
 const selectedVariationIdx = ref(null)
+const selectedFlavorIdx = ref(null)
 
 const allImages = computed(() => {
   if (!modalStore.product) return []
@@ -458,15 +462,15 @@ const allImages = computed(() => {
   if (modalStore.product.primary_image_url) {
     list.push(modalStore.product.primary_image_url)
   }
-  if (modalStore.product.gallery_images && Array.isArray(modalStore.product.gallery_images)) {
-    modalStore.product.gallery_images.forEach(img => {
-      if (!list.includes(img)) list.push(img)
-    })
+  if (modalStore.product.secondary_images_urls?.length) {
+    list.push(...modalStore.product.secondary_images_urls)
   }
-  return list.length > 0 ? list : ['/images/placeholder-bakery.png']
+  return list.length ? list : ['/images/placeholder-bakery.png']
 })
 
-const selectedFlavorIdx = ref(null)
+const currentImage = computed(() => {
+  return allImages.value[activeIndex.value] || '/images/placeholder-bakery.png'
+})
 
 const variationLabel = computed(() => {
   const type = modalStore.product?.variation_type
@@ -519,10 +523,22 @@ const hasPrice = computed(() => {
 watch(() => modalStore.product, (newVal) => {
   if (newVal) {
     activeIndex.value = 0
-    quantity.value = 1
+    quantity.value = modalStore.editingCartItem ? modalStore.editingCartItem.qty : 1
     activeTab.value = 'description'
-    selectedVariationIdx.value = null
-    selectedFlavorIdx.value = null
+
+    if (modalStore.editingCartItem?.options?.variation) {
+      const vIdx = newVal.variations?.findIndex(v => v.label === modalStore.editingCartItem.options.variation)
+      selectedVariationIdx.value = (vIdx !== undefined && vIdx >= 0) ? vIdx : ((newVal.variation_type && newVal.variation_type !== 'none' && newVal.variations && newVal.variations.length > 0) ? 0 : null)
+    } else {
+      selectedVariationIdx.value = (newVal.variation_type && newVal.variation_type !== 'none' && newVal.variations && newVal.variations.length > 0) ? 0 : null
+    }
+
+    if (modalStore.editingCartItem?.options?.flavor) {
+      const fIdx = newVal.flavors?.findIndex(f => f.name === modalStore.editingCartItem.options.flavor)
+      selectedFlavorIdx.value = (fIdx !== undefined && fIdx >= 0) ? fIdx : null
+    } else {
+      selectedFlavorIdx.value = null
+    }
   }
 }, { immediate: true })
 
@@ -553,6 +569,14 @@ function onTouchEnd() {
 
 async function handleAddToCart() {
   if (!modalStore.product) return
+
+  if (modalStore.product.variation_type && modalStore.product.variation_type !== 'none' && modalStore.product.variations && modalStore.product.variations.length > 0) {
+    if (selectedVariationIdx.value === null) {
+      toast.warning(`Please select a ${variationLabel.value.toLowerCase()} option before adding to basket.`, 'Variation Required')
+      return
+    }
+  }
+
   adding.value = true
   const chosenFlavor = selectedFlavor.value ? selectedFlavor.value.name : (modalStore.product.flavor || null)
   const options = {
@@ -564,17 +588,36 @@ async function handleAddToCart() {
     } : {}),
     unit_price: parseFloat(effectivePrice.value)
   }
-  const res = await cartStore.addItem(modalStore.product.id, quantity.value, options)
+
+  let res
+  if (modalStore.editingCartItem) {
+    res = await cartStore.updateItem(modalStore.editingCartItem.id, quantity.value, options)
+  } else {
+    res = await cartStore.addItem(modalStore.product.id, quantity.value, options)
+  }
   adding.value = false
 
-  if (res.success) {
-    toast.success(`Added ${quantity.value}x ${modalStore.product.name} to your basket!`, 'Freshly Baked')
+  if (res?.success) {
+    toast.success(
+      modalStore.editingCartItem
+        ? `Updated ${modalStore.product.name} in your basket!`
+        : `Added ${quantity.value}x ${modalStore.product.name} to your basket!`,
+      modalStore.editingCartItem ? 'Basket Item Updated' : 'Freshly Baked'
+    )
     modalStore.closeModal()
   }
 }
 
 async function handleBuyNow() {
   if (!modalStore.product) return
+
+  if (modalStore.product.variation_type && modalStore.product.variation_type !== 'none' && modalStore.product.variations && modalStore.product.variations.length > 0) {
+    if (selectedVariationIdx.value === null) {
+      toast.warning(`Please select a ${variationLabel.value.toLowerCase()} option before proceeding.`, 'Variation Required')
+      return
+    }
+  }
+
   adding.value = true
   const chosenFlavor = selectedFlavor.value ? selectedFlavor.value.name : (modalStore.product.flavor || null)
   const options = {
@@ -586,11 +629,22 @@ async function handleBuyNow() {
     } : {}),
     unit_price: parseFloat(effectivePrice.value)
   }
-  const res = await cartStore.addItem(modalStore.product.id, quantity.value, options)
+
+  let res
+  if (modalStore.editingCartItem) {
+    res = await cartStore.updateItem(modalStore.editingCartItem.id, quantity.value, options)
+  } else {
+    res = await cartStore.addItem(modalStore.product.id, quantity.value, options)
+  }
   adding.value = false
 
-  if (res.success) {
-    toast.success(`Added to basket! Redirecting to checkout...`, 'Instant Purchase')
+  if (res?.success) {
+    toast.success(
+      modalStore.editingCartItem
+        ? 'Basket updated! Proceeding to checkout.'
+        : 'Basket saved! Proceeding to checkout.',
+      'Checkout Ready'
+    )
     modalStore.closeModal()
     router.push('/checkout')
   }

@@ -118,14 +118,14 @@
                 <!-- Basket Button (Only shown when authenticated) -->
                 <button v-if="authStore.isAuthenticated" @click="cartStore.openDrawer = true"
                     v-tooltip="'View your selected treats &amp; cart subtotal'"
-                    class="relative flex items-center gap-1.5 bg-brand-choco text-surface px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl hover:bg-choco-600 transition-all duration-200 shadow-sm shrink-0 whitespace-nowrap">
+                    class="relative flex items-center gap-1.5 bg-brand-choco text-surface dark:bg-[#E2C08A] dark:text-[#1C1410] dark:hover:bg-[#D9A876] px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl hover:bg-choco-600 transition-all duration-200 shadow-sm shrink-0 whitespace-nowrap">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                     <span class="hidden sm:inline text-xs font-bold">Basket</span>
                     <span v-if="cartStore.itemCount > 0"
-                        class="w-5 h-5 rounded-full bg-brand-tan text-ink font-extrabold text-[10px] flex items-center justify-center -mr-0.5">{{
+                        class="w-5 h-5 rounded-full bg-brand-tan text-ink dark:bg-[#1C1410] dark:text-[#E2C08A] font-extrabold text-[10px] flex items-center justify-center -mr-0.5">{{
                             cartStore.itemCount }}</span>
                 </button>
 

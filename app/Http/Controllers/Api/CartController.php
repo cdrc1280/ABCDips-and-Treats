@@ -47,10 +47,11 @@ class CartController extends Controller
     {
         $request->validate([
             'qty' => ['required', 'integer', 'min:0'],
+            'options' => ['nullable', 'array'],
         ]);
 
         $cart = $this->getCart($request);
-        $this->cartService->updateItem($cart, $itemId, (int)$request->qty);
+        $this->cartService->updateItem($cart, $itemId, (int)$request->qty, $request->options);
 
         return response()->json([
             'message' => 'Cart updated.',

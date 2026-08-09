@@ -173,10 +173,11 @@ class ProductResource extends Resource
                             ->live(),
 
                         Repeater::make('variations')
-                            ->label('Variation Options')
+                            ->label('Variation Options (Required when variation type is set)')
+                            ->helperText('Define variation options (e.g. 250g, 500g, 6 pcs). The first option will be auto-selected by default for customers on the storefront so prices calculate instantly.')
                             ->schema([
                                 TextInput::make('label')
-                                    ->label('Option Label (e.g. 250g, 6 pcs, Small, Dark Chocolate)')
+                                    ->label('Option Label (e.g. 250g, 6 pcs, Small, Solo Box)')
                                     ->required()
                                     ->maxLength(100),
                                 TextInput::make('price_modifier')
@@ -189,6 +190,7 @@ class ProductResource extends Resource
                                     ->extraInputAttributes(['inputmode' => 'decimal']),
                             ])
                             ->columns(2)
+                            ->minItems(fn(callable $get) => ($get('variation_type') && $get('variation_type') !== 'none') ? 1 : 0)
                             ->addActionLabel('Add Option')
                             ->reorderable()
                             ->collapsible()

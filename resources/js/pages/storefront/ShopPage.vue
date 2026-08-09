@@ -24,14 +24,14 @@
                 <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 no-scrollbar">
                     <button
                         class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0"
-                        :class="!selectedCategory ? 'bg-brand-choco text-surface' : 'bg-brand-tan/20 text-brand-choco hover:bg-brand-tan/35'"
+                        :class="!selectedCategory ? 'bg-brand-choco text-surface dark:bg-[#E2C08A] dark:text-[#1C1410]' : 'bg-brand-tan/20 text-brand-choco hover:bg-brand-tan/35 dark:bg-[#2A1C13] dark:text-[#FBF3E7] dark:hover:bg-[#3D291D] dark:border dark:border-[#C08E5D]/30'"
                         @click="selectCategory('')">
                         All Items
                     </button>
 
                     <button v-for="cat in categories" :key="cat.id"
                         class="px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap shrink-0"
-                        :class="selectedCategory === cat.slug ? 'bg-brand-choco text-surface' : 'bg-brand-tan/20 text-brand-choco hover:bg-brand-tan/35'"
+                        :class="selectedCategory === cat.slug ? 'bg-brand-choco text-surface dark:bg-[#E2C08A] dark:text-[#1C1410] font-bold' : 'bg-brand-tan/20 text-brand-choco hover:bg-brand-tan/35 dark:bg-[#2A1C13] dark:text-[#FBF3E7] dark:hover:bg-[#3D291D] dark:border dark:border-[#C08E5D]/30'"
                         @click="selectCategory(cat.slug)">
                         {{ cat.name }}
                     </button>
@@ -69,7 +69,7 @@
                 ← Previous
             </BaseButton>
 
-            <span class="text-sm font-semibold text-brand-choco px-4">
+            <span class="text-sm font-semibold text-brand-choco dark:text-[#FBF3E7] px-4">
                 Page {{ pagination.current_page }} of {{ pagination.last_page }}
             </span>
 

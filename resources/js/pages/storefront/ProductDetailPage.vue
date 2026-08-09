@@ -303,9 +303,12 @@ import SkeletonText from '@/components/ui/SkeletonText.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ProductReviews from '@/components/storefront/ProductReviews.vue'
 
+import { useProductModalStore } from '@/stores/productModal'
+
 const axios = inject('axios')
 const route = useRoute()
 const cartStore = useCartStore()
+const productModal = useProductModalStore()
 const toast = useToast()
 
 const product = ref(null)
@@ -333,6 +336,12 @@ async function fetchProduct() {
 
 async function addToCart() {
     if (!product.value) return
+
+    if ((product.value.variation_type && product.value.variation_type !== 'none' && product.value.variations?.length > 0) || (product.value.flavors && product.value.flavors.length > 0)) {
+        productModal.openModal(product.value)
+        return
+    }
+
     adding.value = true
     const options = product.value.flavor ? { flavor: product.value.flavor } : {}
     const res = await cartStore.addItem(product.value.id, quantity.value, options)

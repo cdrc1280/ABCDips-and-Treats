@@ -82,13 +82,13 @@
         <!-- Copyright bar -->
         <div class="border-t border-[#FBF3E7]/10">
             <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-                <p class="text-xs text-[#FBF3E7]/40">&copy; {{ new Date().getFullYear() }} ABCDips &amp; Treats. All
+                <p class="text-xs text-[#FBF3E7]/70 dark:text-[#FBF3E7]/80">&copy; {{ new Date().getFullYear() }} ABCDips &amp; Treats. All
                     rights
                     reserved.</p>
                 <div class="flex gap-4">
-                    <RouterLink to="/privacy" class="text-xs text-[#FBF3E7]/40 hover:text-[#E2C08A] transition-colors">
+                    <RouterLink to="/privacy" class="text-xs text-[#FBF3E7]/70 dark:text-[#FBF3E7]/80 hover:text-[#E2C08A] transition-colors">
                         Privacy Policy</RouterLink>
-                    <RouterLink to="/terms" class="text-xs text-[#FBF3E7]/40 hover:text-[#E2C08A] transition-colors">
+                    <RouterLink to="/terms" class="text-xs text-[#FBF3E7]/70 dark:text-[#FBF3E7]/80 hover:text-[#E2C08A] transition-colors">
                         Terms of Service</RouterLink>
                 </div>
             </div>

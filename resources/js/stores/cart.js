@@ -57,12 +57,16 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  async function updateItem(itemId, qty) {
+  async function updateItem(itemId, qty, options = null) {
     try {
-      const { data } = await axios.put(`/api/cart/items/${itemId}`, { qty })
+      const payload = { qty }
+      if (options !== null) payload.options = options
+      const { data } = await axios.put(`/api/cart/items/${itemId}`, payload)
       cart.value = data.data
+      return { success: true }
     } catch (err) {
       error.value = err.response?.data?.message
+      return { success: false }
     }
   }
 

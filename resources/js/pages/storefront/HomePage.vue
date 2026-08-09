@@ -3,13 +3,13 @@
 
         <!-- 1. Hero Section (Clean, Warm & High-Contrast) -->
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-            <div class="bg-brand-choco text-surface rounded-3xl overflow-hidden shadow-xl p-8 sm:p-12 lg:p-16 relative">
+            <div class="bg-brand-choco dark:bg-[#20150E] text-surface rounded-3xl overflow-hidden shadow-xl p-8 sm:p-12 lg:p-16 relative border border-brand-caramel/20 dark:border-[#C08E5D]/30">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
 
                     <!-- Hero Left Column -->
                     <div class="lg:col-span-7 space-y-6 text-left">
                         <div
-                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-tan/20 border border-brand-tan/30 text-xs font-bold text-brand-tan">
+                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-tan/20 border border-brand-tan/30 text-xs font-bold text-brand-tan dark:text-[#E2C08A]">
                             <span class="w-2.5 h-2.5 rounded-full bg-success animate-pulse" />
                             <span>{{ homeContent.hero_badge }}</span>
                         </div>
@@ -18,19 +18,19 @@
                             class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
                             {{ homeContent.hero_title }} <br class="hidden sm:inline" />
                             <span
-                                class="font-['Caveat'] text-brand-tan font-normal text-4xl sm:text-5xl lg:text-6xl block mt-1">
+                                class="font-['Caveat'] text-brand-tan dark:text-[#E2C08A] font-normal text-4xl sm:text-5xl lg:text-6xl block mt-1">
                                 {{ homeContent.hero_subtitle }}
                             </span>
                         </h1>
 
-                        <p class="text-surface/90 text-base sm:text-lg max-w-xl leading-relaxed whitespace-pre-line">
+                        <p class="text-surface/90 dark:text-[#FBF3E7]/90 text-base sm:text-lg max-w-xl leading-relaxed whitespace-pre-line">
                             {{ homeContent.hero_description }}
                         </p>
 
                         <div class="flex flex-wrap gap-4 pt-2">
                             <RouterLink :to="homeContent.hero_btn_primary_url || '/shop'">
                                 <button v-tooltip="'Explore all handcrafted treats & pastries'"
-                                    class="bg-brand-tan text-ink px-7 py-3.5 rounded-2xl font-bold text-sm hover:bg-brand-caramel transition-colors shadow-md flex items-center gap-2">
+                                    class="bg-brand-tan text-ink dark:bg-[#E2C08A] dark:text-[#1C1410] px-7 py-3.5 rounded-2xl font-bold text-sm hover:bg-brand-caramel dark:hover:bg-[#D9A876] transition-colors shadow-md flex items-center gap-2">
                                     {{ homeContent.hero_btn_primary_text }}
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -41,7 +41,7 @@
 
                             <RouterLink :to="homeContent.hero_btn_secondary_url || '/best-sellers'">
                                 <button v-tooltip="'View top customer favorite pastries'"
-                                    class="bg-transparent border border-brand-tan/60 text-surface px-7 py-3.5 rounded-2xl font-semibold text-sm hover:bg-brand-tan/20 transition-colors">
+                                    class="bg-transparent border border-brand-tan/60 dark:border-[#C08E5D]/60 text-surface dark:text-[#FBF3E7] px-7 py-3.5 rounded-2xl font-semibold text-sm hover:bg-brand-tan/20 transition-colors">
                                     {{ homeContent.hero_btn_secondary_text }}
                                 </button>
                             </RouterLink>
@@ -49,9 +49,9 @@
 
                         <!-- Trust Highlights -->
                         <div
-                            class="pt-6 border-t border-brand-tan/20 flex flex-wrap gap-6 text-xs text-surface/90 font-medium">
+                            class="pt-6 border-t border-brand-tan/20 flex flex-wrap gap-6 text-xs text-surface/90 dark:text-[#FBF3E7]/90 font-medium">
                             <div v-if="homeContent.hero_bullet_1" class="flex items-center gap-2">
-                                <svg class="w-4 h-4 text-brand-tan" fill="none" stroke="currentColor"
+                                <svg class="w-4 h-4 text-brand-tan dark:text-[#E2C08A]" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 13l4 4L19 7" />
@@ -59,7 +59,7 @@
                                 <span>{{ homeContent.hero_bullet_1 }}</span>
                             </div>
                             <div v-if="homeContent.hero_bullet_2" class="flex items-center gap-2">
-                                <svg class="w-4 h-4 text-brand-tan" fill="none" stroke="currentColor"
+                                <svg class="w-4 h-4 text-brand-tan dark:text-[#E2C08A]" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 13l4 4L19 7" />
@@ -75,16 +75,16 @@
                             class="w-full max-w-sm bg-surface dark:bg-[#2A1C13] hero-showcase-card rounded-3xl p-6 shadow-2xl text-center border border-brand-caramel/30">
                             <div
                                 class="bg-white dark:bg-[#1E130B] hero-showcase-inner rounded-2xl p-2 mb-4 shadow-inner flex items-center justify-center overflow-hidden aspect-4/3">
-                                <img :src="homeContent.hero_card_image" :alt="homeContent.hero_card_title"
+                                <img :src="homeContent.hero_card_image || '/images/placeholder-bakery.png'" :alt="homeContent.hero_card_title"
                                     class="w-full h-full object-cover rounded-xl transition-transform duration-500 hover:scale-105" />
                             </div>
                             <div
-                                class="bg-brand-choco text-surface p-4 rounded-2xl text-left shadow-sm border border-brand-tan/30">
-                                <div class="text-[11px] font-bold text-brand-tan uppercase tracking-wider">
+                                class="bg-brand-choco dark:bg-[#1E130B] text-surface p-4 rounded-2xl text-left shadow-sm border border-brand-tan/30">
+                                <div class="text-[11px] font-bold text-brand-tan dark:text-[#E2C08A] uppercase tracking-wider">
                                     {{ homeContent.hero_card_badge }}
                                 </div>
-                                <div class="text-base font-bold text-white">{{ homeContent.hero_card_title }}</div>
-                                <div class="text-xs text-surface/80 mt-0.5">{{ homeContent.hero_card_subtitle }}</div>
+                                <div class="text-base font-bold text-white dark:text-[#FBF3E7]">{{ homeContent.hero_card_title }}</div>
+                                <div class="text-xs text-surface/80 dark:text-[#FBF3E7]/80 mt-0.5">{{ homeContent.hero_card_subtitle }}</div>
                             </div>
                         </div>
                     </div>
@@ -97,28 +97,28 @@
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <span class="font-['Caveat'] text-brand-caramel text-xl">explore by category</span>
-                    <h2 class="text-2xl md:text-3xl font-extrabold text-ink">Freshly Baked Categories</h2>
+                    <span class="font-['Caveat'] text-brand-caramel dark:text-[#E2C08A] text-xl">explore by category</span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-ink dark:text-[#FBF3E7]">Freshly Baked Categories</h2>
                 </div>
                 <RouterLink to="/shop"
-                    class="text-xs font-bold text-brand-choco hover:underline flex items-center gap-1">
+                    class="text-xs font-bold text-brand-choco dark:text-[#E2C08A] hover:underline flex items-center gap-1">
                     View All →
                 </RouterLink>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                 <RouterLink v-for="cat in categories" :key="cat.id" :to="`/shop?category=${cat.slug}`"
-                    class="group bg-white p-4 rounded-2xl border border-brand-caramel/20 text-center hover:shadow-md hover:border-brand-choco transition-all duration-200">
+                    class="group bg-white dark:bg-[#1E1510] p-4 rounded-2xl border border-brand-caramel/20 dark:border-[#C08E5D]/20 text-center hover:shadow-md hover:border-brand-choco dark:hover:border-[#E2C08A] transition-all duration-200">
                     <div
-                        class="w-12 h-12 rounded-xl bg-brand-tan/20 category-card-icon mx-auto mb-3 flex items-center justify-center text-brand-choco group-hover:scale-110 transition-transform">
+                        class="w-12 h-12 rounded-xl bg-brand-tan/20 dark:bg-[#2A1C13] category-card-icon mx-auto mb-3 flex items-center justify-center text-brand-choco dark:text-[#E2C08A] group-hover:scale-110 transition-transform">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                         </svg>
                     </div>
-                    <h3 class="font-bold text-xs text-ink group-hover:text-brand-choco line-clamp-1 mb-0.5">{{
+                    <h3 class="font-bold text-xs text-ink dark:text-[#FBF3E7] group-hover:text-brand-choco dark:group-hover:text-[#E2C08A] line-clamp-1 mb-0.5">{{
                         cat.name }}</h3>
-                    <span class="text-[10px] text-warm-gray">{{ cat.products_count || 0 }} items</span>
+                    <span class="text-[10px] text-warm-gray dark:text-[#C5B4A4]">{{ cat.products_count || 0 }} items</span>
                 </RouterLink>
             </div>
         </section>
@@ -129,10 +129,10 @@
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between mb-8">
                 <div>
-                    <span class="font-['Caveat'] text-brand-caramel text-xl">baker's recommendation</span>
-                    <h2 class="text-2xl md:text-3xl font-extrabold text-ink">Featured Pastry Collection</h2>
+                    <span class="font-['Caveat'] text-brand-caramel dark:text-[#E2C08A] text-xl">baker's recommendation</span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-ink dark:text-[#FBF3E7]">Featured Pastry Collection</h2>
                 </div>
-                <RouterLink to="/featured" class="text-xs font-bold text-brand-choco hover:underline">
+                <RouterLink to="/featured" class="text-xs font-bold text-brand-choco dark:text-[#E2C08A] hover:underline">
                     See All Featured →
                 </RouterLink>
             </div>
@@ -152,20 +152,20 @@
         <!-- 4. Baker's Spotlight Banner -->
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div
-                class="bg-brand-choco rounded-3xl p-8 md:p-12 text-surface relative overflow-hidden shadow-xl border border-brand-caramel/30">
+                class="bg-brand-choco dark:bg-[#20150E] rounded-3xl p-8 md:p-12 text-surface relative overflow-hidden shadow-xl border border-brand-caramel/30 dark:border-[#C08E5D]/30">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10">
                     <div class="space-y-4">
-                        <span class="font-['Caveat'] text-brand-tan text-2xl">{{ homeContent.spotlight_tagline }}</span>
+                        <span class="font-['Caveat'] text-brand-tan dark:text-[#E2C08A] text-2xl">{{ homeContent.spotlight_tagline }}</span>
                         <h2 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
                             {{ homeContent.spotlight_title }}
                         </h2>
-                        <p class="text-surface/90 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                        <p class="text-surface/90 dark:text-[#FBF3E7]/90 text-sm md:text-base leading-relaxed whitespace-pre-line">
                             {{ homeContent.spotlight_description }}
                         </p>
                         <div class="pt-2">
                             <RouterLink :to="homeContent.spotlight_btn_url || '/shop'">
                                 <button
-                                    class="bg-brand-tan text-ink px-6 py-3.5 rounded-2xl font-bold text-sm hover:bg-brand-caramel transition-colors shadow-md">
+                                    class="bg-brand-tan text-ink dark:bg-[#E2C08A] dark:text-[#1C1410] px-6 py-3.5 rounded-2xl font-bold text-sm hover:bg-brand-caramel dark:hover:bg-[#D9A876] transition-colors shadow-md">
                                     {{ homeContent.spotlight_btn_text }}
                                 </button>
                             </RouterLink>
@@ -175,7 +175,7 @@
                     <div class="flex justify-center">
                         <div
                             class="w-64 h-64 md:w-80 md:h-80 rounded-2xl bg-white dark:bg-[#120B07] border border-brand-tan/40 p-3 flex items-center justify-center shadow-lg overflow-hidden">
-                            <img :src="homeContent.spotlight_image" :alt="homeContent.spotlight_title"
+                            <img :src="homeContent.spotlight_image || '/images/placeholder-bakery.png'" :alt="homeContent.spotlight_title"
                                 class="w-full h-full object-cover rounded-xl shadow-md transition-transform duration-500 hover:scale-105" />
                         </div>
                     </div>
@@ -187,10 +187,10 @@
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between mb-8">
                 <div>
-                    <span class="font-['Caveat'] text-brand-caramel text-xl">most popular choice</span>
-                    <h2 class="text-2xl md:text-3xl font-extrabold text-ink">Best Selling Favorites</h2>
+                    <span class="font-['Caveat'] text-brand-caramel dark:text-[#E2C08A] text-xl">most popular choice</span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-ink dark:text-[#FBF3E7]">Best Selling Favorites</h2>
                 </div>
-                <RouterLink to="/best-sellers" class="text-xs font-bold text-brand-choco hover:underline">
+                <RouterLink to="/best-sellers" class="text-xs font-bold text-brand-choco dark:text-[#E2C08A] hover:underline">
                     View All Best Sellers →
                 </RouterLink>
             </div>

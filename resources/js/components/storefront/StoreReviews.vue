@@ -1,27 +1,27 @@
 <template>
   <div class="space-y-12">
     <!-- Store & Service Rating Overview Card (Only shown if store reviews exist) -->
-    <div v-if="stats.total_reviews && stats.total_reviews > 0" class="bg-gradient-to-br from-brand-choco to-[#3D2515] text-surface rounded-3xl p-8 md:p-12 shadow-xl border border-brand-caramel/30 relative overflow-hidden">
+    <div v-if="stats.total_reviews && stats.total_reviews > 0" class="bg-gradient-to-br from-brand-choco to-[#3D2515] dark:from-[#20150E] dark:to-[#170E0A] text-surface rounded-3xl p-8 md:p-12 shadow-xl border border-brand-caramel/30 dark:border-[#C08E5D]/30 relative overflow-hidden">
       <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none text-9xl">🧁</div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center relative z-10">
         <!-- Main Score -->
         <div class="text-center lg:text-left space-y-2">
-          <div class="script-accent text-brand-tan text-xl">bakery experience &amp; service</div>
+          <div class="script-accent text-brand-tan dark:text-[#E2C08A] text-xl">bakery experience &amp; service</div>
           <div class="flex items-baseline justify-center lg:justify-start gap-3">
-            <span class="text-6xl font-black tracking-tight">{{ stats.avg_rating }}</span>
-            <span class="text-2xl text-brand-tan">/ 5.0</span>
+            <span class="text-6xl font-black tracking-tight text-white dark:text-[#FBF3E7]">{{ stats.avg_rating }}</span>
+            <span class="text-2xl text-brand-tan dark:text-[#E2C08A]">/ 5.0</span>
           </div>
           <div class="flex items-center justify-center lg:justify-start gap-1 text-2xl text-amber-400">
             <span v-for="s in 5" :key="s">{{ s <= Math.round(stats.avg_rating || 5) ? '⭐' : '☆' }}</span>
           </div>
-          <p class="text-xs text-brand-tan">Based on {{ stats.total_reviews }} verified customer review{{ stats.total_reviews > 1 ? 's' : '' }}</p>
+          <p class="text-xs text-brand-tan dark:text-[#E2C08A]">Based on {{ stats.total_reviews }} verified customer review{{ stats.total_reviews > 1 ? 's' : '' }}</p>
         </div>
 
         <!-- Service Pillar Scores -->
         <div v-if="stats.service_scores" class="space-y-3 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10">
           <div class="space-y-1 text-xs">
-            <div class="flex justify-between font-bold">
+            <div class="flex justify-between font-bold text-white dark:text-[#FBF3E7]">
               <span>🥐 Taste &amp; Freshness</span>
               <span class="text-amber-300">{{ stats.service_scores.taste_freshness }} ★</span>
             </div>
@@ -31,7 +31,7 @@
           </div>
 
           <div class="space-y-1 text-xs">
-            <div class="flex justify-between font-bold">
+            <div class="flex justify-between font-bold text-white dark:text-[#FBF3E7]">
               <span>🚚 Delivery Speed &amp; Care</span>
               <span class="text-amber-300">{{ stats.service_scores.delivery_speed }} ★</span>
             </div>
@@ -41,7 +41,7 @@
           </div>
 
           <div class="space-y-1 text-xs">
-            <div class="flex justify-between font-bold">
+            <div class="flex justify-between font-bold text-white dark:text-[#FBF3E7]">
               <span>💬 Customer Support &amp; Hospitality</span>
               <span class="text-amber-300">{{ stats.service_scores.customer_service }} ★</span>
             </div>
@@ -53,8 +53,8 @@
 
         <!-- Write Review Callout -->
         <div class="text-center lg:text-right space-y-4">
-          <h4 class="font-extrabold text-xl">How was your bakery experience?</h4>
-          <p class="text-xs text-surface/80 max-w-xs ml-auto">Share your feedback on our pastries, delivery, or custom orders to help us serve you better!</p>
+          <h4 class="font-extrabold text-xl text-white dark:text-[#FBF3E7]">How was your bakery experience?</h4>
+          <p class="text-xs text-surface/80 dark:text-[#FBF3E7]/90 max-w-xs ml-auto">Share your feedback on our pastries, delivery, or custom orders to help us serve you better!</p>
           <BaseButton variant="secondary" size="lg" :v-tooltip="showForm ? 'Close store review form' : 'Share your overall bakery & delivery experience'" @click="handleToggleForm">
             {{ showForm ? 'Close Review Form' : '✍️ Write a Store Review' }}
           </BaseButton>
@@ -63,10 +63,10 @@
     </div>
 
     <!-- Banner callout when 0 store reviews exist -->
-    <div v-else class="bg-brand-choco text-surface rounded-3xl p-8 text-center space-y-4 shadow-lg border border-brand-caramel/30">
+    <div v-else class="bg-brand-choco dark:bg-[#20150E] text-surface rounded-3xl p-8 text-center space-y-4 shadow-lg border border-brand-caramel/30 dark:border-[#C08E5D]/30">
       <div class="text-4xl">🧁</div>
-      <h3 class="text-2xl font-extrabold text-white">Bakery &amp; Store Service Reviews</h3>
-      <p class="text-xs text-surface/80 max-w-md mx-auto">Have you ordered from ABCDips &amp; Treats? Share your experience with our bakery service, delivery speed, and customer care!</p>
+      <h3 class="text-2xl font-extrabold text-white dark:text-[#FBF3E7]">Bakery &amp; Store Service Reviews</h3>
+      <p class="text-xs text-surface/80 dark:text-[#FBF3E7]/90 max-w-md mx-auto">Have you ordered from ABCDips &amp; Treats? Share your experience with our bakery service, delivery speed, and customer care!</p>
       <BaseButton variant="secondary" size="lg" :v-tooltip="showForm ? 'Close store review form' : 'Share your overall bakery & delivery experience'" @click="handleToggleForm">
         {{ showForm ? 'Close Review Form' : '✍️ Write the First Store Review' }}
       </BaseButton>
@@ -187,30 +187,30 @@
               </div>
               <div>
                 <div class="font-extrabold text-sm text-ink dark:text-[#FBF3E7]">{{ review.reviewer_name }}</div>
-                <div class="text-[11px] text-warm-gray">Verified Store Customer</div>
+                <div class="text-[11px] text-warm-gray dark:text-[#C5B4A4]">Verified Store Customer</div>
               </div>
             </div>
-            <div class="text-xs text-warm-gray">{{ new Date(review.created_at).toLocaleDateString() }}</div>
+            <div class="text-xs text-warm-gray dark:text-[#C5B4A4]">{{ new Date(review.created_at).toLocaleDateString() }}</div>
           </div>
 
           <div class="flex items-center gap-1 text-sm text-amber-500">
             <span v-for="s in review.rating" :key="s">⭐</span>
           </div>
 
-          <h5 v-if="review.title" class="font-bold text-base text-ink">{{ review.title }}</h5>
+          <h5 v-if="review.title" class="font-bold text-base text-ink dark:text-[#FBF3E7]">{{ review.title }}</h5>
 
-          <p class="text-xs text-warm-gray leading-relaxed">{{ review.comment }}</p>
+          <p class="text-xs text-warm-gray dark:text-[#C5B4A4] leading-relaxed">{{ review.comment }}</p>
 
-          <div v-if="review.product_name" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface text-[11px] font-semibold text-brand-choco">
+          <div v-if="review.product_name" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface dark:bg-[#140D09] text-[11px] font-semibold text-brand-choco dark:text-[#E2C08A]">
             🛍️ Reviewed item: {{ review.product_name }}
           </div>
         </div>
 
-        <div class="pt-3 border-t border-brand-caramel/15 flex items-center justify-between text-xs text-warm-gray">
+        <div class="pt-3 border-t border-brand-caramel/15 dark:border-[#C08E5D]/20 flex items-center justify-between text-xs text-warm-gray dark:text-[#C5B4A4]">
           <span>Was this review helpful?</span>
           <button
             v-tooltip="'Mark this store review as helpful'"
-            class="px-3 py-1 rounded-lg bg-surface hover:bg-brand-tan/30 text-brand-choco font-semibold flex items-center gap-1 transition-all"
+            class="px-3 py-1 rounded-lg bg-surface dark:bg-[#140D09] hover:bg-brand-tan/30 text-brand-choco dark:text-[#E2C08A] font-semibold flex items-center gap-1 transition-all"
             @click="voteHelpful(review.id)"
           >
             👍 Helpful ({{ review.helpful_votes }})

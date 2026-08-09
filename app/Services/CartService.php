@@ -108,7 +108,7 @@ class CartService
         return $item;
     }
 
-    public function updateItem(Cart $cart, int $itemId, int $qty): ?CartItem
+    public function updateItem(Cart $cart, int $itemId, int $qty, ?array $options = null): ?CartItem
     {
         $item = CartItem::where('cart_id', $cart->id)->where('id', $itemId)->first();
 
@@ -119,7 +119,20 @@ class CartService
         if ($qty <= 0) {
             $item->delete(); // Soft delete for restore capability
         } else {
-            $item->update(['qty' => $qty]);
+            $updateData = ['qty' => $qty];
+            if ($options !== null) {
+                $product = $item->product ?? Product::find($item->product_id);
+                if ($product) {
+                    $unitPrice = (isset($options['unit_price']) && (float) $options['unit_price'] > 0)
+                        ? (float) $options['unit_price']
+                        : ((isset($options['price_modifier']) && is_numeric($options['price_modifier']))
+                            ? $product->effective_price + (float) $options['price_modifier']
+                            : $product->effective_price);
+                    $updateData['unit_price'] = $unitPrice;
+                }
+                $updateData['options'] = $options;
+            }
+            $item->update($updateData);
         }
 
         $this->recalculateCartTotals($cart);
@@ -163,7 +176,7 @@ class CartService
             if ($type === 'add' && isset($op['product_id'])) {
                 $this->addItem($cart, (int)$op['product_id'], (int)($op['qty'] ?? 1), $op['options'] ?? null);
             } elseif ($type === 'update' && isset($op['item_id'])) {
-                $this->updateItem($cart, (int)$op['item_id'], (int)$op['qty']);
+                $this->updateItem($cart, (int)$op['item_id'], (int)$op['qty'], $op['options'] ?? null);
             } elseif ($type === 'remove' && isset($op['item_id'])) {
                 $this->removeItem($cart, (int)$op['item_id']);
             } elseif ($type === 'restore' && isset($op['item_id'])) {
