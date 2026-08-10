@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProductResource\Pages\CreateProduct;
 use App\Filament\Resources\ProductResource\Pages\EditProduct;
 use App\Filament\Resources\ProductResource\Pages\ListProducts;
+use App\Models\Ingredient;
+use App\Models\PackagingMaterial;
 use App\Models\Product;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -13,6 +15,7 @@ use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -21,6 +24,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -37,7 +41,7 @@ class ProductResource extends Resource
     protected static ?string $model = Product::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
-    protected static string|\UnitEnum|null $navigationGroup = 'Store';
+    protected static string|\UnitEnum|null $navigationGroup = 'Products & Recipe Costing';
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
@@ -254,6 +258,236 @@ class ProductResource extends Resource
                             ->default(10)
                             ->extraInputAttributes(['inputmode' => 'numeric']),
                     ])->columns(2),
+
+                Group::make()
+                    ->relationship('recipe')
+                    ->columnSpanFull()
+                    ->components([
+                        Section::make('Ingredients & Packaging (Real-Time Auto Stock Deduction BOM)')
+                            ->description('Attach ingredients and packaging directly to this product. When customers order this product (online or POS), the system automatically deducts these items from raw inventory in real time.')
+                            ->components([
+                                Hidden::make('name')
+                                    ->default('Product Recipe BOM'),
+                                Hidden::make('yield_qty')
+                                    ->default(1),
+
+                                 Repeater::make('recipeIngredients')
+                                    ->relationship('recipeIngredients')
+                                    ->label('Raw Ingredients Breakdown')
+                                    ->components([
+                                        Select::make('ingredient_id')
+                                            ->label('Select Ingredient')
+                                            ->relationship('ingredient', 'name')
+                                            ->required()
+                                            ->searchable()
+                                            ->preload()
+                                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                                            ->createOptionForm([
+                                                TextInput::make('sku')
+                                                    ->label('SKU (Auto-generated)')
+                                                    ->default(fn() => 'ING-' . strtoupper(Str::random(6)))
+                                                    ->readOnly()
+                                                    ->required(),
+                                                TextInput::make('name')
+                                                    ->label('Ingredient Name')
+                                                    ->placeholder('e.g. Cocoa Powder, Flour, Milk')
+                                                    ->required(),
+                                                Select::make('unit')
+                                                    ->label('Stock Measurement Unit')
+                                                    ->options([
+                                                        'grams' => 'Grams (grams / g)',
+                                                        'ml'    => 'Milliliters (ml)',
+                                                        'piece' => 'Piece (piece / pcs)',
+                                                        'kg'    => 'Kilograms (kg)',
+                                                        'L'     => 'Liters (L)',
+                                                        'box'   => 'Box / Pack',
+                                                    ])
+                                                    ->default('grams')
+                                                    ->required(),
+                                                TextInput::make('item_unit')
+                                                    ->label('Item Unit (Package Amount)')
+                                                    ->numeric()
+                                                    ->minValue(0.001)
+                                                    ->default(1000)
+                                                    ->required()
+                                                    ->extraInputAttributes(['inputmode' => 'decimal']),
+                                                TextInput::make('item_price')
+                                                    ->label('Item Price (₱)')
+                                                    ->numeric()
+                                                    ->prefix('₱')
+                                                    ->default(0)
+                                                    ->required()
+                                                    ->extraInputAttributes(['inputmode' => 'decimal']),
+                                                TextInput::make('stock_qty')
+                                                    ->label('Current Stock Qty')
+                                                    ->numeric()
+                                                    ->default(1000)
+                                                    ->required()
+                                                    ->extraInputAttributes(['inputmode' => 'decimal']),
+                                                Select::make('supplier_id')
+                                                    ->label('Supplier')
+                                                    ->options(\App\Models\Supplier::query()->pluck('name', 'id'))
+                                                    ->searchable()
+                                                    ->preload(),
+                                            ])
+                                            ->live()
+                                            ->afterStateUpdated(function ($state, callable $set) {
+                                                if ($state) {
+                                                    $ing = Ingredient::find($state);
+                                                    if ($ing) {
+                                                        $rawUnit = strtolower(trim($ing->unit ?? 'grams'));
+                                                        $unitMap = match ($rawUnit) {
+                                                            'g', 'gram', 'grams'           => 'grams',
+                                                            'ml', 'milliliter'             => 'ml',
+                                                            'pc', 'pcs', 'piece', 'pieces' => 'piece',
+                                                            'kg', 'kilogram', 'kilograms'  => 'kg',
+                                                            'l', 'liter', 'liters'         => 'L',
+                                                            default                        => $rawUnit ?: 'grams',
+                                                        };
+                                                        $set('unit', $unitMap);
+                                                    }
+                                                }
+                                            }),
+                                        TextInput::make('qty_required')
+                                            ->label('Unit Amount Used (Per Batch)')
+                                            ->numeric()
+                                            ->required()
+                                            ->default(1)
+                                            ->extraInputAttributes(['inputmode' => 'decimal']),
+                                        Select::make('unit')
+                                            ->label('Unit')
+                                            ->options([
+                                                'grams' => 'Grams (grams / g)',
+                                                'ml'    => 'Milliliters (ml)',
+                                                'piece' => 'Piece (piece / pcs)',
+                                                'kg'    => 'Kilograms (kg)',
+                                                'L'     => 'Liters (L)',
+                                                'cup'   => 'Cups',
+                                                'tbsp'  => 'Tablespoons (tbsp)',
+                                                'tsp'   => 'Teaspoons (tsp)',
+                                            ])
+                                            ->default('grams')
+                                            ->required(),
+                                    ])
+                                    ->columns(3)
+                                    ->columnSpanFull()
+                                    ->defaultItems(0)
+                                    ->addActionLabel('Add Ingredient Item'),
+
+                                Repeater::make('recipePackagings')
+                                    ->relationship('recipePackagings')
+                                    ->label('Packaging Materials Breakdown')
+                                    ->components([
+                                        Select::make('packaging_material_id')
+                                            ->label('Select Packaging Material')
+                                            ->relationship('packagingMaterial', 'name')
+                                            ->required()
+                                            ->searchable()
+                                            ->preload()
+                                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                                            ->createOptionForm([
+                                                TextInput::make('sku')
+                                                    ->label('SKU (Auto-generated)')
+                                                    ->default(fn() => 'PKG-' . strtoupper(Str::random(6)))
+                                                    ->readOnly()
+                                                    ->required(),
+                                                TextInput::make('name')
+                                                    ->label('Material Name')
+                                                    ->placeholder('e.g. Container Box 70g')
+                                                    ->required(),
+                                                Select::make('type')
+                                                    ->label('Material Type')
+                                                    ->options([
+                                                        'box'       => 'Box',
+                                                        'bag'       => 'Bag',
+                                                        'board'     => 'Board',
+                                                        'container' => 'Container',
+                                                        'ribbon'    => 'Ribbon',
+                                                        'label'     => 'Label',
+                                                        'sticker'   => 'Sticker',
+                                                        'tape'      => 'Tape',
+                                                        'wrap'      => 'Wrap',
+                                                        'other'     => 'Other',
+                                                    ])
+                                                    ->default('box')
+                                                    ->required(),
+                                                Select::make('unit')
+                                                    ->label('Measurement Unit')
+                                                    ->options([
+                                                        'piece' => 'Piece (pcs)',
+                                                        'box'   => 'Box',
+                                                        'bag'   => 'Bag',
+                                                        'sheet' => 'Sheet',
+                                                        'roll'  => 'Roll',
+                                                    ])
+                                                    ->default('piece')
+                                                    ->required(),
+                                                TextInput::make('cost_per_unit')
+                                                    ->label('Cost Per Unit (₱)')
+                                                    ->numeric()
+                                                    ->prefix('₱')
+                                                    ->default(0)
+                                                    ->required()
+                                                    ->extraInputAttributes(['inputmode' => 'decimal']),
+                                                TextInput::make('stock_qty')
+                                                    ->label('Current Stock Qty')
+                                                    ->numeric()
+                                                    ->default(500)
+                                                    ->required()
+                                                    ->extraInputAttributes(['inputmode' => 'decimal']),
+                                            ])
+                                            ->live()
+                                            ->afterStateUpdated(function ($state, callable $set) {
+                                                if ($state) {
+                                                    $pm = PackagingMaterial::find($state);
+                                                    if ($pm) {
+                                                        $set('name', $pm->name);
+                                                        $rawUnit = strtolower(trim($pm->unit ?? 'piece'));
+                                                        $unitMap = match ($rawUnit) {
+                                                            'pcs', 'pc', 'piece', 'pieces' => 'piece',
+                                                            'box', 'boxes'                => 'box',
+                                                            'bag', 'bags'                 => 'bag',
+                                                            'sheet', 'sheets'             => 'sheet',
+                                                            'roll', 'rolls'               => 'roll',
+                                                            'g', 'gram', 'grams'          => 'grams',
+                                                            'ml', 'l'                     => 'ml',
+                                                            default                       => $rawUnit ?: 'piece',
+                                                        };
+                                                        $set('unit', $unitMap);
+                                                        $set('package_qty', 1);
+                                                        $set('package_cost', $pm->cost_per_unit);
+                                                    }
+                                                }
+                                            }),
+                                        TextInput::make('name')
+                                            ->label('Packaging Label')
+                                            ->required(),
+                                        TextInput::make('qty_used')
+                                            ->label('Qty Used (Per Batch)')
+                                            ->numeric()
+                                            ->default(1)
+                                            ->required()
+                                            ->extraInputAttributes(['inputmode' => 'decimal']),
+                                        Select::make('unit')
+                                            ->label('Unit')
+                                            ->options([
+                                                'piece' => 'Piece (pcs)',
+                                                'box'   => 'Box',
+                                                'bag'   => 'Bag',
+                                                'sheet' => 'Sheet',
+                                                'roll'  => 'Roll',
+                                                'grams' => 'Grams (g)',
+                                                'ml'    => 'Milliliters (ml)',
+                                            ])
+                                            ->default('piece')
+                                            ->required(),
+                                    ])
+                                    ->columns(4)
+                                    ->columnSpanFull()
+                                    ->defaultItems(0)
+                                    ->addActionLabel('Add Packaging Item'),
+                            ])->columns(2),
+                    ]),
 
                 Section::make('Organization & Visibility')
                     ->columnSpanFull()

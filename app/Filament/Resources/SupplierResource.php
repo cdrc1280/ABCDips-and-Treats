@@ -21,7 +21,7 @@ class SupplierResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-truck';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Purchasing';
+    protected static string|\UnitEnum|null $navigationGroup = 'Inventory & Supplies';
 
     protected static ?int $navigationSort = 1;
 

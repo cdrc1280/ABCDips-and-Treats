@@ -30,10 +30,11 @@
                     </button>
 
                     <button v-for="cat in categories" :key="cat.id"
-                        class="px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap shrink-0"
+                        class="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap shrink-0 flex items-center gap-2"
                         :class="selectedCategory === cat.slug ? 'bg-brand-choco text-surface dark:bg-[#E2C08A] dark:text-[#1C1410] font-bold' : 'bg-brand-tan/20 text-brand-choco hover:bg-brand-tan/35 dark:bg-[#2A1C13] dark:text-[#FBF3E7] dark:hover:bg-[#3D291D] dark:border dark:border-[#C08E5D]/30'"
                         @click="selectCategory(cat.slug)">
-                        {{ cat.name }}
+                        <img v-if="cat.image_url" :src="cat.image_url" :alt="cat.name" class="w-4 h-4 rounded-full object-cover shrink-0" />
+                        <span>{{ cat.name }}</span>
                     </button>
                 </div>
 

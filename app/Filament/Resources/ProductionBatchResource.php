@@ -27,9 +27,9 @@ class ProductionBatchResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-fire';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Inventory';
+    protected static string|\UnitEnum|null $navigationGroup = 'Production & Purchasing';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

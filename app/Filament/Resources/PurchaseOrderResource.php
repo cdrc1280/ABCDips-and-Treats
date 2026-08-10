@@ -11,12 +11,12 @@ use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\DatePicker;
-use Filament\Schemas\Components\Repeater;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Select;
-use Filament\Schemas\Components\Textarea;
-use Filament\Schemas\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -27,7 +27,7 @@ class PurchaseOrderResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Purchasing';
+    protected static string|\UnitEnum|null $navigationGroup = 'Production & Purchasing';
 
     protected static ?int $navigationSort = 2;
 
@@ -38,9 +38,16 @@ class PurchaseOrderResource extends Resource
                 Section::make('Purchase Order Details')
                     ->columnSpanFull()
                     ->components([
-                        TextInput::make('po_number')->readOnly(),
+                        TextInput::make('po_number')
+                            ->label('PO Number (Auto-generated)')
+                            ->default(fn() => 'PO-' . date('Ymd') . '-' . strtoupper(Str::random(4)))
+                            ->readOnly()
+                            ->required(),
                         Select::make('supplier_id')
+                            ->label('Supplier')
                             ->relationship('supplier', 'name')
+                            ->searchable()
+                            ->preload()
                             ->required(),
                         Select::make('status')
                             ->options([
@@ -49,11 +56,25 @@ class PurchaseOrderResource extends Resource
                                 PurchaseOrder::STATUS_RECEIVED => 'Received & Restocked',
                                 PurchaseOrder::STATUS_CANCELLED => 'Cancelled',
                             ])
+                            ->default(PurchaseOrder::STATUS_DRAFT)
                             ->required(),
-                        DatePicker::make('expected_delivery_date'),
-                        TextInput::make('subtotal')->numeric()->minValue(0)->prefix('₱')->extraInputAttributes(['inputmode' => 'decimal']),
-                        TextInput::make('tax')->numeric()->minValue(0)->prefix('₱')->extraInputAttributes(['inputmode' => 'decimal']),
-                        TextInput::make('total')->numeric()->minValue(0)->prefix('₱')->extraInputAttributes(['inputmode' => 'decimal']),
+                        DatePicker::make('expected_delivery_date')
+                            ->label('Expected Delivery Date'),
+                        TextInput::make('subtotal')
+                            ->numeric()
+                            ->minValue(0)
+                            ->prefix('₱')
+                            ->extraInputAttributes(['inputmode' => 'decimal']),
+                        TextInput::make('tax')
+                            ->numeric()
+                            ->minValue(0)
+                            ->prefix('₱')
+                            ->extraInputAttributes(['inputmode' => 'decimal']),
+                        TextInput::make('total')
+                            ->numeric()
+                            ->minValue(0)
+                            ->prefix('₱')
+                            ->extraInputAttributes(['inputmode' => 'decimal']),
                         Textarea::make('notes')->columnSpanFull(),
                     ])->columns(2),
 
@@ -61,14 +82,38 @@ class PurchaseOrderResource extends Resource
                     ->columnSpanFull()
                     ->components([
                         Repeater::make('items')
-                            ->relationship()
+                            ->relationship('items')
                             ->components([
                                 Select::make('ingredient_id')
+                                    ->label('Select Ingredient')
                                     ->relationship('ingredient', 'name')
                                     ->required()
-                                    ->searchable(),
-                                TextInput::make('qty_ordered')->numeric()->minValue(0)->required()->extraInputAttributes(['inputmode' => 'decimal']),
-                                TextInput::make('unit_cost')->numeric()->minValue(0)->prefix('₱')->required()->extraInputAttributes(['inputmode' => 'decimal']),
+                                    ->searchable()
+                                    ->preload()
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        if ($state) {
+                                            $ing = \App\Models\Ingredient::find($state);
+                                            if ($ing) {
+                                                $set('unit_cost', $ing->item_price);
+                                            }
+                                        }
+                                    }),
+                                TextInput::make('qty_ordered')
+                                    ->label('Qty Ordered')
+                                    ->numeric()
+                                    ->minValue(0.001)
+                                    ->required()
+                                    ->default(1)
+                                    ->extraInputAttributes(['inputmode' => 'decimal']),
+                                TextInput::make('unit_cost')
+                                    ->label('Package Unit Cost (₱)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->prefix('₱')
+                                    ->required()
+                                    ->default(0)
+                                    ->extraInputAttributes(['inputmode' => 'decimal']),
                             ])
                             ->columns(3)
                             ->columnSpanFull(),

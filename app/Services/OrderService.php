@@ -14,7 +14,8 @@ use Illuminate\Support\Str;
 class OrderService
 {
     public function __construct(
-        private readonly PaymentManager $paymentManager
+        private readonly PaymentManager $paymentManager,
+        private readonly InventoryDeductionService $inventoryDeductionService
     ) {
     }
 
@@ -91,11 +92,14 @@ class OrderService
                     'options' => $item->options,
                 ]);
 
-                // Deduct stock quantity
+                // Deduct product stock quantity and raw ingredient stocks in real-time
                 if ($item->product && empty($item->options['is_custom'])) {
                     $item->product->decrement('stock_qty', $item->qty);
                 }
             }
+
+            // Real-time raw ingredients & packaging stock deduction
+            $this->inventoryDeductionService->deductForOrder($order);
 
             // Process Payment Gateway Charge
             $gateway = $this->paymentManager->driver($data['payment_method']);
@@ -189,12 +193,14 @@ class OrderService
 
         $order->transitionTo(Order::STATUS_CANCELLED, 'Cancelled by customer.', $user->id);
 
-        // Restore product stock
+        // Restore product stock & raw ingredients stock
         foreach ($order->items as $item) {
             if ($item->product_id && empty($item->options['is_custom'])) {
                 Product::where('id', $item->product_id)->increment('stock_qty', $item->qty);
             }
         }
+
+        $this->inventoryDeductionService->revertForOrder($order);
 
         return $order->fresh(['items', 'statusHistories']);
     }

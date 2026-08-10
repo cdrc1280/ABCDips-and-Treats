@@ -8,16 +8,16 @@ use App\Filament\Resources\IngredientResource\Pages\ListIngredients;
 use App\Models\Ingredient;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
-use Filament\Notifications\Notification;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
-
 use Illuminate\Support\Str;
 
 class IngredientResource extends Resource
@@ -26,15 +26,16 @@ class IngredientResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cube';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Inventory';
+    protected static string|\UnitEnum|null $navigationGroup = 'Inventory & Supplies';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Section::make('Ingredient Details')
+                Section::make('Ingredient Costing & Inventory Details (PDF Breakdown Format)')
+                    ->description('Enter package item unit, item price, and base measurement unit to automatically calculate price per unit.')
                     ->columnSpanFull()
                     ->components([
                         TextInput::make('sku')
@@ -43,41 +44,96 @@ class IngredientResource extends Resource
                             ->readOnly()
                             ->required()
                             ->unique(Ingredient::class, 'sku', ignoreRecord: true),
-                        TextInput::make('name')->required(),
-                        Select::make('unit')
-                            ->label('Stock Unit / Measurement')
-                            ->options([
-                                'pcs' => 'Pieces (pcs)',
-                                'qty' => 'Quantity / Units',
-                                'box' => 'Box / Pack',
-                                'g'   => 'Grams (g)',
-                                'kg'  => 'Kilograms (kg)',
-                                'ml'  => 'Milliliters (ml)',
-                                'L'   => 'Liters (L)',
-                            ])
-                            ->default('pcs')
+                        TextInput::make('name')
+                            ->label('Ingredient Name')
+                            ->placeholder('e.g. All purpose flour, Cocoa, Butter')
                             ->required(),
-                        TextInput::make('cost_per_unit')
+                        Select::make('unit')
+                            ->label('Unit (Stock Measurement)')
+                            ->options([
+                                'grams' => 'Grams (grams / g)',
+                                'ml' => 'Milliliters (ml)',
+                                'piece' => 'Piece (piece / pcs)',
+                                'kg' => 'Kilograms (kg)',
+                                'L' => 'Liters (L)',
+                                'box' => 'Box / Pack',
+                            ])
+                            ->default('grams')
+                            ->required(),
+                        TextInput::make('item_unit')
+                            ->label('Item Unit (Package Amount)')
+                            ->numeric()
+                            ->minValue(0.001)
+                            ->default(1000)
+                            ->required()
+                            ->live(onBlur: false)
+                            ->extraInputAttributes(['inputmode' => 'decimal'])
+                            ->helperText('e.g., 1000 for 1000g flour, 1 for 1 pc egg, 380 for 380g evap'),
+                        TextInput::make('item_price')
+                            ->label('Item Price (Package Price ₱)')
                             ->numeric()
                             ->minValue(0)
                             ->prefix('₱')
+                            ->default(0)
                             ->required()
-                            ->extraInputAttributes(['inputmode' => 'decimal']),
+                            ->live(onBlur: false)
+                            ->extraInputAttributes(['inputmode' => 'decimal'])
+                            ->helperText('e.g., ₱65 for 1000g flour package'),
+                        Placeholder::make('price_unit')
+                            ->label('Price Unit (₱ / Base Unit)')
+                            ->content(function (callable $get) {
+                                $itemUnit = (float) ($get('item_unit') ?? 1);
+                                $itemPrice = (float) ($get('item_price') ?? 0);
+                                $ppu = $itemUnit > 0 ? ($itemPrice / $itemUnit) : 0;
+                                return '₱' . number_format($ppu, 4) . ' / ' . ($get('unit') ?? 'unit');
+                            }),
                         TextInput::make('stock_qty')
-                            ->label('Current Stock Qty')
+                            ->label('Total Current Stock Qty')
                             ->numeric()
                             ->minValue(0)
                             ->required()
                             ->default(0)
-                            ->extraInputAttributes(['inputmode' => 'decimal']),
+                            ->extraInputAttributes(['inputmode' => 'decimal'])
+                            ->helperText('Total stock available in inventory (in base unit, e.g. grams)'),
                         TextInput::make('min_stock_qty')
                             ->label('Min Reorder Level')
                             ->numeric()
                             ->minValue(0)
                             ->required()
-                            ->default(5)
+                            ->default(100)
                             ->extraInputAttributes(['inputmode' => 'decimal']),
-                        TextInput::make('supplier_name'),
+                        TextInput::make('reorder_qty')
+                            ->label('Reorder Batch Qty')
+                            ->numeric()
+                            ->minValue(0)
+                            ->default(1000)
+                            ->extraInputAttributes(['inputmode' => 'decimal']),
+                        Select::make('supplier_id')
+                            ->label('Supplier')
+                            ->relationship('supplier', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->label('Supplier Name')
+                                    ->required(),
+                                TextInput::make('contact_person')
+                                    ->label('Contact Person'),
+                                TextInput::make('phone')
+                                    ->label('Phone Number'),
+                                TextInput::make('email')
+                                    ->email()
+                                    ->label('Email Address'),
+                            ])
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($state) {
+                                    $sup = \App\Models\Supplier::find($state);
+                                    if ($sup) {
+                                        $set('supplier_name', $sup->name);
+                                    }
+                                }
+                            }),
                     ])->columns(2),
             ]);
     }
@@ -87,17 +143,33 @@ class IngredientResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('sku')->searchable()->sortable()->weight('bold'),
-                TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('stock_qty')
-                    ->label('Stock Qty')
-                    ->sortable()
-                    ->formatStateUsing(fn($state, Ingredient $record) => "{$state} {$record->unit}")
-                    ->color(fn(Ingredient $record) => $record->is_low_stock ? 'danger' : 'success'),
-                TextColumn::make('cost_per_unit')
-                    ->label('Cost / Unit')
+                TextColumn::make('name')->label('Ingredient Name')->searchable()->sortable(),
+                TextColumn::make('unit')->label('Unit')->sortable(),
+                TextColumn::make('item_unit')
+                    ->label('Item Unit')
+                    ->numeric(3)
+                    ->sortable(),
+                TextColumn::make('item_price')
+                    ->label('Item Price')
                     ->money('PHP')
                     ->sortable(),
-                TextColumn::make('supplier_name')->searchable(),
+                TextColumn::make('cost_per_unit')
+                    ->label('Price Unit (Cost/Unit)')
+                    ->formatStateUsing(fn($state) => '₱' . number_format((float) $state, 4))
+                    ->sortable()
+                    ->weight('semibold')
+                    ->color('primary'),
+                TextColumn::make('stock_qty')
+                    ->label('Total Stock Qty')
+                    ->sortable()
+                    ->formatStateUsing(fn($state, Ingredient $record) => number_format((float) $state, 2) . " {$record->unit}")
+                    ->color(fn(Ingredient $record) => $record->is_low_stock ? 'danger' : 'success')
+                    ->weight('bold'),
+                TextColumn::make('supplier.name')
+                    ->label('Supplier')
+                    ->default(fn(Ingredient $record) => $record->supplier_name)
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->defaultSort('created_at', 'desc')

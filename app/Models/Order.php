@@ -83,5 +83,11 @@ class Order extends Model
             'comment'            => $comment,
             'changed_by_user_id' => $userId,
         ]);
+
+        if (in_array($newStatus, [self::STATUS_CANCELLED, self::STATUS_REFUNDED]) && ! in_array($oldStatus, [self::STATUS_CANCELLED, self::STATUS_REFUNDED])) {
+            app(\App\Services\InventoryDeductionService::class)->revertForOrder($this);
+        } elseif (! in_array($newStatus, [self::STATUS_CANCELLED, self::STATUS_REFUNDED]) && in_array($oldStatus, [self::STATUS_CANCELLED, self::STATUS_REFUNDED])) {
+            app(\App\Services\InventoryDeductionService::class)->deductForOrder($this);
+        }
     }
 }

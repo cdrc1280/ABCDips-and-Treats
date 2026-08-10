@@ -8,6 +8,8 @@ use App\Filament\Resources\OrderResource\Pages\ListOrders;
 use App\Models\Order;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -26,9 +28,9 @@ class OrderResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-cart';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Store';
+    protected static string|\UnitEnum|null $navigationGroup = 'Orders & Sales';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
@@ -53,7 +55,7 @@ class OrderResource extends Resource
                     ->components([
                         Placeholder::make('items_breakdown')
                             ->label('')
-                            ->content(function (Order $record) {
+                            ->content(function (?Order $record = null) {
                                 if (!$record || !$record->items || $record->items->isEmpty()) {
                                     return 'No items found in this order.';
                                 }
@@ -235,8 +237,9 @@ class OrderResource extends Resource
                     ->label('Invoice')
                     ->icon('heroicon-o-document-text')
                     ->color('info')
-                    ->url(fn (Order $record) => url("/order-invoice/{$record->id}"))
+                    ->url(fn (?Order $record = null) => $record ? url("/order-invoice/{$record->id}") : '#')
                     ->openUrlInNewTab(),
+                ViewAction::make(),
                 EditAction::make(),
             ]);
     }

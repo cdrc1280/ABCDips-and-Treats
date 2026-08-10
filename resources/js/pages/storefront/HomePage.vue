@@ -110,8 +110,9 @@
                 <RouterLink v-for="cat in categories" :key="cat.id" :to="`/shop?category=${cat.slug}`"
                     class="group bg-white dark:bg-[#1E1510] p-4 rounded-2xl border border-brand-caramel/20 dark:border-[#C08E5D]/20 text-center hover:shadow-md hover:border-brand-choco dark:hover:border-[#E2C08A] transition-all duration-200">
                     <div
-                        class="w-12 h-12 rounded-xl bg-brand-tan/20 dark:bg-[#2A1C13] category-card-icon mx-auto mb-3 flex items-center justify-center text-brand-choco dark:text-[#E2C08A] group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-12 h-12 rounded-xl bg-brand-tan/20 dark:bg-[#2A1C13] category-card-icon mx-auto mb-3 flex items-center justify-center text-brand-choco dark:text-[#E2C08A] group-hover:scale-110 transition-transform overflow-hidden">
+                        <img v-if="cat.image_url" :src="cat.image_url" :alt="cat.name" class="w-full h-full object-cover rounded-xl" />
+                        <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                         </svg>

@@ -667,18 +667,27 @@ function fetchDeliveryQuote() {
 }
 
 function populateUserData() {
+  const savedPhone = localStorage.getItem('customer_phone') || authStore.user?.phone || ''
+  if (savedPhone) {
+    form.value.customer_phone = savedPhone
+  }
   if (authStore.user) {
     form.value.customer_name = authStore.user.name || ''
     form.value.customer_email = authStore.user.email || ''
-    form.value.customer_phone = authStore.user.phone || ''
-    form.value.delivery_address = authStore.user.address || ''
-  } else {
-    form.value.customer_name = ''
-    form.value.customer_email = ''
-    form.value.customer_phone = ''
-    form.value.delivery_address = ''
+    if (!form.value.customer_phone && authStore.user.phone) {
+      form.value.customer_phone = authStore.user.phone
+    }
+    if (!form.value.delivery_address && authStore.user.address) {
+      form.value.delivery_address = authStore.user.address
+    }
   }
 }
+
+watch(() => form.value.customer_phone, (newPhone) => {
+  if (newPhone) {
+    localStorage.setItem('customer_phone', newPhone)
+  }
+})
 
 watch(() => authStore.user, (user) => {
   if (user) {

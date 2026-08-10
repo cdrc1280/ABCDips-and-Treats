@@ -14,7 +14,7 @@ class ProductCategoryResource extends JsonResource
             'name'        => $this->name,
             'slug'        => $this->slug,
             'description' => $this->description,
-            'image_url'   => $this->getFirstMediaUrl('category_image') ?: '/images/placeholder-category.png',
+            'image_url'   => $this->image_url,
             'sort_order'  => $this->sort_order,
             'products_count' => $this->whenCounted('products'),
         ];

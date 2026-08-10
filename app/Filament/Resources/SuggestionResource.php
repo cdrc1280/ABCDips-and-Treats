@@ -24,7 +24,9 @@ class SuggestionResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-light-bulb';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Customer Engagement';
+    protected static string|\UnitEnum|null $navigationGroup = 'Engagement & Content';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

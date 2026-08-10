@@ -45,13 +45,7 @@ class ProductionService
                 // Total required = (planned_qty * qty_required)
                 $qtyNeeded = (float) $ri->qty_required * $batch->planned_qty;
                 
-                // Convert g -> kg if needed
-                $multiplier = match (strtolower($ri->unit)) {
-                    'g'     => strtolower($ingredient->unit) === 'kg' ? 0.001 : 1.0,
-                    'ml'    => strtolower($ingredient->unit) === 'l'  ? 0.001 : 1.0,
-                    default => 1.0,
-                };
-                $deductQty = $qtyNeeded * $multiplier;
+                $deductQty = UnitConverterService::convert($qtyNeeded, $ri->unit, $ingredient->unit);
 
                 $this->inventoryService->addStockMovement(
                     $ingredient,

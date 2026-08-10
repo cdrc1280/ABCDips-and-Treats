@@ -37,6 +37,15 @@ class PurchaseOrder extends Model
         'total'                   => 'decimal:2',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (PurchaseOrder $po) {
+            if (empty($po->po_number)) {
+                $po->po_number = 'PO-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(4));
+            }
+        });
+    }
+
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);

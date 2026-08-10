@@ -8,12 +8,17 @@ use App\Http\Resources\ProductResource;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Services\InventoryDeductionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class PosController extends Controller
 {
+    public function __construct(
+        private readonly InventoryDeductionService $inventoryDeductionService
+    ) {}
+
     public function products(Request $request): JsonResponse
     {
         $products = Product::query()
@@ -90,6 +95,9 @@ class PosController extends Controller
             // Deduct stock
             $item['product']->decrement('stock_qty', $item['qty']);
         }
+
+        // Deduct raw ingredients & packaging in real-time
+        $this->inventoryDeductionService->deductForOrder($order);
 
         return response()->json([
             'message'        => 'POS Order completed successfully!',

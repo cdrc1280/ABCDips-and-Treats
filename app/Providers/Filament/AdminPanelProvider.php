@@ -52,13 +52,13 @@ class AdminPanelProvider extends PanelProvider
             // ])
             // ─── Navigation ────────────────────────────────────────────
             ->navigationGroups([
-                'Store',
-                'Inventory & Production',
-                'Purchasing',
-                'People',
-                'Finance',
-                'Analytics',
-                'Settings',
+                'Inventory & Supplies',
+                'Products & Recipe Costing',
+                'Orders & Sales',
+                'Production & Purchasing',
+                'HR & Payroll',
+                'Engagement & Content',
+                'System Administration',
             ])
             // ─── Database Notifications (Real-time Seller Order Alerts) ──
             ->databaseNotifications()

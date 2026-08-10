@@ -29,7 +29,8 @@ class BlogPostResource extends Resource
 {
     protected static ?string $model = BlogPost::class;
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+    protected static string|\UnitEnum|null $navigationGroup = 'Engagement & Content';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema

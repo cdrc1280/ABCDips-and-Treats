@@ -40,6 +40,17 @@ class ProductCategory extends Model implements HasMedia
         return $this->hasMany(Product::class, 'category_id');
     }
 
+    public function getImageUrlAttribute(): ?string
+    {
+        if ($this->image_path) {
+            return str_starts_with($this->image_path, 'http')
+                ? $this->image_path
+                : asset('storage/' . ltrim($this->image_path, '/'));
+        }
+        $mediaUrl = $this->getFirstMediaUrl('category_image');
+        return $mediaUrl ?: null;
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('category_image')

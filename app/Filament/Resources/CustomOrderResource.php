@@ -28,9 +28,9 @@ class CustomOrderResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-sparkles';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Store';
+    protected static string|\UnitEnum|null $navigationGroup = 'Orders & Sales';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {
@@ -152,11 +152,23 @@ class CustomOrderResource extends Resource
                     ->color('warning')
                     ->visible(fn(CustomOrder $record) => in_array($record->status, [CustomOrder::STATUS_INQUIRY, CustomOrder::STATUS_QUOTED, CustomOrder::STATUS_DEPOSIT_PAID]))
                     ->action(function (CustomOrder $record) {
-                        $record->update(['status' => CustomOrder::STATUS_IN_PRODUCTION]);
-                        Notification::make()
-                            ->title('Custom Order Moved to Production 👨‍🍳')
-                            ->warning()
-                            ->send();
+                        try {
+                            $deductionService = app(\App\Services\InventoryDeductionService::class);
+                            $deductionService->deductForCustomOrder($record);
+                            $record->update(['status' => CustomOrder::STATUS_IN_PRODUCTION]);
+                            Notification::make()
+                                ->title('Custom Order Moved to Production 👨‍🍳')
+                                ->body('Raw ingredients and packaging materials auto-deducted from stock.')
+                                ->success()
+                                ->send();
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('Production Blocked — Restock Required')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->persistent()
+                                ->send();
+                        }
                     }),
                 Action::make('mark_completed')
                     ->label('Completed ✅')

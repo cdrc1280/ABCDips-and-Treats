@@ -128,7 +128,7 @@ class ProductCostingResourceTest extends TestCase
         $responseCreate->assertStatus(200);
     }
 
-    public function test_saving_product_costing_automatically_updates_product_price_in_database(): void
+    public function test_product_costing_is_independent_and_does_not_overwrite_manual_product_price(): void
     {
         $category = \App\Models\ProductCategory::create([
             'name' => 'Pastries',
@@ -160,12 +160,11 @@ class ProductCostingResourceTest extends TestCase
             'qty_used'           => 1,
         ]);
 
-        // Save costing to trigger auto-sync
+        // Save costing
         $costing->unsetRelation('costingItems');
         $costing->save();
 
         $product->refresh();
-        $this->assertTrue((float) $product->price > 0);
-        $this->assertEquals(round($costing->price_per_piece, 2), (float) $product->price);
+        $this->assertEquals(100.00, (float) $product->price);
     }
 }

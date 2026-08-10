@@ -40,20 +40,8 @@ class CostingService
                 $ingredient  = $item->ingredient;
                 $costPerUnit = (float) $ingredient->cost_per_unit;
                 $qtyRequired = (float) $item->qty_required;
-                $recipeUnit  = strtolower(trim($item->unit));
-                $stockUnit   = strtolower(trim($ingredient->unit));
-
-                $multiplier = match ($recipeUnit) {
-                    'g'     => in_array($stockUnit, ['kg', 'kilogram', 'kilograms']) ? 0.001 : 1.0,
-                    'mg'    => in_array($stockUnit, ['kg', 'kilogram']) ? 0.000001 : (in_array($stockUnit, ['g', 'gram']) ? 0.001 : 1.0),
-                    'ml'    => in_array($stockUnit, ['l', 'liter', 'liters']) ? 0.001 : 1.0,
-                    'tsp'   => in_array($stockUnit, ['kg', 'l']) ? 0.005 : (in_array($stockUnit, ['g', 'ml']) ? 5.0 : 1.0),
-                    'tbsp'  => in_array($stockUnit, ['kg', 'l']) ? 0.015 : (in_array($stockUnit, ['g', 'ml']) ? 15.0 : 1.0),
-                    'cup'   => in_array($stockUnit, ['kg', 'l']) ? 0.240 : (in_array($stockUnit, ['g', 'ml']) ? 240.0 : 1.0),
-                    default => 1.0,
-                };
-
-                $itemCost = round(($qtyRequired * $multiplier) * $costPerUnit, 2);
+                $convertedQty = UnitConverterService::convert($qtyRequired, $item->unit, $ingredient->unit);
+                $itemCost     = round($convertedQty * $costPerUnit, 2);
                 $ingredientCostBatch += $itemCost;
 
                 $ingredientItems[] = [

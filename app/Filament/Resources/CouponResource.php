@@ -27,8 +27,9 @@ class CouponResource extends Resource
 {
     protected static ?string $model = Coupon::class;
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-ticket';
-    protected static string|\UnitEnum|null $navigationGroup = 'Store';
-    protected static ?int $navigationSort = 3;
+    protected static string|\UnitEnum|null $navigationGroup = 'Orders & Sales';
+
+    protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
     {

@@ -268,12 +268,22 @@ const estimatedPrice = computed(() => {
 })
 
 function populateUserData() {
+  const savedPhone = localStorage.getItem('customer_phone') || authStore.user?.phone || ''
+  if (savedPhone) {
+    form.value.customer_phone = savedPhone
+  }
   if (authStore.user) {
     if (!form.value.customer_name) form.value.customer_name = authStore.user.name || ''
     if (!form.value.customer_email) form.value.customer_email = authStore.user.email || ''
-    if (!form.value.customer_phone) form.value.customer_phone = authStore.user.phone || ''
+    if (!form.value.customer_phone && authStore.user.phone) form.value.customer_phone = authStore.user.phone
   }
 }
+
+watch(() => form.value.customer_phone, (newPhone) => {
+  if (newPhone) {
+    localStorage.setItem('customer_phone', newPhone)
+  }
+})
 
 watch(() => authStore.user, populateUserData, { immediate: true })
 

@@ -13,8 +13,8 @@ class CustomerResource extends Resource
 {
     protected static ?string $model = User::class;
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-users';
-    protected static string|\UnitEnum|null $navigationGroup = 'Store';
-    protected static ?int $navigationSort = 4;
+    protected static string|\UnitEnum|null $navigationGroup = 'Orders & Sales';
+    protected static ?int $navigationSort = 3;
     protected static ?string $label = 'Customer';
     protected static ?string $pluralLabel = 'Customers';
 
