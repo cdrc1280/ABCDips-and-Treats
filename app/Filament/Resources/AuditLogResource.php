@@ -4,7 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AuditLogResource\Pages\ListAuditLogs;
 use App\Models\AuditLog;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -19,7 +24,18 @@ class AuditLogResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([]);
+        return $schema->components([
+            Section::make('Audit Trail Details')->components([
+                TextInput::make('user.name')->label('User')->readOnly(),
+                TextInput::make('event')->readOnly(),
+                TextInput::make('auditable_type')->label('Model / Resource')->readOnly(),
+                TextInput::make('ip_address')->label('IP Address')->readOnly(),
+                Textarea::make('description')->readOnly()->columnSpanFull(),
+                TextInput::make('user_agent')->label('Browser / Device User Agent')->readOnly()->columnSpanFull(),
+                KeyValue::make('old_values')->label('Original Values Before Change')->readOnly(),
+                KeyValue::make('new_values')->label('New Modified Values')->readOnly(),
+            ])->columnSpanFull()->columns(2),
+        ]);
     }
 
     public static function table(Table $table): Table
@@ -38,7 +54,9 @@ class AuditLogResource extends Resource
                 SelectFilter::make('event')
                     ->options(['login' => 'Login', 'logout' => 'Logout', 'created' => 'Created', 'updated' => 'Updated', 'deleted' => 'Deleted']),
             ])
-            ->actions([]);
+            ->actions([
+                ViewAction::make(),
+            ]);
     }
 
     public static function canCreate(): bool

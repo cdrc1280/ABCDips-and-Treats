@@ -6,7 +6,9 @@ use App\Filament\Resources\AttendanceResource\Pages\CreateAttendance;
 use App\Filament\Resources\AttendanceResource\Pages\EditAttendance;
 use App\Filament\Resources\AttendanceResource\Pages\ListAttendances;
 use App\Models\Attendance;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -92,7 +94,9 @@ class AttendanceResource extends Resource
                     ]),
             ])
             ->actions([
-                EditAction::make()
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 

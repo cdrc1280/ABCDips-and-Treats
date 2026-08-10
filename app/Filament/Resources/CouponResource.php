@@ -10,6 +10,7 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -83,21 +84,20 @@ class CouponResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
-                ActionGroup::make([
-                    Action::make('toggle_active')
-                        ->label(fn(Coupon $record) => $record->is_active ? 'Deactivate Coupon' : 'Activate Coupon 🎟️')
-                        ->icon('heroicon-o-power')
-                        ->color(fn(Coupon $record) => $record->is_active ? 'danger' : 'success')
-                        ->action(function (Coupon $record) {
-                            $record->update(['is_active' => !$record->is_active]);
-                            Notification::make()
-                                ->title($record->is_active ? 'Coupon Activated 🎟️' : 'Coupon Deactivated')
-                                ->info()
-                                ->send();
-                        }),
-                    EditAction::make(),
-                    DeleteAction::make(),
-                ]),
+                ViewAction::make(),
+                Action::make('toggle_active')
+                    ->label(fn(Coupon $record) => $record->is_active ? 'Deactivate Coupon' : 'Activate Coupon 🎟️')
+                    ->icon('heroicon-o-power')
+                    ->color(fn(Coupon $record) => $record->is_active ? 'danger' : 'success')
+                    ->action(function (Coupon $record) {
+                        $record->update(['is_active' => !$record->is_active]);
+                        Notification::make()
+                            ->title($record->is_active ? 'Coupon Activated 🎟️' : 'Coupon Deactivated')
+                            ->info()
+                            ->send();
+                    }),
+                EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 

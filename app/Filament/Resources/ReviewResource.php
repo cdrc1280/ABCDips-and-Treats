@@ -7,7 +7,9 @@ use App\Filament\Resources\ReviewResource\Pages\EditReview;
 use App\Filament\Resources\ReviewResource\Pages\ListReviews;
 use App\Models\Review;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -97,6 +99,7 @@ class ReviewResource extends Resource
                 TernaryFilter::make('is_featured'),
             ])
             ->actions([
+                ViewAction::make(),
                 Action::make('toggle_approval')
                     ->label(fn(Review $record) => $record->is_approved ? 'Reject' : 'Approve')
                     ->color(fn(Review $record) => $record->is_approved ? 'danger' : 'success')
@@ -108,6 +111,7 @@ class ReviewResource extends Resource
                             ->send();
                     }),
                 EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 

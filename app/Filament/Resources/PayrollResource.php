@@ -8,7 +8,9 @@ use App\Filament\Resources\PayrollResource\Pages\ListPayrolls;
 use App\Models\Payroll;
 use App\Services\PayrollService;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -101,6 +103,7 @@ class PayrollResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
+                ViewAction::make(),
                 Action::make('mark_paid')
                     ->label('Approve & Mark Paid')
                     ->icon('heroicon-o-check-circle')
@@ -116,6 +119,7 @@ class PayrollResource extends Resource
                             ->send();
                     }),
                 EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 

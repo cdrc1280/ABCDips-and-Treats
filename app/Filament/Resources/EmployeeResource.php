@@ -7,7 +7,9 @@ use App\Filament\Resources\EmployeeResource\Pages\EditEmployee;
 use App\Filament\Resources\EmployeeResource\Pages\ListEmployees;
 use App\Models\Employee;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -45,18 +47,26 @@ class EmployeeResource extends Resource
                         Select::make('user_id')
                             ->relationship('user', 'name')
                             ->searchable(),
-                        TextInput::make('first_name')->required(),
-                        TextInput::make('last_name')->required(),
-                        TextInput::make('email')->email()->required(),
-                        TextInput::make('phone'),
+                        TextInput::make('first_name')->required()->maxLength(255),
+                        TextInput::make('last_name')->required()->maxLength(255),
+                        TextInput::make('email')->email()->required()->maxLength(255),
+                        TextInput::make('phone')
+                            ->label('Mobile Phone (11 Digits)')
+                            ->placeholder('09171234567')
+                            ->tel()
+                            ->numeric()
+                            ->length(11)
+                            ->regex('/^09\d{9}$/')
+                            ->required()
+                            ->extraInputAttributes(['inputmode' => 'numeric', 'maxlength' => '11']),
                         Select::make('role_title')
                             ->options(['Head Baker' => 'Head Baker', 'Assistant Baker' => 'Assistant Baker', 'Cashier' => 'Cashier', 'Pastry Staff' => 'Pastry Staff'])
                             ->required(),
                         Select::make('employment_type')
                             ->options(['full_time' => 'Full-Time Regular', 'part_time' => 'Part-Time Flex'])
                             ->required(),
-                        TextInput::make('basic_monthly_salary')->label('Basic Monthly Salary (₱)')->numeric()->prefix('₱')->required(),
-                        DatePicker::make('hired_at'),
+                        TextInput::make('basic_monthly_salary')->label('Basic Monthly Salary (₱)')->numeric()->minValue(0)->prefix('₱')->required()->extraInputAttributes(['inputmode' => 'decimal']),
+                        DatePicker::make('hired_at')->required(),
                         Toggle::make('is_active')->default(true),
                     ])->columns(2),
             ]);
@@ -76,6 +86,7 @@ class EmployeeResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
+                ViewAction::make(),
                 Action::make('toggle_active')
                     ->label(fn(Employee $record) => $record->is_active ? 'Deactivate' : 'Activate Employee')
                     ->icon('heroicon-o-power')
@@ -88,6 +99,7 @@ class EmployeeResource extends Resource
                             ->send();
                     }),
                 EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 

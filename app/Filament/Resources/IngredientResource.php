@@ -8,6 +8,7 @@ use App\Filament\Resources\IngredientResource\Pages\ListIngredients;
 use App\Models\Ingredient;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -120,7 +121,12 @@ class IngredientResource extends Resource
                                 TextInput::make('contact_person')
                                     ->label('Contact Person'),
                                 TextInput::make('phone')
-                                    ->label('Phone Number'),
+                                    ->label('Phone Number (11 Digits)')
+                                    ->placeholder('09171234567')
+                                    ->tel()
+                                    ->numeric()
+                                    ->length(11)
+                                    ->regex('/^09\d{9}$/'),
                                 TextInput::make('email')
                                     ->email()
                                     ->label('Email Address'),
@@ -179,6 +185,7 @@ class IngredientResource extends Resource
                     ->query(fn($query) => $query->whereColumn('stock_qty', '<=', 'min_stock_qty')),
             ])
             ->actions([
+                ViewAction::make(),
                 Action::make('quick_restock')
                     ->label('Restock 📦')
                     ->icon('heroicon-o-plus-circle')

@@ -9,7 +9,9 @@ use App\Models\ProductionBatch;
 use App\Models\Recipe;
 use App\Services\ProductionService;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -92,6 +94,7 @@ class ProductionBatchResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
+                ViewAction::make(),
                 Action::make('complete_batch')
                     ->label('Complete & Credit Inventory')
                     ->icon('heroicon-o-check-circle')
@@ -108,6 +111,7 @@ class ProductionBatchResource extends Resource
                             ->send();
                     }),
                 EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 

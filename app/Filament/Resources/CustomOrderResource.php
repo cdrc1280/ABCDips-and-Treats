@@ -7,7 +7,9 @@ use App\Filament\Resources\CustomOrderResource\Pages\EditCustomOrder;
 use App\Filament\Resources\CustomOrderResource\Pages\ListCustomOrders;
 use App\Models\CustomOrder;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -146,6 +148,7 @@ class CustomOrderResource extends Resource
                     ]),
             ])
             ->actions([
+                ViewAction::make(),
                 Action::make('mark_production')
                     ->label('Production 👨‍🍳')
                     ->icon('heroicon-o-arrow-path')
@@ -183,6 +186,7 @@ class CustomOrderResource extends Resource
                             ->send();
                     }),
                 EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 

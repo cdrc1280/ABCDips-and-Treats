@@ -4,7 +4,10 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CustomerResource\Pages\ListCustomers;
 use App\Models\User;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -20,7 +23,14 @@ class CustomerResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([]);
+        return $schema->components([
+            Section::make('Customer Profile Details')->components([
+                TextInput::make('name')->readOnly()->required(),
+                TextInput::make('email')->readOnly()->required(),
+                TextInput::make('phone')->label('Mobile Number')->readOnly(),
+                TextInput::make('created_at')->label('Registered Date')->readOnly(),
+            ])->columnSpanFull()->columns(2),
+        ]);
     }
 
     public static function table(Table $table): Table
@@ -28,12 +38,15 @@ class CustomerResource extends Resource
         return $table
             ->query(User::query()->whereHas('roles', fn($q) => $q->where('name', 'customer')))
             ->columns([
-                TextColumn::make('name')->searchable()->sortable(),
+                TextColumn::make('name')->searchable()->sortable()->weight('bold'),
                 TextColumn::make('email')->searchable(),
-                TextColumn::make('created_at')->label('Joined')->date()->sortable(),
+                TextColumn::make('phone')->label('Mobile Number')->searchable(),
+                TextColumn::make('created_at')->label('Joined Date')->dateTime()->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
-            ->actions([]);
+            ->actions([
+                ViewAction::make(),
+            ]);
     }
 
     public static function canCreate(): bool

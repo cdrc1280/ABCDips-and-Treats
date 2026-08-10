@@ -9,7 +9,9 @@ use App\Models\Ingredient;
 use App\Models\PackagingMaterial;
 use App\Models\Recipe;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -312,6 +314,7 @@ class RecipeResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
+                ViewAction::make(),
                 Action::make('set_default_price')
                     ->label('Set as Product Default Price')
                     ->icon('heroicon-o-check-circle')
@@ -337,6 +340,7 @@ class RecipeResource extends Resource
                         }
                     }),
                 EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 

@@ -8,6 +8,7 @@ use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Models\User;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -72,10 +73,13 @@ class UserResource extends Resource
                     ->columnSpanFull(),
 
                 TextInput::make('phone')
+                    ->label('Mobile Phone (11 Digits)')
+                    ->placeholder('09171234567')
                     ->tel()
-                    ->rule(new \App\Rules\PhilippinePhone)
-                    ->maxLength(20)
-                    ->extraInputAttributes(['inputmode' => 'tel']),
+                    ->numeric()
+                    ->length(11)
+                    ->regex('/^09\d{9}$/')
+                    ->extraInputAttributes(['inputmode' => 'numeric', 'maxlength' => '11']),
 
                 Textarea::make('address')
                     ->rows(2)
@@ -137,6 +141,7 @@ class UserResource extends Resource
                     ->relationship('roles', 'name'),
             ])
             ->actions([
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ]);

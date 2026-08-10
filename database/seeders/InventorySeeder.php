@@ -37,9 +37,17 @@ class InventorySeeder extends Seeder
 
         $ingMap = [];
         foreach ($pdfIngredients as $iData) {
+            $supplierName = $iData['supplier_name'];
+            $cleanSlug = strtolower(preg_replace('/[^a-z0-9]/', '', $supplierName));
             $supplier = \App\Models\Supplier::firstOrCreate(
-                ['name' => $iData['supplier_name']],
-                ['payment_terms' => 'Net 30']
+                ['name' => $supplierName],
+                [
+                    'contact_person' => 'Account Executive',
+                    'email'          => $cleanSlug . '@supplier.com',
+                    'phone'          => '0917' . sprintf('%07d', rand(1000000, 9999999)),
+                    'address'        => 'Metro Manila, Philippines',
+                    'payment_terms'  => 'Net 30',
+                ]
             );
 
             $iData['supplier_id'] = $supplier->id;

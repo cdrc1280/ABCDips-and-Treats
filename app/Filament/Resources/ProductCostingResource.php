@@ -12,6 +12,7 @@ use App\Models\Product;
 use App\Models\ProductCosting;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -450,6 +451,7 @@ class ProductCostingResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ]);

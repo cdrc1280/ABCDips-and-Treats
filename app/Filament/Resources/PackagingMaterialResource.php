@@ -7,7 +7,9 @@ use App\Filament\Resources\PackagingMaterialResource\Pages\EditPackagingMaterial
 use App\Filament\Resources\PackagingMaterialResource\Pages\ListPackagingMaterials;
 use App\Models\PackagingMaterial;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -35,7 +37,7 @@ class PackagingMaterialResource extends Resource
     {
         return $schema->components([
             Section::make('Material Details')->components([
-                TextInput::make('name')->required(),
+                TextInput::make('name')->required()->maxLength(255),
                 TextInput::make('sku')
                     ->label('SKU (Auto-generated)')
                     ->default(fn() => 'PKG-' . strtoupper(Str::random(6)))
@@ -46,9 +48,9 @@ class PackagingMaterialResource extends Resource
                     ->options(['box' => 'Box', 'bag' => 'Bag', 'board' => 'Board', 'container' => 'Container', 'ribbon' => 'Ribbon', 'label' => 'Label', 'sticker' => 'Sticker', 'tape' => 'Tape', 'wrap' => 'Wrap', 'other' => 'Other'])
                     ->required(),
                 TextInput::make('unit')->default('pcs')->required(),
-                TextInput::make('cost_per_unit')->numeric()->prefix('₱'),
-                TextInput::make('stock_qty')->numeric()->label('Stock Qty'),
-                TextInput::make('min_stock_qty')->numeric()->label('Min Stock'),
+                TextInput::make('cost_per_unit')->numeric()->minValue(0)->prefix('₱')->default(0)->required()->extraInputAttributes(['inputmode' => 'decimal']),
+                TextInput::make('stock_qty')->numeric()->minValue(0)->default(0)->label('Stock Qty')->required()->extraInputAttributes(['inputmode' => 'decimal']),
+                TextInput::make('min_stock_qty')->numeric()->minValue(0)->default(10)->label('Min Stock')->required()->extraInputAttributes(['inputmode' => 'decimal']),
                 Textarea::make('notes')->columnSpanFull(),
                 Toggle::make('is_active')->default(true),
             ])->columnSpanFull()->columns(2),
@@ -75,6 +77,7 @@ class PackagingMaterialResource extends Resource
                     ->options(['box' => 'Box', 'bag' => 'Bag', 'board' => 'Board', 'container' => 'Container', 'ribbon' => 'Ribbon', 'label' => 'Label', 'sticker' => 'Sticker', 'tape' => 'Tape', 'wrap' => 'Wrap', 'other' => 'Other']),
             ])
             ->actions([
+                ViewAction::make(),
                 Action::make('quick_restock')
                     ->label('Restock 📦')
                     ->icon('heroicon-o-plus-circle')
@@ -95,6 +98,7 @@ class PackagingMaterialResource extends Resource
                             ->send();
                     }),
                 EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 

@@ -12,6 +12,7 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -646,6 +647,7 @@ class ProductResource extends Resource
                         ->icon('heroicon-o-calculator')
                         ->color('warning')
                         ->url(fn(Product $record) => "/admin/product-costings/create?product_id={$record->id}"),
+                    ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
                 ]),

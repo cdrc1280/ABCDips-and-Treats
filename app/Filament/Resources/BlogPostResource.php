@@ -9,6 +9,7 @@ use App\Models\BlogPost;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -97,6 +98,7 @@ class BlogPostResource extends Resource
                     ->options(['draft' => 'Draft', 'published' => 'Published', 'archived' => 'Archived']),
             ])
             ->actions([
+                ViewAction::make(),
                 Action::make('toggle_publish')
                     ->label(fn(BlogPost $record) => $record->status === 'published' ? 'Unpublish' : 'Publish Post 🚀')
                     ->icon(fn(BlogPost $record) => $record->status === 'published' ? 'heroicon-o-x-circle' : 'heroicon-o-paper-airplane')

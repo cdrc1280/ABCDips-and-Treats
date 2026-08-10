@@ -7,6 +7,7 @@ use App\Filament\Resources\ContactMessageResource\Pages\ListContactMessages;
 use App\Models\ContactMessage;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -58,6 +59,7 @@ class ContactMessageResource extends Resource
                     ->options(['unread' => 'Unread', 'read' => 'Read', 'replied' => 'Replied', 'archived' => 'Archived']),
             ])
             ->actions([
+                ViewAction::make(),
                 Action::make('mark_replied')
                     ->label('Replied ✉️')
                     ->icon('heroicon-o-check-circle')

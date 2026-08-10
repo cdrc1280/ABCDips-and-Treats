@@ -8,7 +8,9 @@ use App\Filament\Resources\PurchaseOrderResource\Pages\ListPurchaseOrders;
 use App\Models\PurchaseOrder;
 use App\Services\PurchasingService;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\DatePicker;
@@ -142,6 +144,7 @@ class PurchaseOrderResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
+                ViewAction::make(),
                 Action::make('receive_po')
                     ->label('Receive PO & Restock')
                     ->icon('heroicon-o-arrow-down-tray')
@@ -158,6 +161,7 @@ class PurchaseOrderResource extends Resource
                             ->send();
                     }),
                 EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 

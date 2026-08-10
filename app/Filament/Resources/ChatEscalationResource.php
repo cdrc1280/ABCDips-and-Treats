@@ -15,6 +15,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\HtmlString;
@@ -176,6 +177,7 @@ class ChatEscalationResource extends Resource
             ])
             ->defaultSort('updated_at', 'desc')
             ->actions([
+                ViewAction::make(),
                 Action::make('view_messages')
                     ->label('View Messages 👁️')
                     ->color('info')
