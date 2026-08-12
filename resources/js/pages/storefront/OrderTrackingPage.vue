@@ -34,6 +34,54 @@
         </div>
       </div>
 
+      <!-- Delivery Mode & Pooling Status Banner -->
+      <div v-if="order.delivery_mode === 'pooling'" class="rounded-3xl p-6 border shadow-sm space-y-4 transition-all"
+        :class="order.pooling_status === 'settled' ? 'bg-emerald-50/90 dark:bg-[#1A2E1A] border-emerald-300 dark:border-emerald-800' : 'bg-amber-50/90 dark:bg-[#2A1C13] border-amber-300 dark:border-amber-800'">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-xs"
+            :class="order.pooling_status === 'settled' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800'">
+            {{ order.pooling_status === 'settled' ? '🎉' : '🤝' }}
+          </div>
+          <div class="flex-1 space-y-2">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <h3 class="text-lg font-extrabold" :class="order.pooling_status === 'settled' ? 'text-emerald-950 dark:text-emerald-200' : 'text-amber-950 dark:text-amber-200'">
+                Group Delivery Pooling — {{ order.pooling_status === 'settled' ? 'Rate Settled by Admin!' : 'Awaiting Admin Rate Assignment' }}
+              </h3>
+              <span class="px-3 py-1 rounded-full text-xs font-bold uppercase shadow-2xs"
+                :class="order.pooling_status === 'settled' ? 'bg-emerald-700 text-white' : 'bg-amber-700 text-white'">
+                {{ order.pooling_status === 'settled' ? '✓ Settled' : '⏳ Pending Admin Rate' }}
+              </span>
+            </div>
+
+            <p class="text-xs leading-relaxed" :class="order.pooling_status === 'settled' ? 'text-emerald-900 dark:text-emerald-300' : 'text-amber-900 dark:text-amber-300'">
+              <template v-if="order.pooling_status === 'settled'">
+                Admin has assigned your order to Delivery Pool Batch <strong>#{{ order.delivery_pool?.pool_code || 'POOL' }}</strong>. Your final assigned delivery fee is <strong>₱{{ (order.shipping_fee || order.delivery_fee || 0).toFixed(2) }}</strong>. Final Order Total: <strong>₱{{ (order.total || 0).toFixed(2) }}</strong>.
+              </template>
+              <template v-else>
+                Your order is currently waiting for our admin to group it with nearby orders in <strong>{{ order.city }}</strong> and assign your discounted delivery fee. Payment cannot be settled until the admin confirms your pooled shipping rate.
+              </template>
+            </p>
+
+            <!-- Settle Payment Button inside Pooling Banner -->
+            <div class="pt-2">
+              <template v-if="order.pooling_status === 'settled'">
+                <div v-if="order.payment_status === 'paid'" class="flex items-center gap-2 text-xs font-extrabold text-emerald-800 dark:text-emerald-300">
+                  <span>✓ Payment Settled &amp; Confirmed!</span>
+                </div>
+                <BaseButton v-else variant="primary" size="sm" @click="showPaymentModal = true">
+                  💳 Settle Payment Now (₱{{ (order.total || 0).toFixed(2) }}) →
+                </BaseButton>
+              </template>
+              <template v-else>
+                <button type="button" disabled class="px-4 py-2 rounded-xl text-xs font-extrabold bg-gray-200 dark:bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-300 dark:border-gray-700">
+                  ⏳ Payment Locked (Awaiting Admin Pooling Settlement)
+                </button>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Live Pipeline Progress Tracker Bar -->
       <div class="bg-white rounded-3xl p-6 md:p-10 border border-brand-caramel/20 shadow-sm space-y-8">
         <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-4">
@@ -77,7 +125,22 @@
           <div class="space-y-2 text-xs">
             <div class="flex justify-between"><span class="text-warm-gray">Customer:</span><span class="font-semibold text-ink">{{ order.customer_name }}</span></div>
             <div class="flex justify-between"><span class="text-warm-gray">Contact:</span><span class="font-semibold text-ink">{{ order.customer_phone }}</span></div>
-            <div class="flex justify-between"><span class="text-warm-gray">Method:</span><span class="font-semibold uppercase text-brand-choco">{{ order.fulfillment_type }}</span></div>
+            <div class="flex justify-between"><span class="text-warm-gray">Fulfillment:</span><span class="font-semibold uppercase text-brand-choco">{{ order.fulfillment_type }}</span></div>
+            <div class="flex justify-between"><span class="text-warm-gray">Delivery Mode:</span>
+              <span class="font-bold text-ink flex items-center gap-1">
+                <template v-if="order.delivery_mode === 'pooling'">
+                  <span>🤝 Delivery Pooling</span>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold uppercase">{{ order.pooling_status }}</span>
+                </template>
+                <template v-else>
+                  <span>⚡ Priority Express</span>
+                </template>
+              </span>
+            </div>
+            <div v-if="order.delivery_pool" class="flex justify-between text-emerald-700 font-semibold">
+              <span>Assigned Pool Batch:</span>
+              <span>#{{ order.delivery_pool.pool_code }}</span>
+            </div>
             <div v-if="order.delivery_address" class="pt-2 border-t border-brand-caramel/15">
               <span class="text-warm-gray block mb-1">Delivery Address:</span>
               <span class="font-medium text-ink block">{{ order.delivery_address }}, {{ order.city }}</span>
@@ -108,6 +171,14 @@
         </div>
       </div>
 
+      <!-- Order Payment Modal -->
+      <OrderPaymentModal
+        :show="showPaymentModal"
+        :order="order"
+        :store-info="storeInfo"
+        @close="showPaymentModal = false"
+        @payment-success="fetchOrder"
+      />
     </div>
   </div>
 </template>
@@ -119,11 +190,21 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseBadge from '@/components/ui/BaseBadge.vue'
 import SkeletonBlock from '@/components/ui/SkeletonBlock.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import OrderPaymentModal from '@/components/checkout/OrderPaymentModal.vue'
 
 const axios = inject('axios')
 const route = useRoute()
 const order = ref(null)
 const loading = ref(true)
+const showPaymentModal = ref(false)
+const storeInfo = ref({})
+
+async function fetchStoreSettings() {
+  try {
+    const { data } = await axios.get('/api/settings/store')
+    storeInfo.value = data || {}
+  } catch {}
+}
 
 const pipelineSteps = [
   { key: 'confirmed', label: 'Order Placed', desc: 'Received & queued' },
@@ -193,5 +274,8 @@ async function fetchOrder() {
   }
 }
 
-onMounted(() => fetchOrder())
+onMounted(() => {
+  fetchStoreSettings()
+  fetchOrder()
+})
 </script>

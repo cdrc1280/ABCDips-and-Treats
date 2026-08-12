@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Setting;
+use App\Services\PsgcService;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -45,12 +46,17 @@ class StoreSettings extends Page implements HasForms
         ];
 
         $this->form->fill([
-            'store_name' => Setting::get('store_name', 'ABCDips & Treats'),
-            'store_phone' => Setting::get('store_phone', ''),
-            'store_address' => Setting::get('store_address', 'Bacoor, Cavite, Philippines'),
-            'store_lat' => Setting::get('store_lat', '14.4597'),
-            'store_lng' => Setting::get('store_lng', '120.9640'),
-            'store_email' => Setting::get('store_email', ''),
+            'store_name'           => Setting::get('store_name', 'ABCDips & Treats'),
+            'store_phone'          => Setting::get('store_phone', ''),
+            'store_region'         => Setting::get('store_region', 'Region IV-A (CALABARZON)'),
+            'store_province'       => Setting::get('store_province', 'Cavite'),
+            'store_city'           => Setting::get('store_city', 'City of Bacoor'),
+            'store_barangay'       => Setting::get('store_barangay', 'Molino III'),
+            'store_street_address' => Setting::get('store_street_address', 'Molino Blvd'),
+            'store_address'        => Setting::get('store_address', 'Molino Blvd, Molino III, City of Bacoor, Cavite, Region IV-A (CALABARZON)'),
+            'store_lat'            => Setting::get('store_lat', '14.4597'),
+            'store_lng'            => Setting::get('store_lng', '120.9640'),
+            'store_email'          => Setting::get('store_email', ''),
 
             'lalamove_api_key' => Setting::get('lalamove_api_key', ''),
             'lalamove_api_secret' => Setting::get('lalamove_api_secret', ''),
@@ -123,16 +129,66 @@ class StoreSettings extends Page implements HasForms
                             ->label('Store Phone')
                             ->placeholder('0917 123 4567'),
 
+                        Select::make('store_region')
+                            ->label('Store Region')
+                            ->options(fn () => PsgcService::getRegionsOptions())
+                            ->searchable()
+                            ->live()
+                            ->afterStateUpdated(function (callable $set, callable $get) {
+                                $set('store_province', null);
+                                $set('store_city', null);
+                                $set('store_barangay', null);
+                                static::updateCompiledAddress($set, $get);
+                            }),
+
+                        Select::make('store_province')
+                            ->label('Store Province')
+                            ->options(fn (callable $get) => PsgcService::getProvincesOptions($get('store_region')))
+                            ->searchable()
+                            ->live()
+                            ->disabled(fn (callable $get) => ! $get('store_region') || $get('store_region') === '130000000')
+                            ->afterStateUpdated(function (callable $set, callable $get) {
+                                $set('store_city', null);
+                                $set('store_barangay', null);
+                                static::updateCompiledAddress($set, $get);
+                            }),
+
+                        Select::make('store_city')
+                            ->label('Store City / Municipality')
+                            ->options(fn (callable $get) => PsgcService::getCitiesOptions($get('store_region'), $get('store_province')))
+                            ->searchable()
+                            ->live()
+                            ->disabled(fn (callable $get) => ! $get('store_region'))
+                            ->afterStateUpdated(function (callable $set, callable $get) {
+                                $set('store_barangay', null);
+                                static::updateCompiledAddress($set, $get);
+                            }),
+
+                        Select::make('store_barangay')
+                            ->label('Store Barangay')
+                            ->options(fn (callable $get) => PsgcService::getBarangaysOptions($get('store_city')))
+                            ->searchable()
+                            ->live()
+                            ->disabled(fn (callable $get) => ! $get('store_city'))
+                            ->afterStateUpdated(function (callable $set, callable $get) {
+                                static::updateCompiledAddress($set, $get);
+                            }),
+
+                        TextInput::make('store_street_address')
+                            ->label('Store Street Address / Building / House #')
+                            ->placeholder('e.g. 123 Zapote Road, Phase 1')
+                            ->columnSpanFull()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (callable $set, callable $get) {
+                                static::updateCompiledAddress($set, $get);
+                            }),
+
                         Textarea::make('store_address')
-                            ->label('Store Pickup / Lalamove Origin Address')
-                            ->helperText('Used as pickup origin for customer Lalamove quotes — specify street, barangay & city')
+                            ->label('Compiled Store Pickup Address')
+                            ->helperText('Automatically compiled from selected PSGC region, province, city, barangay, and street address.')
                             ->rows(2)
                             ->columnSpanFull()
-                            ->required(),
-
-                        ViewField::make('store_location_map')
-                            ->view('filament.forms.components.store-location-map')
-                            ->columnSpanFull(),
+                            ->readOnly(),
 
                         TextInput::make('store_lat')
                             ->label('Store Latitude (GPS)')
@@ -343,31 +399,33 @@ class StoreSettings extends Page implements HasForms
                             ->placeholder('/shop'),
                     ]),
 
-                Section::make('Lalamove Delivery API')
-                    ->description('Automated doorstep delivery quotes. Register free at developers.lalamove.com.')
+                Section::make('Lalamove Delivery API (Free Distance-Based Quoting)')
+                    ->description('Free real-time distance & delivery fee calculation using Lalamove v3 Sandbox (/v3/quotations). Get your free Sandbox API Key & Secret from partner.lalamove.com.')
                     ->columns(2)
                     ->components([
                         TextInput::make('lalamove_api_key')
-                            ->label('API Key')
-                            ->placeholder('Your Lalamove API Key'),
+                            ->label('Sandbox / API Key')
+                            ->placeholder('Your Lalamove API Key')
+                            ->helperText('Get free API Key at partner.lalamove.com → Developers'),
 
                         TextInput::make('lalamove_api_secret')
-                            ->label('API Secret')
+                            ->label('Sandbox / API Secret')
                             ->password()
-                            ->placeholder('Your Lalamove API Secret'),
+                            ->placeholder('Your Lalamove API Secret')
+                            ->helperText('Get free API Secret at partner.lalamove.com → Developers'),
 
                         Select::make('lalamove_service_type')
                             ->label('Vehicle / Service Type')
                             ->options([
                                 'MOTORCYCLE' => 'Motorcycle (Standard Pastries)',
-                                'SEDAN' => 'Sedan (Fragile Custom Cakes)',
-                                'MPV' => 'MPV / Van (Bulk Orders)',
+                                'SEDAN'      => 'Sedan (Fragile Custom Cakes)',
+                                'MPV'        => 'MPV / Van (Bulk Orders)',
                             ])
                             ->default('MOTORCYCLE'),
 
                         Toggle::make('lalamove_sandbox')
-                            ->label('Sandbox Mode')
-                            ->helperText('Enable test environment (no real drivers dispatched)')
+                            ->label('Sandbox Mode (100% Free - Zero Payment Required)')
+                            ->helperText('Uses https://rest.sandbox.lalamove.com/v3/quotations for 100% free price/distance calculation without charging any wallet.')
                             ->default(true),
                     ]),
 
@@ -419,6 +477,28 @@ class StoreSettings extends Page implements HasForms
                     ]),
             ])
             ->statePath('data');
+    }
+
+    protected static function updateCompiledAddress(callable $set, callable $get): void
+    {
+        $regCode = $get('store_region');
+        $provCode = $get('store_province');
+        $cityCode = $get('store_city');
+        $brgyCode = $get('store_barangay');
+        $street = $get('store_street_address');
+
+        $regions = PsgcService::getRegionsOptions();
+        $provinces = PsgcService::getProvincesOptions($regCode);
+        $cities = PsgcService::getCitiesOptions($regCode, $provCode);
+        $barangays = PsgcService::getBarangaysOptions($cityCode);
+
+        $regName = $regions[$regCode] ?? $regCode;
+        $provName = $provinces[$provCode] ?? ($regCode === '130000000' ? 'Metro Manila' : $provCode);
+        $cityName = $cities[$cityCode] ?? $cityCode;
+        $brgyName = $barangays[$brgyCode] ?? $brgyCode;
+
+        $parts = array_filter([$street, $brgyName, $cityName, $provName, $regName]);
+        $set('store_address', implode(', ', $parts));
     }
 
     public function save(): void

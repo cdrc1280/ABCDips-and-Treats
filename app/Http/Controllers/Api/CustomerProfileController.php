@@ -19,9 +19,14 @@ class CustomerProfileController extends Controller
     public function updateProfile(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
-            'phone' => ['sometimes', 'nullable', new \App\Rules\PhilippinePhone],
-            'address' => ['sometimes', 'nullable', 'string', 'max:1000'],
+            'name'           => ['sometimes', 'string', 'max:255'],
+            'phone'          => ['sometimes', 'nullable', new \App\Rules\PhilippinePhone],
+            'address'        => ['sometimes', 'nullable', 'string', 'max:1000'],
+            'city'           => ['sometimes', 'nullable', 'string', 'max:255'],
+            'region'         => ['sometimes', 'nullable', 'string', 'max:255'],
+            'province'       => ['sometimes', 'nullable', 'string', 'max:255'],
+            'barangay'       => ['sometimes', 'nullable', 'string', 'max:255'],
+            'street_address' => ['sometimes', 'nullable', 'string', 'max:500'],
         ]);
 
         $user = $this->customerService->updateProfile($request->user(), $validated);

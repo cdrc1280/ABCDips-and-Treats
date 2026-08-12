@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+
 <div
     x-data="{
         lat: $wire.entangle('data.store_lat'),
@@ -12,21 +14,15 @@
 
         init() {
             this.$nextTick(() => {
-                this.loadLeaflet().then(() => this.initMap());
+                this.loadLeafletScript().then(() => {
+                    setTimeout(() => this.initMap(), 200);
+                });
             });
         },
 
-        loadLeaflet() {
+        loadLeafletScript() {
             return new Promise((resolve) => {
                 if (window.L) return resolve(window.L);
-
-                if (!document.getElementById('leaflet-css-admin')) {
-                    const link = document.createElement('link');
-                    link.id = 'leaflet-css-admin';
-                    link.rel = 'stylesheet';
-                    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-                    document.head.appendChild(link);
-                }
 
                 if (!document.getElementById('leaflet-js-admin')) {
                     const script = document.createElement('script');
@@ -63,10 +59,26 @@
                 zoomControl: true,
             });
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            // Fast CARTO Voyager Tiles
+            const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 maxZoom: 19,
-                attribution: '© OpenStreetMap',
-            }).addTo(this.map);
+                subdomains: 'abcd',
+                attribution: '© OpenStreetMap © CARTO',
+            });
+
+            const esriLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: '© Esri',
+            });
+
+            cartoLayer.on('tileerror', () => {
+                if (this.map) {
+                    this.map.removeLayer(cartoLayer);
+                    esriLayer.addTo(this.map);
+                }
+            });
+
+            cartoLayer.addTo(this.map);
 
             const storeIcon = L.divIcon({
                 html: `<div style='background:#5C3A22; color:#FBF3E7; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; border:2px solid #D9A876; box-shadow:0 4px 12px rgba(0,0,0,0.5); cursor:grab;'>🏪</div>`,
@@ -95,6 +107,12 @@
                 this.reverseGeocode(lat, lng);
             });
 
+            if ('ResizeObserver' in window && this.$refs.adminMap) {
+                new ResizeObserver(() => {
+                    if (this.map) this.map.invalidateSize();
+                }).observe(this.$refs.adminMap);
+            }
+
             setTimeout(() => {
                 if (this.map) this.map.invalidateSize();
             }, 300);
@@ -109,13 +127,20 @@
             this.suggestions = [];
 
             try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + ', Philippines')}&format=json&countrycodes=ph&limit=5`, {
-                    headers: { 'Accept-Language': 'en' }
-                });
+                const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q + ' Philippines')}&limit=5&bbox=119.5,13.5,122.5,15.5`);
                 const data = await res.json();
-                if (data && data.length > 0) {
-                    this.suggestions = data;
-                    this.selectSuggestion(data[0]);
+                if (data && data.features && data.features.length > 0) {
+                    this.suggestions = data.features.map(f => {
+                        const p = f.properties;
+                        const name = p.name || p.street || p.district || 'Location';
+                        const subtitle = [p.street, p.district, p.city, p.state].filter(Boolean).join(', ');
+                        return {
+                            display_name: [name, subtitle].filter(Boolean).join(', '),
+                            lat: f.geometry.coordinates[1],
+                            lon: f.geometry.coordinates[0],
+                        };
+                    });
+                    this.selectSuggestion(this.suggestions[0]);
                 } else {
                     this.noResults = true;
                 }
@@ -146,6 +171,21 @@
         },
 
         async reverseGeocode(lat, lng) {
+            try {
+                const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`);
+                const data = await res.json();
+                if (data && data.features && data.features.length > 0) {
+                    const props = data.features[0].properties;
+                    const name = props.name || props.street || props.district || '';
+                    const city = props.city || props.county || props.state || '';
+                    const fullAddr = [name, props.street, props.district, city].filter(Boolean).join(', ');
+                    if (fullAddr) {
+                        this.address = fullAddr;
+                        return;
+                    }
+                }
+            } catch {}
+
             try {
                 const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&countrycodes=ph`, {
                     headers: { 'Accept-Language': 'en' }
@@ -211,8 +251,8 @@
         </template>
     </div>
 
-    <!-- Map Canvas Container -->
-    <div class="relative rounded-xl overflow-hidden border border-gray-300 dark:border-gray-700 h-72 bg-gray-100 dark:bg-gray-900 shadow-inner z-10">
-        <div x-ref="adminMap" class="w-full h-full min-h-[280px]"></div>
+    <!-- Map Canvas Container with Explicit Inline Dimensions -->
+    <div class="relative rounded-xl overflow-hidden border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 shadow-inner z-10" style="height: 300px; min-height: 300px; width: 100%;">
+        <div x-ref="adminMap" style="height: 300px; min-height: 300px; width: 100%;"></div>
     </div>
 </div>

@@ -23,13 +23,25 @@ class DeliveryController extends Controller
     public function quote(Request $request): JsonResponse
     {
         $request->validate([
-            'address' => 'required|string|min:5|max:500',
+            'address' => 'required|string|min:3|max:500',
+            'lat'     => 'nullable|numeric',
+            'lng'     => 'nullable|numeric',
         ]);
 
         $address = $request->input('address');
+        $reqLat = $request->input('lat');
+        $reqLng = $request->input('lng');
 
-        // 1. Geocode customer address
-        $dropoffCoords = $this->geocoder->geocode($address);
+        // 1. Determine customer dropoff coordinates
+        if ($reqLat && $reqLng) {
+            $dropoffCoords = [
+                'lat'          => (float) $reqLat,
+                'lng'          => (float) $reqLng,
+                'display_name' => $address,
+            ];
+        } else {
+            $dropoffCoords = $this->geocoder->geocode($address);
+        }
 
         if (!$dropoffCoords) {
             return response()->json([
@@ -87,6 +99,8 @@ class DeliveryController extends Controller
             'provider'       => 'lalamove',
             'provider_label' => 'Lalamove',
             'service'        => $quote['service'],
+            'distance_km'    => $quote['distance_km'] ?? null,
+            'distance_m'     => $quote['distance_m'] ?? null,
             'dropoff'        => [
                 'lat'          => $dropoffCoords['lat'],
                 'lng'          => $dropoffCoords['lng'],

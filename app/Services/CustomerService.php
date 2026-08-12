@@ -12,9 +12,14 @@ class CustomerService
     public function updateProfile(User $user, array $data): User
     {
         $user->update([
-            'name'    => $data['name'] ?? $user->name,
-            'phone'   => $data['phone'] ?? $user->phone,
-            'address' => $data['address'] ?? $user->address,
+            'name'           => $data['name'] ?? $user->name,
+            'phone'          => $data['phone'] ?? $user->phone,
+            'address'        => $data['address'] ?? $user->address,
+            'city'           => $data['city'] ?? $user->city,
+            'region'         => $data['region'] ?? $user->region,
+            'province'       => $data['province'] ?? $user->province,
+            'barangay'       => $data['barangay'] ?? $user->barangay,
+            'street_address' => $data['street_address'] ?? $user->street_address,
         ]);
 
         return $user->fresh();

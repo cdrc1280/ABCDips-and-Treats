@@ -19,6 +19,7 @@ class CheckoutRequest extends FormRequest
             'customer_email'   => ['required', 'email:rfc', 'max:255'],
             'customer_phone'   => ['required', new PhilippinePhone],
             'fulfillment_type' => ['required', 'in:delivery,pickup'],
+            'delivery_mode'    => ['nullable', 'in:priority,pooling'],
             'delivery_address' => ['required_if:fulfillment_type,delivery', 'nullable', 'string', 'max:1000'],
             'city'             => ['nullable', 'string', 'max:100'],
             'postal_code'      => ['nullable', 'string', 'max:20'],

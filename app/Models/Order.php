@@ -23,6 +23,16 @@ class Order extends Model
     public const STATUS_REFUNDED         = 'refunded';
     public const STATUS_ARCHIVED         = 'archived';
 
+    // Delivery Mode Constants
+    public const MODE_PRIORITY = 'priority';
+    public const MODE_POOLING  = 'pooling';
+
+    // Pooling Status Constants
+    public const POOLING_NOT_POOLED           = 'not_pooled';
+    public const POOLING_AWAITING_ASSIGNMENT  = 'awaiting_assignment';
+    public const POOLING_POOLED               = 'pooled';
+    public const POOLING_SETTLED              = 'settled';
+
     protected $fillable = [
         'order_number',
         'tracking_token',
@@ -31,8 +41,15 @@ class Order extends Model
         'customer_email',
         'customer_phone',
         'fulfillment_type',
+        'delivery_mode',
+        'delivery_pool_id',
+        'pooling_status',
         'delivery_address',
+        'region',
+        'province',
         'city',
+        'barangay',
+        'street_address',
         'postal_code',
         'scheduled_time',
         'notes',
@@ -40,6 +57,7 @@ class Order extends Model
         'discount_amount',
         'coupon_code',
         'delivery_fee',
+        'estimated_shared_fee',
         'total',
         'payment_method',
         'payment_status',
@@ -49,17 +67,23 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'subtotal'        => 'decimal:2',
-        'discount_amount' => 'decimal:2',
-        'delivery_fee'    => 'decimal:2',
-        'total'           => 'decimal:2',
-        'scheduled_time'  => 'datetime',
-        'paid_at'          => 'datetime',
+        'subtotal'             => 'decimal:2',
+        'discount_amount'      => 'decimal:2',
+        'delivery_fee'         => 'decimal:2',
+        'estimated_shared_fee' => 'decimal:2',
+        'total'                => 'decimal:2',
+        'scheduled_time'       => 'datetime',
+        'paid_at'               => 'datetime',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function deliveryPool(): BelongsTo
+    {
+        return $this->belongsTo(DeliveryPool::class);
     }
 
     public function items(): HasMany
@@ -74,6 +98,10 @@ class Order extends Model
 
     public function transitionTo(string $newStatus, ?string $comment = null, ?int $userId = null): void
     {
+        if ($this->delivery_mode === self::MODE_POOLING && $this->pooling_status !== self::POOLING_SETTLED && in_array($newStatus, [self::STATUS_CONFIRMED, self::STATUS_PREPARING, self::STATUS_PACKAGING, self::STATUS_OUT_FOR_DELIVERY, self::STATUS_COMPLETED])) {
+            throw new \DomainException("Order #{$this->order_number} is a Delivery Pooling order awaiting admin assignment. Please assign to a Delivery Pool Batch and Settle the shared shipping fee in 'Delivery Pooling' before advancing status.");
+        }
+
         $oldStatus = $this->status;
         $this->update(['status' => $newStatus]);
 

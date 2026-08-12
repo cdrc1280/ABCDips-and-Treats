@@ -46,8 +46,12 @@
         </div>
       </div>
 
-      <!-- Payment Method Notice -->
-      <BaseAlert v-if="order.payment_method === 'bank_transfer'" variant="info" title="BDO Bank Transfer Instructions">
+      <!-- Payment Method & Delivery Pooling Notices -->
+      <BaseAlert v-if="order.delivery_mode === 'pooling'" variant="warning" title="🤝 Group Delivery Pooling Request Submitted">
+        Your order has been submitted for Group Delivery Pooling. Our admin will batch your location in <strong>{{ order.city }}</strong> with nearby orders and assign your discounted shared delivery fee. Once settled, you can review and pay your final order total on the <RouterLink :to="`/track/${order.tracking_token}`" class="underline font-bold">Live Order Tracking Page</RouterLink>.
+      </BaseAlert>
+
+      <BaseAlert v-else-if="order.payment_method === 'bank_transfer'" variant="info" title="BDO Bank Transfer Instructions">
         Please transfer <strong>₱{{ order.total.toFixed(2) }}</strong> to <strong>BDO Unibank</strong> Account <strong>{{ storeInfo.bdo_account_number || '0012-3456-7890' }} ({{ storeInfo.bdo_account_name || 'ABCDips & Treats' }})</strong>. Reference number to present: <strong>{{ order.order_number }}</strong>.
         <span v-if="storeInfo.bdo_instructions" class="block mt-1 text-xs opacity-90">{{ storeInfo.bdo_instructions }}</span>
       </BaseAlert>

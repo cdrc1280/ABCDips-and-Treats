@@ -17,6 +17,11 @@ class UserResource extends JsonResource
             'avatar_url'        => $this->getFirstMediaUrl('avatar'),
             'phone'             => $this->phone,
             'address'           => $this->address,
+            'city'              => $this->city,
+            'region'            => $this->region,
+            'province'          => $this->province,
+            'barangay'          => $this->barangay,
+            'street_address'    => $this->street_address,
             'roles'             => $this->whenLoaded('roles', fn () => $this->roles->pluck('name')),
             'created_at'        => $this->created_at->toISOString(),
         ];

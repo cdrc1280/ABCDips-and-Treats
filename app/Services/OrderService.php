@@ -30,13 +30,30 @@ class OrderService
         $orderNumber = 'ABCD-' . date('Ymd') . '-' . strtoupper(Str::random(4));
         $trackingToken = Str::random(40);
         $fulfillment = $data['fulfillment_type'] ?? 'delivery';
-        $deliveryFee = $fulfillment === 'delivery' ? 120.00 : 0.00;
+        $deliveryMode = ($fulfillment === 'delivery') ? ($data['delivery_mode'] ?? Order::MODE_PRIORITY) : Order::MODE_PRIORITY;
+
+        $standardFee = (float) ($data['shipping_fee'] ?? 0.00);
+        if ($fulfillment === 'pickup') {
+            $deliveryFee = 0.00;
+            $estimatedSharedFee = 0.00;
+            $poolingStatus = Order::POOLING_NOT_POOLED;
+        } elseif ($deliveryMode === Order::MODE_POOLING) {
+            // Pooled delivery: fee is decided by Admin based on customer location & border distance upon batching
+            $estimatedSharedFee = 0.00;
+            $deliveryFee = 0.00;
+            $poolingStatus = Order::POOLING_AWAITING_ASSIGNMENT;
+        } else {
+            // Priority delivery: exact live Lalamove API quote based on store location and customer location
+            $deliveryFee = $standardFee;
+            $estimatedSharedFee = 0.00;
+            $poolingStatus = Order::POOLING_NOT_POOLED;
+        }
 
         $subtotal = $cart->subtotal;
         $discount = (float) $cart->discount_amount;
         $total = max(0.0, round($subtotal - $discount + $deliveryFee, 2));
 
-        return \Illuminate\Support\Facades\DB::transaction(function () use ($cart, $data, $user, $fulfillment, $deliveryFee, $subtotal, $discount, $total, $orderNumber, $trackingToken) {
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($cart, $data, $user, $fulfillment, $deliveryMode, $poolingStatus, $deliveryFee, $estimatedSharedFee, $subtotal, $discount, $total, $orderNumber, $trackingToken) {
             // Check stock availability for non-custom items
             foreach ($cart->items as $item) {
                 if ($item->product && empty($item->options['is_custom'])) {
@@ -56,8 +73,14 @@ class OrderService
                 'customer_email' => $data['customer_email'],
                 'customer_phone' => $data['customer_phone'],
                 'fulfillment_type' => $fulfillment,
+                'delivery_mode' => $deliveryMode,
+                'pooling_status' => $poolingStatus,
                 'delivery_address' => $data['delivery_address'] ?? null,
+                'region' => $data['region'] ?? null,
+                'province' => $data['province'] ?? null,
                 'city' => $data['city'] ?? null,
+                'barangay' => $data['barangay'] ?? null,
+                'street_address' => $data['street_address'] ?? null,
                 'postal_code' => $data['postal_code'] ?? null,
                 'scheduled_time' => $data['scheduled_time'] ?? null,
                 'notes' => $data['notes'] ?? null,
@@ -65,6 +88,7 @@ class OrderService
                 'discount_amount' => $discount,
                 'coupon_code' => $cart->coupon_code,
                 'delivery_fee' => $deliveryFee,
+                'estimated_shared_fee' => $estimatedSharedFee,
                 'total' => $total,
                 'payment_method' => $data['payment_method'],
                 'payment_status' => 'pending',
@@ -210,7 +234,7 @@ class OrderService
         return Order::where('tracking_token', $token)
             ->orWhere('order_number', $token)
             ->orWhere('id', is_numeric($token) ? (int) $token : 0)
-            ->with(['items.product', 'statusHistories.changedBy'])
+            ->with(['items.product', 'statusHistories.changedBy', 'deliveryPool'])
             ->first();
     }
 }

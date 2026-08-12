@@ -80,16 +80,19 @@
           placeholder="09171234567"
         />
 
-        <BaseTextarea
-          v-model="profileForm.address"
-          label="Default Delivery Address"
-          rows="3"
-          placeholder="Enter your primary delivery address..."
+        <PsgcAddressSelector
+          v-model:region="profileForm.region"
+          v-model:province="profileForm.province"
+          v-model:city="profileForm.city"
+          v-model:barangay="profileForm.barangay"
+          v-model:streetAddress="profileForm.street_address"
+          v-model:address="profileForm.address"
         />
 
         <!-- Interactive Address Map Picker -->
         <AddressMapPicker
           v-model:address="profileForm.address"
+          v-model:city="profileForm.city"
           :store-lat="parseFloat(storeInfo.store_lat) || 14.4597"
           :store-lng="parseFloat(storeInfo.store_lng) || 120.9640"
           @location-selected="handleLocationSelected"
@@ -175,6 +178,7 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseTextarea from '@/components/ui/BaseTextarea.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import AddressMapPicker from '@/components/checkout/AddressMapPicker.vue'
+import PsgcAddressSelector from '@/components/checkout/PsgcAddressSelector.vue'
 
 const axios = inject('axios')
 const authStore = useAuthStore()
@@ -185,7 +189,12 @@ const profileForm = ref({
   name: authStore.user?.name || '',
   email: authStore.user?.email || '',
   phone: authStore.user?.phone || '',
-  address: authStore.user?.address || ''
+  address: authStore.user?.address || '',
+  city: authStore.user?.city || '',
+  region: authStore.user?.region || '',
+  province: authStore.user?.province || '',
+  barangay: authStore.user?.barangay || '',
+  street_address: authStore.user?.street_address || '',
 })
 
 async function fetchStoreSettings() {
@@ -198,9 +207,13 @@ async function fetchStoreSettings() {
 }
 
 function handleLocationSelected(loc) {
-  if (loc.address) {
-    profileForm.value.address = loc.address
-  }
+  if (!loc) return
+  if (loc.address) profileForm.value.address = loc.address
+  if (loc.city) profileForm.value.city = loc.city
+  if (loc.province) profileForm.value.province = loc.province
+  if (loc.region) profileForm.value.region = loc.region
+  if (loc.barangay) profileForm.value.barangay = loc.barangay
+  if (loc.streetAddress) profileForm.value.street_address = loc.streetAddress
 }
 
 onMounted(() => {
@@ -317,6 +330,11 @@ onMounted(async () => {
     profileForm.value.email = authStore.user.email || ''
     profileForm.value.phone = authStore.user.phone || ''
     profileForm.value.address = authStore.user.address || ''
+    profileForm.value.city = authStore.user.city || ''
+    profileForm.value.region = authStore.user.region || ''
+    profileForm.value.province = authStore.user.province || ''
+    profileForm.value.barangay = authStore.user.barangay || ''
+    profileForm.value.street_address = authStore.user.street_address || ''
   }
 })
 </script>

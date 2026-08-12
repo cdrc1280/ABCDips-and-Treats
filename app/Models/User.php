@@ -26,6 +26,11 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia, Filamen
         'password',
         'phone',
         'address',
+        'city',
+        'region',
+        'province',
+        'barangay',
+        'street_address',
     ];
 
     /**

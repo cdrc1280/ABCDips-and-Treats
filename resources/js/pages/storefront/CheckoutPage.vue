@@ -122,7 +122,7 @@
             <!-- Doorstep Delivery -->
             <label v-tooltip="'Real-time delivery quote calculated via Lalamove based on your location'"
               class="border-2 rounded-2xl p-4 cursor-pointer flex flex-col items-center justify-center text-center transition-all"
-              :class="form.fulfillment_type === 'delivery' ? 'border-brand-choco bg-surface' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
+              :class="form.fulfillment_type === 'delivery' ? 'border-brand-choco bg-surface dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
               <input type="radio" v-model="form.fulfillment_type" value="delivery" class="sr-only" />
               <div class="w-10 h-10 rounded-full bg-brand-tan/30 flex items-center justify-center text-brand-choco mb-2">
                 🛵
@@ -130,7 +130,7 @@
               <div class="font-bold text-sm text-ink dark:text-[#FBF3E7]">Doorstep Delivery</div>
               <div class="text-xs text-warm-gray mt-0.5">
                 <span v-if="quotingDelivery" class="animate-pulse text-brand-caramel">Quoting...</span>
-                <span v-else-if="quotedFee !== null">₱{{ quotedFee.toFixed(2) }} ({{ quoteProvider }})</span>
+                <span v-else-if="quotedFee !== null">₱{{ deliveryFee.toFixed(2) }} ({{ quoteProvider }})</span>
                 <span v-else>Lalamove Real-Time Quote</span>
               </div>
             </label>
@@ -138,7 +138,7 @@
             <!-- Store Pickup -->
             <label v-tooltip="'Pick up your fresh pastries directly at our store — 100% FREE!'"
               class="border-2 rounded-2xl p-4 cursor-pointer flex flex-col items-center justify-center text-center transition-all"
-              :class="form.fulfillment_type === 'pickup' ? 'border-brand-choco bg-surface' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
+              :class="form.fulfillment_type === 'pickup' ? 'border-brand-choco bg-surface dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
               <input type="radio" v-model="form.fulfillment_type" value="pickup" class="sr-only" />
               <div class="w-10 h-10 rounded-full bg-brand-tan/30 flex items-center justify-center text-brand-choco mb-2">
                 🏪
@@ -150,6 +150,59 @@
                 📍 Store: {{ storeInfo.store_address || 'Bacoor, Cavite, Philippines' }}
               </div>
             </label>
+          </div>
+
+          <!-- Doorstep Delivery Mode Selector (Priority vs. Pooling) -->
+          <div v-if="form.fulfillment_type === 'delivery'" class="pt-3 border-t border-brand-caramel/20 space-y-3">
+            <label class="block text-xs font-extrabold uppercase text-ink dark:text-[#FBF3E7] tracking-wider">
+              Select Delivery Priority &amp; Shipping Fee Option:
+            </label>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <!-- Priority Express Option -->
+              <label class="border-2 rounded-2xl p-3.5 cursor-pointer flex items-start gap-3 transition-all"
+                :class="form.delivery_mode === 'priority' ? 'border-brand-choco bg-surface/80 dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-75 hover:opacity-100'">
+                <input type="radio" v-model="form.delivery_mode" value="priority" class="sr-only" />
+                <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 flex items-center justify-center text-lg shrink-0 mt-0.5">
+                  ⚡
+                </div>
+                <div>
+                  <div class="font-bold text-xs text-ink dark:text-[#FBF3E7] flex items-center gap-1.5">
+                    <span>Priority Express</span>
+                    <span class="bg-amber-700 text-white text-[9px] px-1.5 py-0.2 rounded-md uppercase font-extrabold">Immediate</span>
+                  </div>
+                  <p class="text-[11px] text-warm-gray mt-0.5 leading-snug">
+                    Full shipping fee. Your order is packed and dispatched immediately.
+                  </p>
+                  <div class="text-xs font-extrabold text-brand-choco mt-1">
+                    <span v-if="quotedFee !== null" class="text-amber-800 dark:text-amber-300 font-black">₱{{ quotedFee.toFixed(2) }} <span class="text-[10px] font-semibold text-warm-gray">(Live quote based on location)</span></span>
+                    <span v-else-if="quotingDelivery" class="text-amber-700 dark:text-amber-400 font-semibold animate-pulse">Calculating live rate for location...</span>
+                    <span v-else class="text-amber-700 dark:text-amber-400 font-semibold italic text-[11px]">Pinpoint location below for live rate</span>
+                  </div>
+                </div>
+              </label>
+
+              <!-- Group Delivery Pooling Option -->
+              <label class="border-2 rounded-2xl p-3.5 cursor-pointer flex items-start gap-3 transition-all"
+                :class="form.delivery_mode === 'pooling' ? 'border-emerald-600 bg-emerald-50/60 dark:bg-[#1A2E1A]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-75 hover:opacity-100'">
+                <input type="radio" v-model="form.delivery_mode" value="pooling" class="sr-only" />
+                <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-lg shrink-0 mt-0.5">
+                  🤝
+                </div>
+                <div>
+                  <div class="font-bold text-xs text-ink dark:text-[#FBF3E7] flex items-center gap-1.5">
+                    <span>Group Delivery Pooling</span>
+                    <span class="bg-emerald-700 text-white text-[9px] px-1.5 py-0.2 rounded-md uppercase font-extrabold">Custom Shared Rate</span>
+                  </div>
+                  <p class="text-[11px] text-warm-gray mt-0.5 leading-snug">
+                    Share delivery route! Admin will evaluate your location &amp; border distance to assign a custom discounted shipping fee upon pooling batching.
+                  </p>
+                  <div class="text-xs font-extrabold text-emerald-700 dark:text-emerald-400 mt-1">
+                    Pending Admin Rate Settlement
+                  </div>
+                </div>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -166,19 +219,28 @@
               required :error="errors.customer_email?.[0]" />
             <BaseInput v-model="form.customer_phone" type="tel" numeric-only maxlength="13" label="Mobile Number"
               placeholder="09171234567" required :error="errors.customer_phone?.[0]" />
-            <BaseInput v-model="form.city" label="City / District" placeholder="e.g. Bacoor, Cavite" required />
           </div>
 
-          <!-- Delivery Address Fields & Lalamove Live Quote Status -->
-          <div v-if="form.fulfillment_type === 'delivery'" class="space-y-3 pt-2">
-            <BaseTextarea v-model="form.delivery_address" label="Complete Delivery Address"
-              placeholder="House/Unit #, Street Name, Barangay, Landmark (e.g. 123 Zapote Road, Brgy. Molino III)"
-              rows="3" required :error="errors.delivery_address?.[0]" />
+          <!-- PSGC Dependent Address Selection & Interactive Map Picker -->
+          <div v-if="form.fulfillment_type === 'delivery'" class="space-y-4 pt-2">
+            <PsgcAddressSelector
+              v-model:region="form.region"
+              v-model:province="form.province"
+              v-model:city="form.city"
+              v-model:barangay="form.barangay"
+              v-model:streetAddress="form.street_address"
+              v-model:address="form.delivery_address"
+              @address-changed="handlePsgcAddressChanged"
+            />
 
             <!-- Interactive Pinpoint Map Picker -->
-            <AddressMapPicker v-model:address="form.delivery_address" v-model:city="form.city"
+            <AddressMapPicker
+              v-model:address="form.delivery_address"
+              v-model:city="form.city"
               :store-lat="parseFloat(storeInfo.store_lat) || 14.4597"
-              :store-lng="parseFloat(storeInfo.store_lng) || 120.9640" @location-selected="handleLocationPinpointed" />
+              :store-lng="parseFloat(storeInfo.store_lng) || 120.9640"
+              @location-selected="handleLocationPinpointed"
+            />
 
             <!-- Live Lalamove Quote Status Box -->
             <div class="p-3.5 rounded-2xl text-xs transition-all border" :class="[
@@ -394,26 +456,51 @@
 
             <div class="flex justify-between text-warm-gray">
               <span
-                v-tooltip="form.fulfillment_type === 'pickup' ? 'No delivery fee for store pickup' : 'Lalamove dynamic delivery quote'"
+                v-tooltip="form.fulfillment_type === 'pickup' ? 'No delivery fee for store pickup' : (form.delivery_mode === 'pooling' ? 'Shared rate evaluated by admin' : 'Lalamove dynamic delivery quote')"
                 class="cursor-help">
-                Delivery Fee ({{ form.fulfillment_type === 'pickup' ? 'Pickup' : quoteProvider }})
+                Delivery Fee ({{ form.fulfillment_type === 'pickup' ? 'Pickup' : (form.delivery_mode === 'pooling' ? 'Group Pooling' : quoteProvider) }})
               </span>
               <span class="font-semibold text-ink dark:text-[#FBF3E7]">
-                <span v-if="quotingDelivery" class="text-xs text-brand-caramel">Quoting...</span>
+                <span v-if="form.delivery_mode === 'pooling'" class="text-xs font-extrabold text-amber-700 dark:text-amber-400">Rate Pending Admin</span>
+                <span v-else-if="quotingDelivery" class="text-xs text-brand-caramel">Quoting...</span>
                 <span v-else>₱{{ deliveryFee.toFixed(2) }}</span>
               </span>
             </div>
 
+            <!-- Group Delivery Pooling Informational Banner -->
+            <div v-if="form.fulfillment_type === 'delivery' && form.delivery_mode === 'pooling'"
+              class="p-4 rounded-2xl bg-amber-50/90 dark:bg-[#2A1C13] border border-amber-300 dark:border-amber-800 space-y-2 text-xs">
+              <div class="flex items-center gap-2 text-amber-950 dark:text-amber-200 font-extrabold text-xs">
+                <span class="text-base">🤝</span>
+                <span>Group Delivery Pooling Pre-Order Notice</span>
+              </div>
+              <p class="text-amber-900 dark:text-amber-300 text-[11px] leading-relaxed">
+                Payment cannot be settled yet. Submitting this request notifies our admin to batch your address with nearby orders in <strong>{{ form.city || 'your area' }}</strong> to assign your discounted shared shipping fee.
+              </p>
+              <p class="text-amber-800 dark:text-amber-400 font-bold text-[11px]">
+                📋 Once the rate is assigned by admin, you will be able to review and settle your final order total on the Order Tracking page.
+              </p>
+            </div>
+
             <div class="flex justify-between text-xl font-extrabold text-brand-choco border-t border-brand-caramel/20 pt-3">
-              <span>Final Total</span>
+              <span>{{ form.delivery_mode === 'pooling' ? 'Estimated Items Total' : 'Final Total' }}</span>
               <span>₱{{ grandTotal.toFixed(2) }}</span>
             </div>
           </div>
 
-          <BaseButton type="submit" variant="primary" full-width size="lg" :loading="submitting"
-            v-tooltip="'Place order and proceed to payment'">
-            Confirm &amp; Place Order • ₱{{ grandTotal.toFixed(2) }}
-          </BaseButton>
+          <template v-if="form.fulfillment_type === 'delivery' && form.delivery_mode === 'pooling'">
+            <BaseButton type="submit" variant="primary" full-width size="lg" :loading="submitting"
+              class="!bg-emerald-700 hover:!bg-emerald-800"
+              v-tooltip="'Submit delivery pooling request for admin rate assignment'">
+              🤝 Submit Delivery Pooling Request (Rate Pending)
+            </BaseButton>
+          </template>
+          <template v-else>
+            <BaseButton type="submit" variant="primary" full-width size="lg" :loading="submitting"
+              v-tooltip="'Place order and proceed to payment'">
+              Confirm &amp; Place Order • ₱{{ grandTotal.toFixed(2) }}
+            </BaseButton>
+          </template>
         </div>
       </div>
 
@@ -506,6 +593,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseAlert from '@/components/ui/BaseAlert.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import AddressMapPicker from '@/components/checkout/AddressMapPicker.vue'
+import PsgcAddressSelector from '@/components/checkout/PsgcAddressSelector.vue'
 
 const axios = inject('axios')
 const router = useRouter()
@@ -619,12 +707,43 @@ const form = ref({
   customer_email: '',
   customer_phone: '',
   fulfillment_type: 'delivery',
+  delivery_mode: 'priority',
+  region: '',
+  province: '',
+  city: '',
+  barangay: '',
+  street_address: '',
   delivery_address: '',
-  city: 'Bacoor, Cavite',
   postal_code: '',
   notes: '',
   payment_method: 'gcash'
 })
+
+function handlePsgcAddressChanged(data) {
+  form.value.region = data.region
+  form.value.province = data.province
+  form.value.city = data.city
+  form.value.barangay = data.barangay
+  form.value.street_address = data.streetAddress
+  form.value.delivery_address = data.fullAddress
+  if (form.value.fulfillment_type === 'delivery') {
+    fetchDeliveryQuote()
+  }
+}
+
+function handleLocationPinpointed(data) {
+  if (data && data.address) {
+    form.value.delivery_address = data.address
+    if (data.city) form.value.city = data.city
+    if (data.province) form.value.province = data.province
+    if (data.region) form.value.region = data.region
+    if (data.barangay) form.value.barangay = data.barangay
+    if (data.streetAddress) form.value.street_address = data.streetAddress
+    if (form.value.fulfillment_type === 'delivery') {
+      fetchDeliveryQuote()
+    }
+  }
+}
 
 // Debounced delivery quote fetcher
 let quoteTimeout = null
@@ -634,8 +753,8 @@ function fetchDeliveryQuote() {
     return
   }
 
-  const fullAddr = (form.value.delivery_address + ' ' + form.value.city).trim()
-  if (fullAddr.length < 8) {
+  const fullAddr = (form.value.delivery_address || (form.value.street_address + ' ' + form.value.barangay + ' ' + form.value.city)).trim()
+  if (fullAddr.length < 5) {
     quotedFee.value = null
     quoteError.value = ''
     return
@@ -646,20 +765,25 @@ function fetchDeliveryQuote() {
     quotingDelivery.value = true
     quoteError.value = ''
     try {
-      const { data } = await axios.post('/api/delivery/quote', { address: fullAddr })
+      const payload = { address: fullAddr }
+      if (selectedCoords.value?.lat && selectedCoords.value?.lng) {
+        payload.lat = selectedCoords.value.lat
+        payload.lng = selectedCoords.value.lng
+      }
+      const { data } = await axios.post('/api/delivery/quote', payload)
       if (data.success && data.fee !== null) {
-        quotedFee.value = data.fee
-        quoteProvider.value = data.provider_label || 'Lalamove'
+        quotedFee.value = parseFloat(data.fee)
+        quoteProvider.value = data.provider || 'Lalamove'
         quoteNote.value = data.note || ''
       } else {
-        quotedFee.value = 120.00
-        quoteProvider.value = 'Standard Rate'
-        quoteError.value = data.error || 'Address not matched, using standard flat rate.'
+        quotedFee.value = null
+        quoteProvider.value = ''
+        quoteError.value = data.error || 'Could not locate address to calculate delivery fee. Please select complete Barangay & City.'
       }
-    } catch {
-      quotedFee.value = 120.00
-      quoteProvider.value = 'Standard Rate'
-      quoteError.value = 'Unable to connect to Lalamove, applied default rate ₱120.'
+    } catch (err) {
+      quotedFee.value = null
+      quoteProvider.value = ''
+      quoteError.value = err.response?.data?.error || 'Unable to locate address. Please select complete Barangay & City.'
     } finally {
       quotingDelivery.value = false
     }
@@ -667,27 +791,38 @@ function fetchDeliveryQuote() {
 }
 
 function populateUserData() {
-  const savedPhone = localStorage.getItem('customer_phone') || authStore.user?.phone || ''
-  if (savedPhone) {
-    form.value.customer_phone = savedPhone
-  }
   if (authStore.user) {
-    form.value.customer_name = authStore.user.name || ''
-    form.value.customer_email = authStore.user.email || ''
-    if (!form.value.customer_phone && authStore.user.phone) {
-      form.value.customer_phone = authStore.user.phone
-    }
-    if (!form.value.delivery_address && authStore.user.address) {
-      form.value.delivery_address = authStore.user.address
-    }
+    if (!form.value.customer_name) form.value.customer_name = authStore.user.name || localStorage.getItem('customer_name') || ''
+    if (!form.value.customer_email) form.value.customer_email = authStore.user.email || localStorage.getItem('customer_email') || ''
+    if (!form.value.customer_phone) form.value.customer_phone = authStore.user.phone || localStorage.getItem('customer_phone') || ''
+    if (!form.value.delivery_address) form.value.delivery_address = authStore.user.address || localStorage.getItem('delivery_address') || ''
+    if (!form.value.city) form.value.city = authStore.user.city || localStorage.getItem('delivery_city') || ''
+    if (!form.value.region) form.value.region = authStore.user.region || localStorage.getItem('delivery_region') || ''
+    if (!form.value.province) form.value.province = authStore.user.province || localStorage.getItem('delivery_province') || ''
+    if (!form.value.barangay) form.value.barangay = authStore.user.barangay || localStorage.getItem('delivery_barangay') || ''
+    if (!form.value.street_address) form.value.street_address = authStore.user.street_address || localStorage.getItem('delivery_street_address') || ''
+  } else {
+    if (!form.value.customer_name) form.value.customer_name = localStorage.getItem('customer_name') || ''
+    if (!form.value.customer_email) form.value.customer_email = localStorage.getItem('customer_email') || ''
+    if (!form.value.customer_phone) form.value.customer_phone = localStorage.getItem('customer_phone') || ''
+    if (!form.value.delivery_address) form.value.delivery_address = localStorage.getItem('delivery_address') || ''
+    if (!form.value.city) form.value.city = localStorage.getItem('delivery_city') || ''
+    if (!form.value.region) form.value.region = localStorage.getItem('delivery_region') || ''
+    if (!form.value.province) form.value.province = localStorage.getItem('delivery_province') || ''
+    if (!form.value.barangay) form.value.barangay = localStorage.getItem('delivery_barangay') || ''
+    if (!form.value.street_address) form.value.street_address = localStorage.getItem('delivery_street_address') || ''
   }
 }
 
-watch(() => form.value.customer_phone, (newPhone) => {
-  if (newPhone) {
-    localStorage.setItem('customer_phone', newPhone)
-  }
-})
+watch(() => form.value.customer_name, (val) => { if (val) localStorage.setItem('customer_name', val) })
+watch(() => form.value.customer_email, (val) => { if (val) localStorage.setItem('customer_email', val) })
+watch(() => form.value.customer_phone, (val) => { if (val) localStorage.setItem('customer_phone', val) })
+watch(() => form.value.delivery_address, (val) => { if (val) localStorage.setItem('delivery_address', val) })
+watch(() => form.value.city, (val) => { if (val) localStorage.setItem('delivery_city', val) })
+watch(() => form.value.region, (val) => { if (val) localStorage.setItem('delivery_region', val) })
+watch(() => form.value.province, (val) => { if (val) localStorage.setItem('delivery_province', val) })
+watch(() => form.value.barangay, (val) => { if (val) localStorage.setItem('delivery_barangay', val) })
+watch(() => form.value.street_address, (val) => { if (val) localStorage.setItem('delivery_street_address', val) })
 
 watch(() => authStore.user, (user) => {
   if (user) {
@@ -705,12 +840,6 @@ function adjustItemQty(item, delta) {
   } else {
     cartStore.updateItemQty(item.id, newQty)
   }
-}
-
-function handleLocationPinpointed(loc) {
-  if (loc.address) form.value.delivery_address = loc.address
-  if (loc.city) form.value.city = loc.city
-  fetchDeliveryQuote()
 }
 
 watch(() => [form.value.delivery_address, form.value.city, form.value.fulfillment_type], () => {
@@ -746,7 +875,8 @@ onMounted(async () => {
 
 const deliveryFee = computed(() => {
   if (form.value.fulfillment_type === 'pickup') return 0.00
-  return quotedFee.value !== null ? quotedFee.value : 120.00
+  if (form.value.delivery_mode === 'pooling') return 0.00
+  return quotedFee.value !== null ? quotedFee.value : 0.00
 })
 
 const grandTotal = computed(() => Math.max(0, cartStore.total + deliveryFee.value))
@@ -760,6 +890,11 @@ async function handleCheckout() {
   if (!authStore.isAuthenticated) {
     toast.warning('Please sign in to place your order.', 'Sign In Required')
     router.push({ name: 'login', query: { redirect: '/checkout' } })
+    return
+  }
+
+  if (form.value.fulfillment_type === 'delivery' && form.value.delivery_mode === 'priority' && quotedFee.value === null) {
+    toast.warning('Please enter your complete delivery address or pinpoint your location on the map to calculate your Priority Express shipping fee based on your location.', 'Location Fee Calculation Required')
     return
   }
 
@@ -782,9 +917,34 @@ async function handleCheckout() {
     createdOrderNumber.value = order.order_number || ''
     createdOrderToken.value = order.tracking_token || order.trackingToken || ''
 
+    // Background sync account profile with latest details
+    if (authStore.isAuthenticated) {
+      axios.put('/api/customer/profile', {
+        name: form.value.customer_name,
+        phone: form.value.customer_phone,
+        address: form.value.delivery_address,
+        city: form.value.city,
+        region: form.value.region,
+        province: form.value.province,
+        barangay: form.value.barangay,
+        street_address: form.value.street_address,
+      }).then(res => {
+        authStore.user = res.data.data
+      }).catch(err => {
+        console.warn('Profile auto-sync silent notice', err)
+      })
+    }
+
     cartStore.clearLocalCart()
 
-    // 2. Handle Payment Method Routing
+    // 2. Handle Group Delivery Pooling Deferred Payment
+    if (form.value.delivery_mode === 'pooling') {
+      toast.success('Order placed! Your Group Delivery Pooling is awaiting admin rate assignment.', 'Order Created 🤝')
+      router.push({ name: 'order-confirmation', params: { token: createdOrderToken.value || createdOrderNumber.value } })
+      return
+    }
+
+    // 3. Handle Payment Method Routing
     if (form.value.payment_method === 'gcash' || form.value.payment_method === 'maya' || form.value.payment_method === 'qrph') {
       toast.info(`Redirecting to ${form.value.payment_method.toUpperCase()} payment gateway...`, 'Processing Payment')
       try {

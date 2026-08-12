@@ -103,9 +103,21 @@
               🚫 Cancel Order
             </BaseButton>
 
+            <!-- Settle Payment Button if Pooling Settled or Pending Payment -->
+            <template v-if="order.delivery_mode === 'pooling' && order.pooling_status !== 'settled'">
+              <button type="button" disabled class="px-3 py-1 rounded-full text-[11px] font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800 cursor-not-allowed">
+                ⏳ Pending Admin Pool
+              </button>
+            </template>
+            <template v-else-if="order.payment_status !== 'paid' && !['cancelled', 'Cancelled'].includes(order.status)">
+              <BaseButton size="sm" variant="primary" @click="openPaymentModal(order)">
+                💳 Settle Payment
+              </BaseButton>
+            </template>
+
             <!-- Track Order Link -->
             <RouterLink :to="`/orders/track/${order.tracking_token || order.order_number}`" v-tooltip="'Watch live kitchen baking & delivery status'">
-              <BaseButton size="sm" variant="primary">Track Order →</BaseButton>
+              <BaseButton size="sm" variant="outline">Track Order →</BaseButton>
             </RouterLink>
           </div>
         </div>
@@ -262,6 +274,15 @@
         </div>
       </template>
     </BaseModal>
+
+    <!-- Order Payment Modal -->
+    <OrderPaymentModal
+      :show="showPaymentModal"
+      :order="paymentOrder"
+      :store-info="storeInfo"
+      @close="showPaymentModal = false"
+      @payment-success="fetchOrders"
+    />
   </div>
 </template>
 
@@ -276,6 +297,7 @@ import BaseModal from '@/components/ui/BaseModal.vue'
 import SkeletonCard from '@/components/ui/SkeletonCard.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import InvoiceModal from '@/components/storefront/InvoiceModal.vue'
+import OrderPaymentModal from '@/components/checkout/OrderPaymentModal.vue'
 
 const axios = inject('axios')
 const toast = useToast()
@@ -287,6 +309,9 @@ const activeFilter = ref('all')
 const expandedOrders = ref([])
 const showModal = ref(false)
 const showInvoiceModal = ref(false)
+const showPaymentModal = ref(false)
+const paymentOrder = ref(null)
+const storeInfo = ref({})
 const activeInvoiceOrder = ref(null)
 const selectedOrder = ref(null)
 const cancelling = ref(false)
@@ -294,6 +319,18 @@ const cancelling = ref(false)
 function openInvoiceModal(order) {
   activeInvoiceOrder.value = order
   showInvoiceModal.value = true
+}
+
+function openPaymentModal(order) {
+  paymentOrder.value = order
+  showPaymentModal.value = true
+}
+
+async function fetchStoreSettings() {
+  try {
+    const { data } = await axios.get('/api/settings/store')
+    storeInfo.value = data || {}
+  } catch {}
 }
 
 const filterTabs = [
@@ -461,5 +498,8 @@ async function confirmCancelOrder() {
   }
 }
 
-onMounted(() => fetchOrders())
+onMounted(() => {
+  fetchStoreSettings()
+  fetchOrders()
+})
 </script>

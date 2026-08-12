@@ -66,34 +66,66 @@ class LalamoveService
         $path = '/v3/quotations';
         $method = 'POST';
         $timestamp = (string) round(microtime(true) * 1000);
-        $bodyJson = json_encode($body);
+        $bodyJson = json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $signature = $this->sign($timestamp, $method, $path, $bodyJson);
 
         try {
             $response = Http::withHeaders([
                 'Authorization' => "hmac {$this->apiKey}:{$timestamp}:{$signature}",
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-                'Market' => 'PH',
-            ])->timeout(10)->post($this->baseUrl . $path, $body);
+                'Content-Type'  => 'application/json',
+                'Accept'        => 'application/json',
+                'Market'        => 'PH',
+            ])->timeout(10)->withBody($bodyJson, 'application/json')->post($this->baseUrl . $path);
+
+            // If primary coordinates schema fails, try alternative location & addresses schema
+            if (!$response->successful()) {
+                $altBody = [
+                    'data' => [
+                        'serviceType' => $this->serviceType,
+                        'language'    => 'en_PH',
+                        'stops'       => [
+                            [
+                                'location'  => ['lat' => (string) $pickup['lat'], 'lng' => (string) $pickup['lng']],
+                                'addresses' => ['en_PH' => ['displayString' => Setting::get('store_address', 'Cavite, Philippines')]],
+                            ],
+                            [
+                                'location'  => ['lat' => (string) $dropoff['lat'], 'lng' => (string) $dropoff['lng']],
+                                'addresses' => ['en_PH' => ['displayString' => 'Customer Delivery Location']],
+                            ],
+                        ],
+                    ],
+                ];
+                $altBodyJson = json_encode($altBody, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                $altSignature = $this->sign($timestamp, $method, $path, $altBodyJson);
+
+                $response = Http::withHeaders([
+                    'Authorization' => "hmac {$this->apiKey}:{$timestamp}:{$altSignature}",
+                    'Content-Type'  => 'application/json',
+                    'Accept'        => 'application/json',
+                    'Market'        => 'PH',
+                ])->timeout(10)->withBody($altBodyJson, 'application/json')->post($this->baseUrl . $path);
+            }
 
             if ($response->successful()) {
                 $json = $response->json();
                 $fee = $json['data']['priceBreakdown']['total'] ?? null;
+                $distanceM = $json['data']['distance']['value'] ?? null;
 
                 if ($fee !== null) {
                     return [
-                        'fee' => (float) $fee,
-                        'currency' => 'PHP',
-                        'service' => $this->serviceType,
-                        'provider' => 'Lalamove',
+                        'fee'         => (float) $fee,
+                        'currency'    => 'PHP',
+                        'service'     => $this->serviceType,
+                        'provider'    => 'Lalamove',
+                        'distance_m'  => $distanceM ? (int) $distanceM : null,
+                        'distance_km' => $distanceM ? round((float)$distanceM / 1000, 1) : null,
                     ];
                 }
             }
 
             Log::warning('[Lalamove] Quote failed', [
                 'status' => $response->status(),
-                'body' => $response->body(),
+                'body'   => $response->body(),
             ]);
             return null;
         } catch (\Throwable $e) {
