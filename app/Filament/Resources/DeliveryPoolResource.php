@@ -15,6 +15,7 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -56,46 +57,8 @@ class DeliveryPoolResource extends Resource
                     ->description('These customer orders chose Group Delivery Pooling at checkout and are currently waiting for admin pool batch assignment.')
                     ->columnSpanFull()
                     ->components([
-                        Placeholder::make('pending_pooled_orders_list')
-                            ->label('')
-                            ->content(function () {
-                                $pending = Order::where(function ($q) {
-                                        $q->where('delivery_mode', Order::MODE_POOLING)
-                                          ->orWhere('pooling_status', Order::POOLING_AWAITING_ASSIGNMENT);
-                                    })
-                                    ->whereNull('delivery_pool_id')
-                                    ->get();
-
-                                if ($pending->isEmpty()) {
-                                    return new HtmlString('<div style="padding:12px; border-radius:8px; background-color:#f9fafb; border:1px solid #e5e7eb; color:#6b7280; font-size:13px; font-style:italic;">✨ All pooled orders have been assigned to delivery batches! No pending orders.</div>');
-                                }
-
-                                $html = '<div style="overflow-x:auto; margin-top:8px;"><table style="width:100%; text-align:left; border-collapse:collapse; border:1px solid #e5e7eb; border-radius:8px; overflow:hidden;">';
-                                $html .= '<thead style="background-color:#fffbeb; color:#92400e; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.05em;"><tr>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #fde68a;">Order #</th>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #fde68a;">Customer</th>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #fde68a;">Phone</th>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #fde68a;">City / District</th>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #fde68a;">Delivery Address</th>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #fde68a; text-align:right;">Items Subtotal</th>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #fde68a; text-align:center;">Pooling Status</th>';
-                                $html .= '</tr></thead><tbody>';
-
-                                foreach ($pending as $o) {
-                                    $html .= "<tr style='border-bottom:1px solid #f3f4f6;'>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb; font-weight:bold; font-family:monospace; color:#d97706;'>#{$o->order_number}</td>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb; font-weight:600; color:#111827;'>{$o->customer_name}</td>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb; font-family:monospace; font-size:12px; color:#4b5563;'>{$o->customer_phone}</td>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb;'><span style='padding:3px 8px; border-radius:6px; background-color:#fef3c7; color:#92400e; font-weight:700; font-size:11px;'>{$o->city}</span></td>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb; font-size:12px; color:#374151;'>{$o->delivery_address}</td>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb; text-align:right; font-weight:bold; font-family:monospace; color:#b45309;'>₱" . number_format($o->subtotal, 2) . "</td>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb; text-align:center;'><span style='padding:4px 10px; border-radius:12px; background-color:#d97706; color:#ffffff; font-weight:800; font-size:10px; text-transform:uppercase;'>⏳ Awaiting Batch</span></td>";
-                                    $html .= "</tr>";
-                                }
-
-                                $html .= '</tbody></table></div>';
-                                return new HtmlString($html);
-                            }),
+                        ViewField::make('pending_pooled_orders_list')
+                            ->view('filament.forms.components.pending-pooled-orders-list'),
                     ]),
 
                 Section::make('Delivery Pool Details')
@@ -108,13 +71,46 @@ class DeliveryPoolResource extends Resource
                             ->readOnly()
                             ->unique(DeliveryPool::class, 'pool_code', ignoreRecord: true),
 
-                        TextInput::make('city')
+                        Select::make('region')
+                            ->label('Batch Region')
+                            ->options(fn () => \App\Services\PsgcService::getRegionsOptions())
+                            ->searchable()
+                            ->live()
+                            ->afterStateUpdated(function (callable $set) {
+                                $set('province', null);
+                                $set('city', null);
+                                $set('barangay', null);
+                            }),
+
+                        Select::make('province')
+                            ->label('Batch Province')
+                            ->options(fn (callable $get) => \App\Services\PsgcService::getProvincesOptions($get('region')))
+                            ->searchable()
+                            ->live()
+                            ->disabled(fn (callable $get) => !$get('region') || $get('region') === '130000000')
+                            ->afterStateUpdated(function (callable $set) {
+                                $set('city', null);
+                                $set('barangay', null);
+                            }),
+
+                        Select::make('city')
                             ->label('Target City / District')
-                            ->placeholder('e.g. Bacoor / Imus, Cavite')
-                            ->required(),
+                            ->options(fn (callable $get) => \App\Services\PsgcService::getCitiesOptions($get('region'), $get('province')))
+                            ->searchable()
+                            ->live()
+                            ->required()
+                            ->afterStateUpdated(function (callable $set) {
+                                $set('barangay', null);
+                            }),
+
+                        Select::make('barangay')
+                            ->label('Batch Barangay')
+                            ->options(fn (callable $get) => \App\Services\PsgcService::getBarangaysOptions($get('city')))
+                            ->searchable()
+                            ->live(),
 
                         TextInput::make('zone_name')
-                            ->label('Zone / Neighborhood Landmark')
+                            ->label('Zone / Street Landmark')
                             ->placeholder('e.g. Molino III / Zapote Corridor')
                             ->required(),
 
@@ -135,52 +131,7 @@ class DeliveryPoolResource extends Resource
                             ->prefix('₱')
                             ->required()
                             ->default(150.00)
-                            ->live()
-                            ->afterStateUpdated(function (callable $get, callable $set) {
-                                $totalCost = (float) ($get('total_delivery_fee') ?? 0);
-                                $orderIds  = $get('assigned_orders') ?? [];
-                                $count     = max(1, count($orderIds));
-                                $set('shared_fee_per_order', round($totalCost / $count, 2));
-                            }),
-
-                        TextInput::make('shared_fee_per_order')
-                            ->label('Shared Fee Per Customer Order (₱)')
-                            ->numeric()
-                            ->minValue(0)
-                            ->prefix('₱')
-                            ->required()
-                            ->readOnly()
-                            ->hint('Auto-calculated average fee (admin can assign custom rates per order during settlement)'),
-
-                        Select::make('assigned_orders')
-                            ->label('Assign Pending Pooled Orders to this Batch')
-                            ->multiple()
-                            ->searchable()
-                            ->preload()
-                            ->options(function (?DeliveryPool $record = null) {
-                                return Order::where(function ($q) {
-                                        $q->where('delivery_mode', Order::MODE_POOLING)
-                                          ->orWhere('pooling_status', Order::POOLING_AWAITING_ASSIGNMENT)
-                                          ->orWhere('pooling_status', Order::POOLING_POOLED);
-                                    })
-                                    ->where(function ($q) use ($record) {
-                                        $q->whereNull('delivery_pool_id');
-                                        if ($record) {
-                                            $q->orWhere('delivery_pool_id', $record->id);
-                                        }
-                                    })
-                                    ->get()
-                                    ->mapWithKeys(fn(Order $o) => [
-                                        $o->id => "#{$o->order_number} — {$o->customer_name} ({$o->city}, {$o->delivery_address}) [Items: ₱" . number_format($o->subtotal, 2) . "]"
-                                    ]);
-                            })
-                            ->required()
-                            ->live()
-                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                $totalCost = (float) ($get('total_delivery_fee') ?? 0);
-                                $count     = max(1, count($state ?? []));
-                                $set('shared_fee_per_order', round($totalCost / $count, 2));
-                            }),
+                            ->live(),
 
                         Textarea::make('notes')
                             ->label('Driver & Delivery Instructions')
@@ -188,39 +139,65 @@ class DeliveryPoolResource extends Resource
                             ->columnSpanFull(),
                     ])->columns(2),
 
+                Section::make('🤝 Select & Assign Customer Orders One-by-One')
+                    ->description('Select pending customer orders for this batch and assign custom shipping fees. The remaining route balance auto-deducts in real time above.')
+                    ->columnSpanFull()
+                    ->components([
+                        ViewField::make('financial_summary')
+                            ->view('filament.forms.components.delivery-pool-financial-summary')
+                            ->columnSpanFull(),
+
+                        \Filament\Forms\Components\Repeater::make('order_allocations')
+                            ->label('Customer Order Allocations')
+                            ->columnSpanFull()
+                            ->columns(2)
+                            ->live()
+                            ->schema([
+                                Select::make('order_id')
+                                    ->label('Select Customer Order')
+                                    ->searchable()
+                                    ->preload()
+                                    ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                                    ->options(function (?DeliveryPool $record = null) {
+                                        return Order::where(function ($q) {
+                                                $q->where('delivery_mode', Order::MODE_POOLING)
+                                                  ->orWhere('pooling_status', Order::POOLING_AWAITING_ASSIGNMENT)
+                                                  ->orWhere('pooling_status', Order::POOLING_POOLED);
+                                            })
+                                            ->where(function ($q) use ($record) {
+                                                $q->whereNull('delivery_pool_id');
+                                                if ($record) {
+                                                    $q->orWhere('delivery_pool_id', $record->id);
+                                                }
+                                            })
+                                            ->get()
+                                            ->mapWithKeys(function (Order $o) {
+                                                $addrParts = array_filter([$o->street_address, $o->barangay, $o->city, $o->province, $o->region]);
+                                                $addrStr = !empty($addrParts) ? implode(', ', $addrParts) : ($o->delivery_address ?: 'N/A');
+                                                return [
+                                                    $o->id => "#{$o->order_number} — {$o->customer_name} ({$addrStr}) [Subtotal: \u{20B1}" . number_format($o->subtotal, 2) . "]"
+                                                ];
+                                            });
+                                    })
+                                    ->required()
+                                    ->live(),
+
+                                TextInput::make('assigned_fee')
+                                    ->label('Assigned Customer Shipping Fee (₱)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->prefix('₱')
+                                    ->required()
+                                    ->default(0.00)
+                                    ->live(),
+                            ]),
+                    ]),
+
                 Section::make('Assigned Customer Orders Summary')
                     ->columnSpanFull()
                     ->components([
-                        Placeholder::make('orders_table')
-                            ->label('')
-                            ->content(function (?DeliveryPool $record = null) {
-                                if (!$record || $record->orders->isEmpty()) {
-                                    return new HtmlString('<div style="padding:12px; border-radius:8px; background-color:#f9fafb; border:1px solid #e5e7eb; color:#6b7280; font-size:13px; font-style:italic; text-align:center;">No orders currently assigned to this delivery pool.</div>');
-                                }
-                                $html = '<div style="overflow-x:auto; margin-top:8px;"><table style="width:100%; text-align:left; border-collapse:collapse; border:1px solid #e5e7eb; border-radius:8px; overflow:hidden;">';
-                                $html .= '<thead style="background-color:#f3f4f6; color:#374151; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.05em;"><tr>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #e5e7eb;">Order #</th>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #e5e7eb;">Customer</th>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #e5e7eb;">Phone</th>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #e5e7eb;">Address</th>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #e5e7eb; text-align:right;">Items Subtotal</th>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #e5e7eb; text-align:right;">Custom Shipping Fee</th>';
-                                $html .= '<th style="padding:10px 14px; border:1px solid #e5e7eb; text-align:right;">Final Total</th>';
-                                $html .= '</tr></thead><tbody>';
-                                foreach ($record->orders as $o) {
-                                    $html .= "<tr style='border-bottom:1px solid #f3f4f6;'>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb; font-weight:bold; font-family:monospace;'>#{$o->order_number}</td>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb; font-weight:600;'>{$o->customer_name}</td>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb; font-family:monospace; font-size:12px; color:#4b5563;'>{$o->customer_phone}</td>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb; font-size:12px; color:#374151;'>{$o->delivery_address} ({$o->city})</td>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb; text-align:right; font-family:monospace;'>₱" . number_format($o->subtotal, 2) . "</td>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb; text-align:right; font-family:monospace; font-weight:bold; color:#059669;'>₱" . number_format($o->delivery_fee, 2) . "</td>";
-                                    $html .= "<td style='padding:10px 14px; border:1px solid #e5e7eb; text-align:right; font-family:monospace; font-weight:900; color:#b45309;'>₱" . number_format($o->total, 2) . "</td>";
-                                    $html .= "</tr>";
-                                }
-                                $html .= '</tbody></table></div>';
-                                return new HtmlString($html);
-                            }),
+                        ViewField::make('assigned_pooled_orders_summary')
+                            ->view('filament.forms.components.assigned-pooled-orders-summary'),
                     ]),
             ]);
     }
@@ -340,7 +317,7 @@ class DeliveryPoolResource extends Resource
                             $order->statusHistories()->create([
                                 'from_status' => Order::STATUS_PENDING,
                                 'to_status'   => Order::STATUS_CONFIRMED,
-                                'comment'     => "Delivery Pool #{$record->pool_code} settled by Admin. Custom shared shipping fee assigned: ₱" . number_format($customFee, 2) . " (previous total: ₱" . number_format($oldTotal, 2) . ", new total: ₱" . number_format($newTotal, 2) . ").",
+                                'comment'     => "Delivery Pool #{$record->pool_code} settled by Admin. Custom shared shipping fee assigned: \u{20B1}" . number_format($customFee, 2) . " (previous total: \u{20B1}" . number_format($oldTotal, 2) . ", new total: \u{20B1}" . number_format($newTotal, 2) . ").",
                             ]);
                         }
 

@@ -206,7 +206,12 @@
                     <div style="font-size: 12px; color: #8C7A68; margin-top: 2px;">{{ $customerEmail }} &bull;
                         {{ $customerPhone }}</div>
                     <div style="font-size: 12px; color: #5C3A22; font-weight: 600; margin-top: 2px;">
-                        {{ $fulfillment }} &bull; {{ $deliveryAddress }} {{ $city }}</div>
+                        {{ $fulfillment }}
+                        @if (!empty($isPooling))
+                            &bull; 🤝 Group Delivery Pooling Batch #{{ $poolCode ?: 'POOL' }}
+                        @endif
+                        &bull; {{ $deliveryAddress }} {{ $city }}
+                    </div>
                 </td>
             </tr>
         </table>
@@ -227,18 +232,27 @@
                         <td style="text-align: center;">{{ $loop->iteration }}</td>
                         <td style="font-weight: 600; color: #1C1410;">{{ $item['product_name'] }}</td>
                         <td style="text-align: center;">{{ $item['quantity'] }}</td>
-                        <td style="text-align: right;">₱{{ $item['unit_price'] }}</td>
-                        <td style="text-align: right; font-weight: bold;">₱{{ $item['subtotal'] }}</td>
+                        <td style="text-align: right;">&#8369;{{ $item['unit_price'] }}</td>
+                        <td style="text-align: right; font-weight: bold;">&#8369;{{ $item['subtotal'] }}</td>
                     </tr>
                 @endforeach
 
                 @if ($hasDeliveryFee)
                     <tr>
                         <td style="text-align: center;">{{ count($items) + 1 }}</td>
-                        <td style="color: #8C7A68; font-style: italic;">Delivery & Shipping Fee</td>
+                        <td style="color: #8C7A68; font-style: italic;">
+                            @if (!empty($isPooling))
+                                <strong style="color: #047857;">🤝 Group Delivery Pooling Shared Shipping Rate</strong>
+                                @if(!empty($poolCode))
+                                    <div style="font-size: 10px; color: #065f46; font-family: monospace; font-weight: bold; font-style: normal; margin-top: 2px;">Batch: #{{ $poolCode }}</div>
+                                @endif
+                            @else
+                                Delivery &amp; Shipping Fee
+                            @endif
+                        </td>
                         <td style="text-align: center;">1</td>
-                        <td style="text-align: right;">₱{{ $deliveryFee }}</td>
-                        <td style="text-align: right; font-weight: bold;">₱{{ $deliveryFee }}</td>
+                        <td style="text-align: right;">&#8369;{{ $deliveryFee }}</td>
+                        <td style="text-align: right; font-weight: bold;">&#8369;{{ $deliveryFee }}</td>
                     </tr>
                 @endif
             </tbody>
@@ -248,7 +262,7 @@
             style="width: 100%; background-color: #5C3A22; color: #FFFFFF; font-weight: 800; border-collapse: collapse; margin-bottom: 28px;">
             <tr>
                 <td style="padding: 12px 16px; font-size: 13px; letter-spacing: 1px;">GRAND TOTAL</td>
-                <td style="padding: 12px 16px; text-align: right; font-size: 16px;">₱{{ $total }}</td>
+                <td style="padding: 12px 16px; text-align: right; font-size: 16px;">&#8369;{{ $total }}</td>
             </tr>
         </table>
 

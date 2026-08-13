@@ -28,12 +28,8 @@ class AuthService
 
         $user->load('roles');
 
-        // Fire registered event for email verification (wrapped to handle missing routes in tests)
-        try {
-            event(new Registered($user));
-        } catch (\Symfony\Component\Routing\Exception\RouteNotFoundException) {
-            // verification.verify route not registered in test environment — skip
-        }
+        // Fire registered event to trigger verification email
+        event(new Registered($user));
 
         $token = $user->createToken('auth-token')->plainTextToken;
 

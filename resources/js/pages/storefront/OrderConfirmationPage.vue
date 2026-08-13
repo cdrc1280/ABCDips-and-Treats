@@ -34,7 +34,7 @@
             </BaseButton>
           </RouterLink>
 
-          <BaseButton variant="secondary" size="lg" @click="showInvoiceModal = true">
+          <BaseButton v-if="canShowInvoice(order)" variant="secondary" size="lg" @click="showInvoiceModal = true">
             📄 View / Download Invoice
           </BaseButton>
 
@@ -65,6 +65,7 @@
         <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-3 flex justify-between items-center">
           <span>Order Summary ({{ order.order_number }})</span>
           <button
+            v-if="canShowInvoice(order)"
             type="button"
             class="text-xs text-brand-choco font-bold hover:underline cursor-pointer flex items-center gap-1"
             @click="showInvoiceModal = true"
@@ -147,6 +148,14 @@ async function fetchOrder() {
   } finally {
     loading.value = false
   }
+}
+
+function canShowInvoice(ord) {
+  if (!ord) return false
+  if (ord.delivery_mode === 'pooling' && ord.pooling_status !== 'settled') {
+    return false
+  }
+  return true
 }
 
 onMounted(() => fetchOrder())

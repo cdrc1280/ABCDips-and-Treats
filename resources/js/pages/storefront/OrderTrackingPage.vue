@@ -184,7 +184,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseBadge from '@/components/ui/BaseBadge.vue'
@@ -206,13 +206,25 @@ async function fetchStoreSettings() {
   } catch {}
 }
 
-const pipelineSteps = [
-  { key: 'confirmed', label: 'Order Placed', desc: 'Received & queued' },
-  { key: 'preparing', label: 'Baking', desc: 'Active in kitchen' },
-  { key: 'packaging', label: 'Packaging', desc: 'Sealed & boxed' },
-  { key: 'transit', label: 'Out for Delivery / Pickup', desc: 'On the way' },
-  { key: 'completed', label: 'Completed', desc: 'Delivered' }
-]
+const pipelineSteps = computed(() => {
+  if (order.value?.delivery_mode === 'pooling') {
+    return [
+      { key: 'pooling_assignment', label: 'Batch Assignment', desc: order.value?.pooling_status === 'settled' ? 'Fee Settled' : 'Awaiting Admin Rate' },
+      { key: 'confirmed', label: 'Order Confirmed', desc: 'Payment settled' },
+      { key: 'kitchen_prep', label: 'Kitchen Baking', desc: 'Baking & packaging' },
+      { key: 'transit', label: 'Shared Delivery', desc: 'Group route en route' },
+      { key: 'completed', label: 'Completed', desc: 'Delivered' }
+    ]
+  }
+
+  return [
+    { key: 'placed', label: 'Order Placed', desc: 'Received & queued' },
+    { key: 'confirmed', label: 'Order Confirmed', desc: 'Payment verified' },
+    { key: 'kitchen_prep', label: 'Kitchen Baking', desc: 'Baking & packaging' },
+    { key: 'transit', label: 'Out for Delivery', desc: 'En route / ready' },
+    { key: 'completed', label: 'Completed', desc: 'Delivered' }
+  ]
+})
 
 const statusOrder = ['pending', 'confirmed', 'preparing', 'packaging', 'out_for_delivery', 'ready_for_pickup', 'completed']
 
@@ -241,19 +253,34 @@ function isStepComplete(stepKey) {
   if (!order.value) return false
   if (order.value.status === 'completed') return true
 
+  if (stepKey === 'pooling_assignment') {
+    return order.value.pooling_status === 'settled'
+  }
+
   const currentIdx = statusOrder.indexOf(order.value.status)
-  if (stepKey === 'confirmed') return currentIdx >= 1
-  if (stepKey === 'preparing') return currentIdx >= 2
-  if (stepKey === 'packaging') return currentIdx >= 3
-  if (stepKey === 'transit') return currentIdx >= 4
+  if (stepKey === 'placed') return true
+  if (stepKey === 'confirmed') return currentIdx >= 1 && (order.value.delivery_mode !== 'pooling' || order.value.pooling_status === 'settled')
+  if (stepKey === 'kitchen_prep') return currentIdx >= 4
+  if (stepKey === 'transit') return currentIdx >= 6
   return false
 }
 
 function isStepActive(stepKey) {
   if (!order.value) return false
-  if (stepKey === 'confirmed' && (order.value.status === 'confirmed' || order.value.status === 'pending')) return true
-  if (stepKey === 'preparing' && order.value.status === 'preparing') return true
-  if (stepKey === 'packaging' && order.value.status === 'packaging') return true
+
+  if (stepKey === 'pooling_assignment') {
+    return order.value.delivery_mode === 'pooling' && order.value.pooling_status !== 'settled'
+  }
+
+  if (stepKey === 'placed' && order.value.status === 'pending' && order.value.delivery_mode !== 'pooling') {
+    return true
+  }
+
+  if (stepKey === 'confirmed' && (order.value.status === 'confirmed' || (order.value.status === 'pending' && order.value.delivery_mode === 'pooling' && order.value.pooling_status === 'settled'))) {
+    return true
+  }
+
+  if (stepKey === 'kitchen_prep' && (order.value.status === 'preparing' || order.value.status === 'packaging')) return true
   if (stepKey === 'transit' && (order.value.status === 'out_for_delivery' || order.value.status === 'ready_for_pickup')) return true
   if (stepKey === 'completed' && order.value.status === 'completed') return true
   return false

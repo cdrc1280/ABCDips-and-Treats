@@ -161,7 +161,18 @@ class IngredientResource extends Resource
                     ->sortable(),
                 TextColumn::make('cost_per_unit')
                     ->label('Price Unit (Cost/Unit)')
-                    ->formatStateUsing(fn($state) => '₱' . number_format((float) $state, 4))
+                    ->formatStateUsing(function ($state) {
+                        $val = (float) $state;
+                        if ($val == 0) return '₱0.00';
+                        // Format with up to 6 decimals, then strip trailing zeros keeping min 2
+                        $formatted = rtrim(number_format($val, 6), '0');
+                        // Ensure at least 2 decimal places
+                        $parts = explode('.', $formatted);
+                        if (!isset($parts[1]) || strlen($parts[1]) < 2) {
+                            $formatted = number_format($val, 2);
+                        }
+                        return '₱' . $formatted;
+                    })
                     ->sortable()
                     ->weight('semibold')
                     ->color('primary'),

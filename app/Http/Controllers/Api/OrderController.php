@@ -109,57 +109,86 @@ class OrderController extends Controller
         }
     }
 
-    public function adminInvoice(Request $request, Order $order): Response
+    public function adminInvoice(Request $request, Order|string $order): Response
     {
-        $this->authorizeAdminInvoice($request, $order);
+        $orderModel = $order instanceof Order ? $order : Order::findOrFail($order);
+        $this->authorizeAdminInvoice($request, $orderModel);
 
-        $order->loadMissing(['items.product']);
+        $orderModel->loadMissing(['items.product']);
         $format = $request->query('format', 'html');
+        $paper = $request->query('paper', 'a4');
 
-        return $this->createInvoiceResponse($order, $format, false);
+        return $this->createInvoiceResponse($orderModel, $format, false, $paper);
     }
 
-    public function downloadInvoice(Request $request, Order $order): Response
+    public function downloadInvoice(Request $request, Order|string $order): Response
     {
-        $this->authorizeAdminInvoice($request, $order);
+        $orderModel = $order instanceof Order ? $order : Order::findOrFail($order);
+        $this->authorizeAdminInvoice($request, $orderModel);
 
-        $order->loadMissing(['items.product']);
+        $orderModel->loadMissing(['items.product']);
+        $paper = $request->query('paper', 'a4');
 
-        return $this->createInvoiceResponse($order, 'pdf', true);
+        return $this->createInvoiceResponse($orderModel, 'pdf', true, $paper);
     }
 
     private function authorizeAdminInvoice(Request $request, Order $order): void
     {
-        if (! $request->user() || ! $request->user()->hasAnyRole(['super_admin', 'admin'])) {
-            abort(403, 'Unauthorized access to order invoice.');
-        }
-    }
+        $user = $request->user('sanctum') ?? $request->user();
 
-    private function createInvoiceResponse(Order $order, string $format = 'html', bool $download = false): Response
-    {
-        $isPdf = $format === 'pdf';
-        $html = $this->renderInvoiceHtml($order, $isPdf);
-        $filenamePrefix = "ABCDips_Invoice_{$order->order_number}";
-
-        if ($isPdf && class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
-            try {
-                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)->setPaper('a4', 'portrait');
-
-                if ($download) {
-                    return $pdf->download("{$filenamePrefix}.pdf");
-                }
-
-                return $pdf->stream("{$filenamePrefix}.pdf");
-            } catch (\Throwable $e) {
-                Log::error('Invoice PDF generation failed: ' . $e->getMessage());
-
-                if (!$download) {
-                    return response($html, 200)->header('Content-Type', 'text/html');
-                }
+        // 1. If user is logged in, check role or order ownership
+        if ($user) {
+            $isAdmin = method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['super_admin', 'admin']);
+            if (!$isAdmin && (int) $order->user_id !== (int) $user->id) {
+                abort(403, 'Unauthorized access to order invoice.');
+            }
+        } else {
+            // 2. Unauthenticated user: require valid tracking_token in query
+            $token = $request->query('token');
+            if (!$token || $order->tracking_token !== $token) {
+                abort(401, 'Unauthenticated access to invoice.');
             }
         }
 
-        $filename = $download ? "{$filenamePrefix}.html" : null;
+        // 3. For Group Delivery Pooling: customers cannot view/download invoice until accepted & settled by admin
+        $isAdmin = $user && method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['super_admin', 'admin']);
+        if (!$isAdmin && $order->delivery_mode === Order::MODE_POOLING && $order->pooling_status !== Order::POOLING_SETTLED) {
+            abort(403, 'Invoice is unavailable. Group Delivery Pooling must be accepted and settled by the admin before invoice can be viewed or downloaded.');
+        }
+    }
+
+    private function createInvoiceResponse(Order $order, string $format = 'html', bool $download = false, string $paper = 'a4'): Response
+    {
+        $isPdf = $format === 'pdf';
+        $isPos = in_array(strtolower($paper), ['pos', '80mm', 'receipt']);
+        $viewName = $isPos ? 'invoices.pos_receipt' : 'invoices.order';
+        $html = View::make($viewName, $this->invoiceViewData($order, $isPdf))->render();
+        
+        $paperSuffix = $isPos ? 'POS_Receipt' : 'Invoice';
+        $filenamePrefix = "ABCDips_{$paperSuffix}_{$order->order_number}";
+
+        if ($isPdf && class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
+            try {
+                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
+
+                if ($isPos) {
+                    // Custom 80mm thermal receipt dimensions (width: 80mm = 226.77 pt)
+                    $pdf->setPaper([0, 0, 226.77, 650], 'portrait');
+                } else {
+                    $pdf->setPaper('a4', 'portrait');
+                }
+
+                $disposition = $download ? 'attachment' : 'inline';
+                return response($pdf->output(), 200, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => "{$disposition}; filename=\"{$filenamePrefix}.pdf\"",
+                ]);
+            } catch (\Throwable $e) {
+                Log::error('Invoice PDF generation failed: ' . $e->getMessage());
+            }
+        }
+
+        $filename = "{$filenamePrefix}.html";
         $response = response($html, 200)->header('Content-Type', 'text/html');
 
         if ($download) {
@@ -176,6 +205,8 @@ class OrderController extends Controller
 
     private function invoiceViewData(Order $order, bool $isPdf): array
     {
+        $tokenParam = $order->tracking_token ? "?token={$order->tracking_token}" : '';
+
         return [
             'appName' => config('app.name', 'ABCDips & Treats'),
             'orderId' => $order->id,
@@ -195,6 +226,8 @@ class OrderController extends Controller
             'paymentMethod' => strtoupper($order->payment_method),
             'paymentStatus' => strtoupper($order->payment_status),
             'fulfillment' => ucfirst($order->fulfillment_type),
+            'isPooling' => $order->delivery_mode === Order::MODE_POOLING,
+            'poolCode' => $order->deliveryPool?->pool_code ?? '',
             'items' => $order->items->map(fn($item) => [
                 'product_name' => $item->product->name ?? $item->name ?? 'Item',
                 'quantity' => (int) $item->quantity,
@@ -202,7 +235,7 @@ class OrderController extends Controller
                 'subtotal' => number_format((float) $item->subtotal, 2),
             ])->all(),
             'hasDeliveryFee' => (float) $order->delivery_fee > 0,
-            'downloadUrl' => url("/api/orders/{$order->id}/invoice/download"),
+            'downloadUrl' => url("/api/orders/{$order->id}/invoice/download{$tokenParam}"),
             'isPdf' => $isPdf,
         ];
     }

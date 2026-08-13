@@ -18,7 +18,10 @@ class DeliveryPool extends Model
     protected $fillable = [
         'pool_code',
         'zone_name',
+        'region',
+        'province',
         'city',
+        'barangay',
         'total_delivery_fee',
         'shared_fee_per_order',
         'status',

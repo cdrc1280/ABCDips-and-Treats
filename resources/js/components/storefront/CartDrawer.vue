@@ -258,6 +258,7 @@ function openBulkEdit() {
 }
 
 function promptRemoveSingle(item) {
+    cartStore.openDrawer = false
     pendingRemoveItem.value = item
     isBulkRemoveAction.value = false
     showConfirmModal.value = true
@@ -288,6 +289,7 @@ async function confirmRemoveAction() {
         deleting.value = false
         showConfirmModal.value = false
         pendingRemoveItem.value = null
+        toast.success(`"${item.name}" has been removed from your basket.`, 'Item Removed')
     }
 }
 

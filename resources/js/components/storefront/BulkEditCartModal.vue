@@ -18,7 +18,7 @@
             <div v-for="item in editItems" :key="item.id" class="p-4 rounded-2xl bg-surface dark:bg-[#140D09] border border-brand-caramel/20 dark:border-[#C08E5D]/20 space-y-3">
               <div class="flex items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
-                  <img :src="item.product?.primary_image_url || item.image_url || '/images/placeholder-bakery.png'" :alt="item.name" class="w-12 h-12 rounded-xl object-cover border border-brand-caramel/20 shrink-0" />
+                  <img :src="formatImgUrl(item.product?.primary_image_url || item.image_url)" :alt="item.name" @error="(e) => e.target.src = '/images/placeholder-bakery.png'" class="w-12 h-12 rounded-xl object-cover border border-brand-caramel/20 shrink-0" />
                   <div>
                     <h4 class="font-bold text-sm text-ink dark:text-[#FBF3E7]">{{ item.name }}</h4>
                     <span class="text-xs text-brand-choco dark:text-[#E2C08A] font-semibold">₱{{ getItemUnitPrice(item).toFixed(2) }} each</span>
@@ -123,6 +123,14 @@ function getVariationLabel(type) {
   if (!type || type === 'none') return 'Option'
   const known = { weight: 'Weight', pieces: 'Quantity', size: 'Size', packaging: 'Packaging' }
   return known[type.toLowerCase()] || type
+}
+
+function formatImgUrl(url) {
+  if (!url) return '/images/placeholder-bakery.png'
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/images/')) return url
+  if (url.startsWith('/storage/')) return url
+  if (url.startsWith('storage/')) return `/${url}`
+  return `/storage/${url.replace(/^\/+/, '')}`
 }
 
 function getItemUnitPrice(item) {

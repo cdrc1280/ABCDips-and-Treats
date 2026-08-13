@@ -80,7 +80,12 @@ class ProductRepository
         return Product::query()
             ->with(['category', 'tags', 'allergens', 'nutrition', 'media'])
             ->forCustomer()
-            ->where('slug', $slug)
+            ->where(function ($q) use ($slug) {
+                $q->where('slug', $slug);
+                if (is_numeric($slug)) {
+                    $q->orWhere('id', (int) $slug);
+                }
+            })
             ->first();
     }
 

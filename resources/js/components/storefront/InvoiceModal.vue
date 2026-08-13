@@ -26,12 +26,24 @@
                                 </div>
                             </div>
 
-                            <div class="flex items-center gap-2">
+                            <div v-if="order?.delivery_mode !== 'pooling' || order?.pooling_status === 'settled'" class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                                 <button type="button"
                                     class="px-3 py-1.5 rounded-xl bg-brand-tan text-ink font-bold text-xs hover:bg-brand-caramel transition-all flex items-center gap-1 cursor-pointer"
-                                    @click="downloadInvoice">
-                                    <span>📥 Download PDF / Print</span>
+                                    @click="downloadInvoice('a4')">
+                                    <span>📄 A4 PDF</span>
                                 </button>
+                                <button type="button"
+                                    class="px-3 py-1.5 rounded-xl bg-amber-200 text-amber-950 font-bold text-xs hover:bg-amber-300 transition-all flex items-center gap-1 cursor-pointer"
+                                    @click="downloadInvoice('pos')">
+                                    <span>🧾 80mm POS</span>
+                                </button>
+                                <button type="button"
+                                    class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-sm font-bold transition-all cursor-pointer"
+                                    @click="close">
+                                    ✕
+                                </button>
+                            </div>
+                            <div v-else>
                                 <button type="button"
                                     class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-sm font-bold transition-all cursor-pointer"
                                     @click="close">
@@ -40,8 +52,22 @@
                             </div>
                         </div>
 
+                        <!-- Invoice Pending Pool Settlement Alert -->
+                        <div v-if="order?.delivery_mode === 'pooling' && order?.pooling_status !== 'settled'" class="p-8 text-center space-y-4 bg-amber-50/90 dark:bg-[#2A1C13] rounded-b-3xl">
+                            <span class="text-5xl block">⏳</span>
+                            <div class="space-y-1">
+                                <h3 class="font-extrabold text-lg text-amber-950 dark:text-amber-200">Invoice Pending Admin Settlement</h3>
+                                <p class="text-xs text-amber-900/90 dark:text-amber-300/90 max-w-md mx-auto leading-relaxed">
+                                    Your order is currently queued for Group Delivery Pooling. Official invoices and receipts are only generated after our admin accepts your delivery batch and assigns your shared delivery rate.
+                                </p>
+                            </div>
+                            <button type="button" @click="close" class="px-5 py-2.5 rounded-xl bg-amber-800 text-white font-bold text-xs hover:bg-amber-900 transition-all cursor-pointer">
+                                Got It
+                            </button>
+                        </div>
+
                         <!-- Invoice Content Body -->
-                        <div class="p-6 overflow-y-auto space-y-6 text-xs sm:text-sm bg-[#FFFFFF]">
+                        <div v-else class="p-6 overflow-y-auto space-y-6 text-xs sm:text-sm bg-[#FFFFFF]">
                             <!-- Title & Brand Header -->
                             <div class="border-l-4 border-brand-choco pl-3">
                                 <h1 class="text-3xl font-black text-ink uppercase tracking-wider">INVOICE</h1>
@@ -70,9 +96,13 @@
                                         }}</span>
                                     <span class="text-xs text-warm-gray block">{{ order.customer_email }} &bull; {{
                                         order.customer_phone }}</span>
-                                    <span class="text-xs text-brand-choco font-semibold block capitalize">{{
-                                        order.fulfillment_type }} &bull; {{ order.delivery_address || 'Store Pickup' }}
-                                        {{ order.city }}</span>
+                                    <span class="text-xs text-brand-choco font-semibold block capitalize">
+                                        {{ order.fulfillment_type }}
+                                        <template v-if="order.delivery_mode === 'pooling'">
+                                            &bull; 🤝 Group Delivery Pooling (Batch #{{ order.delivery_pool?.pool_code || 'POOL' }})
+                                        </template>
+                                        &bull; {{ order.delivery_address || 'Store Pickup' }} {{ order.city }}
+                                    </span>
                                 </div>
                             </div>
 
@@ -101,20 +131,27 @@
                                             </td>
                                             <td class="p-2.5 text-center font-mono border-r border-[#E5D5C5]">{{
                                                 item.qty }}</td>
-                                            <td class="p-2.5 text-right font-mono border-r border-[#E5D5C5]">₱{{
+                                            <td class="p-2.5 text-right font-mono border-r border-[#E5D5C5]">&#8369;{{
                                                 Number(item.unit_price).toFixed(2) }}</td>
-                                            <td class="p-2.5 text-right font-mono font-bold text-ink">₱{{
+                                            <td class="p-2.5 text-right font-mono font-bold text-ink">&#8369;{{
                                                 Number(item.subtotal).toFixed(2) }}</td>
                                         </tr>
                                         <tr v-if="order.delivery_fee > 0" class="hover:bg-surface/40 text-xs">
                                             <td class="p-2.5 text-center font-mono border-r border-[#E5D5C5]">{{
                                                 (order.items?.length || 0) + 1 }}</td>
-                                            <td class="p-2.5 text-warm-gray italic border-r border-[#E5D5C5]">Delivery
-                                                &amp; Shipping Fee</td>
+                                            <td class="p-2.5 border-r border-[#E5D5C5]">
+                                                <template v-if="order.delivery_mode === 'pooling'">
+                                                    <span class="font-bold text-emerald-800 dark:text-emerald-400">🤝 Group Delivery Pooling Shared Shipping Rate</span>
+                                                    <span v-if="order.delivery_pool?.pool_code" class="block text-[10px] font-mono text-emerald-700 font-bold">Batch: #{{ order.delivery_pool.pool_code }}</span>
+                                                </template>
+                                                <template v-else>
+                                                    <span class="text-warm-gray italic">Delivery &amp; Shipping Fee</span>
+                                                </template>
+                                            </td>
                                             <td class="p-2.5 text-center font-mono border-r border-[#E5D5C5]">1</td>
-                                            <td class="p-2.5 text-right font-mono border-r border-[#E5D5C5]">₱{{
+                                            <td class="p-2.5 text-right font-mono border-r border-[#E5D5C5]">&#8369;{{
                                                 Number(order.delivery_fee).toFixed(2) }}</td>
-                                            <td class="p-2.5 text-right font-mono font-bold text-ink">₱{{
+                                            <td class="p-2.5 text-right font-mono font-bold text-ink">&#8369;{{
                                                 Number(order.delivery_fee).toFixed(2) }}</td>
                                         </tr>
                                     </tbody>
@@ -125,7 +162,7 @@
                             <div
                                 class="bg-brand-choco text-white px-4 py-3 font-extrabold flex justify-between items-center text-sm rounded-b-md shadow-xs">
                                 <span class="tracking-widest">GRAND TOTAL</span>
-                                <span class="font-mono text-lg">₱{{ Number(order.total || 0).toFixed(2) }}</span>
+                                <span class="font-mono text-lg">&#8369;{{ Number(order.total || 0).toFixed(2) }}</span>
                             </div>
 
                             <!-- Payment Information Box -->
@@ -147,17 +184,24 @@
                             class="px-6 py-4 bg-surface/80 border-t border-brand-caramel/20 flex items-center justify-between">
                             <span class="text-xs text-warm-gray">Stored transaction receipt &bull; ABCDips Bakery
                                 System</span>
-                            <div class="flex gap-3">
+                            <div class="flex gap-2 flex-wrap sm:flex-nowrap">
                                 <button type="button"
-                                    class="px-4 py-2 rounded-xl border border-brand-choco text-brand-choco hover:bg-brand-tan/20 font-bold text-xs transition-all cursor-pointer"
+                                    class="px-3.5 py-2 rounded-xl border border-brand-choco text-brand-choco hover:bg-brand-tan/20 font-bold text-xs transition-all cursor-pointer"
                                     @click="close">
                                     Close
                                 </button>
-                                <button type="button"
-                                    class="px-5 py-2 rounded-xl bg-brand-choco text-surface hover:bg-[#442917] font-bold text-xs transition-all cursor-pointer shadow-xs"
-                                    @click="downloadInvoice">
-                                    📥 Download / Print PDF
-                                </button>
+                                <template v-if="order?.delivery_mode !== 'pooling' || order?.pooling_status === 'settled'">
+                                    <button type="button"
+                                        class="px-4 py-2 rounded-xl bg-brand-choco text-surface hover:bg-[#442917] font-bold text-xs transition-all cursor-pointer shadow-xs"
+                                        @click="downloadInvoice('a4')">
+                                        📄 Download A4 Invoice
+                                    </button>
+                                    <button type="button"
+                                        class="px-4 py-2 rounded-xl bg-amber-700 text-white hover:bg-amber-800 font-bold text-xs transition-all cursor-pointer shadow-xs"
+                                        @click="downloadInvoice('pos')">
+                                        🧾 Download POS 80mm
+                                    </button>
+                                </template>
                             </div>
                         </div>
                     </div>
@@ -193,8 +237,17 @@ function capitalize(val) {
     return val.charAt(0).toUpperCase() + val.slice(1)
 }
 
-function downloadInvoice() {
+function downloadInvoice(paper = 'a4') {
     if (!props.order?.id) return
-    window.open(`/order-invoice/${props.order.id}`, '_blank')
+    const token = props.order.tracking_token ? `&token=${props.order.tracking_token}` : ''
+    const downloadUrl = `/order-invoice/${props.order.id}/download?paper=${paper}${token}`
+
+    const paperLabel = paper === 'pos' ? 'POS_Receipt' : 'Invoice'
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.setAttribute('download', `ABCDips_${paperLabel}_${props.order.order_number || props.order.id}.pdf`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
 }
 </script>

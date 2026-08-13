@@ -511,9 +511,17 @@ variation, idx
                                                     -
                                                 </button>
 
-                                                <span class="w-10 text-center font-bold text-ink text-sm">
-                                                    {{ quantity }}
-                                                </span>
+                                                <input
+                                                    type="number"
+                                                    :min="1"
+                                                    :max="modalStore.product?.stock_qty || 999"
+                                                    :value="quantity"
+                                                    @input="onQuantityInput"
+                                                    @blur="onQuantityBlur"
+                                                    @keydown.enter.prevent="onQuantityBlur"
+                                                    class="w-12 text-center font-bold text-ink text-sm bg-transparent border-0 outline-none focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    inputmode="numeric"
+                                                />
 
                                                 <button type="button"
                                                     class="w-8 h-8 rounded-lg flex items-center justify-center text-brand-choco hover:bg-surface font-extrabold text-sm disabled:opacity-30"
@@ -1288,9 +1296,11 @@ async function refreshProductForEditing() {
 
     const slug =
         currentProduct?.slug ??
+        editingItem?.slug ??
         editingItem?.product?.slug ??
         editingItem?.product_slug ??
-        editingItem?.productSlug;
+        editingItem?.productSlug ??
+        editingItem?.product_id;
 
     if (!slug) {
         console.warn(
@@ -1604,7 +1614,7 @@ function restoreEditingState() {
 
     if (!item) {
         quantity.value = 1;
-        selectedVariationIdx.value = null;
+        selectedVariationIdx.value = normalizedVariations.value.length > 0 ? 0 : null;
         selectedFlavorIdx.value = null;
 
         return;
@@ -1635,46 +1645,6 @@ function restoreEditingState() {
         findFlavorIndex(
             existingFlavor
         );
-
-    /*
-     * IMPORTANT DEBUG INFORMATION.
-     *
-     * Remove these console logs later if you don't need them.
-     */
-    console.log(
-        "[Product Edit] Cart Item:",
-        item
-    );
-
-    console.log(
-        "[Product Edit] Existing Variation:",
-        existingVariation
-    );
-
-    console.log(
-        "[Product Edit] Existing Flavor:",
-        existingFlavor
-    );
-
-    console.log(
-        "[Product Edit] Available Variations:",
-        normalizedVariations.value
-    );
-
-    console.log(
-        "[Product Edit] Available Flavors:",
-        normalizedFlavors.value
-    );
-
-    console.log(
-        "[Product Edit] Selected Variation Index:",
-        selectedVariationIdx.value
-    );
-
-    console.log(
-        "[Product Edit] Selected Flavor Index:",
-        selectedFlavorIdx.value
-    );
 }
 
 /*
@@ -1683,49 +1653,44 @@ function restoreEditingState() {
 |--------------------------------------------------------------------------
 */
 
+let isRestoring = false;
+
 watch(
     [
-        () => modalStore.product,
-        () => modalStore.editingCartItem,
+        () => modalStore.product?.id,
+        () => modalStore.editingCartItem?.id,
+        () => modalStore.isOpen,
     ],
-    async ([product, editingItem]) => {
-        activeIndex.value = 0;
-        activeTab.value = "description";
-        failedImageUrls.value = new Set();
+    async ([productId, editingItemId, isOpen]) => {
+        if (!isOpen) return;
+        if (isRestoring) return;
 
-        if (!product) {
-            quantity.value = 1;
-            selectedVariationIdx.value = null;
-            selectedFlavorIdx.value = null;
+        isRestoring = true;
 
-            return;
-        }
+        try {
+            activeIndex.value = 0;
+            activeTab.value = "description";
+            failedImageUrls.value = new Set();
 
-        if (editingItem) {
-            /*
-             * First restore from whatever data is already available.
-             */
-            restoreEditingState();
+            if (!modalStore.product) {
+                quantity.value = 1;
+                selectedVariationIdx.value = null;
+                selectedFlavorIdx.value = null;
+                return;
+            }
 
-            /*
-             * Then fetch the complete product.
-             */
-            await refreshProductForEditing();
-
-            /*
-             * Wait for Vue computed values to update.
-             */
-            await nextTick();
-
-            /*
-             * Finally restore the cart selections against
-             * the COMPLETE product option lists.
-             */
-            restoreEditingState();
-        } else {
-            quantity.value = 1;
-            selectedVariationIdx.value = null;
-            selectedFlavorIdx.value = null;
+            if (modalStore.editingCartItem) {
+                restoreEditingState();
+                await refreshProductForEditing();
+                await nextTick();
+                restoreEditingState();
+            } else {
+                quantity.value = 1;
+                selectedVariationIdx.value = null;
+                selectedFlavorIdx.value = null;
+            }
+        } finally {
+            isRestoring = false;
         }
     },
     {
@@ -1926,6 +1891,27 @@ function increaseQuantity() {
     }
 }
 
+function onQuantityInput(event) {
+    const raw = parseInt(event.target.value, 10);
+    if (!isNaN(raw)) {
+        const stock = Number(modalStore.product?.stock_qty ?? 0);
+        const max = stock > 0 ? stock : 999;
+        // Let the user keep typing, just cap silently
+        quantity.value = Math.max(1, Math.min(raw, max));
+    }
+}
+
+function onQuantityBlur(event) {
+    const raw = parseInt(event.target.value, 10);
+    const stock = Number(modalStore.product?.stock_qty ?? 0);
+    const max = stock > 0 ? stock : 999;
+    if (isNaN(raw) || raw < 1) {
+        quantity.value = 1;
+    } else {
+        quantity.value = Math.min(raw, max);
+    }
+}
+
 /*
 |--------------------------------------------------------------------------
 | IMAGE CAROUSEL
@@ -2087,6 +2073,11 @@ function validateSelection() {
         selectedVariationIdx.value ===
         null
     ) {
+        if (normalizedVariations.value.length > 0) {
+            selectedVariationIdx.value = 0;
+            return true;
+        }
+
         toast.warning(
             `Please select a ${variationLabel.value
                 .toLowerCase()

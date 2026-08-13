@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Sanctum SPA Authentication
         $middleware->statefulApi();
 
+        // Prevent 500 RouteNotFoundException on route('login') for unauthenticated API/invoice requests
+        $middleware->redirectGuestsTo(fn (Request $request) => null);
+
         // Trust Railway Reverse Proxy
         $middleware->trustProxies(
             at: '*',

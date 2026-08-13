@@ -152,7 +152,7 @@ class OrderService
             ]);
 
             // Audit Log entry
-            \App\Services\AuditLogger::log('created', "Order #{$order->order_number} placed by {$order->customer_name} (₱" . number_format($order->total, 2) . ")", $order);
+            \App\Services\AuditLogger::log('created', "Order #{$order->order_number} placed by {$order->customer_name} (\u{20B1}" . number_format($order->total, 2) . ")", $order);
 
             // Seller Notification (Filament Database Notification)
             try {
@@ -172,16 +172,31 @@ class OrderService
                 $fulfillmentLabel = ucfirst($order->fulfillment_type);
 
                 foreach ($admins as $admin) {
+                    $isPooling = $order->delivery_mode === 'pooling';
+                    $titleIcon = $isPooling ? '🤝 New Group Pooling Order' : '🛍️ New Priority Order';
+                    $locationStr = implode(', ', array_filter([$order->barangay, $order->city, $order->province]));
+
+                    $bodyText = "👤 Customer: **{$order->customer_name}**\n";
+                    if ($isPooling) {
+                        $bodyText .= "🤝 Mode: **Group Delivery Pooling**\n";
+                        $bodyText .= "📍 Location: **{$locationStr}**\n";
+                        $bodyText .= "💰 Items Subtotal: **\u{20B1}" . number_format($order->subtotal, 2) . "**\n";
+                        $bodyText .= "⏳ Pooling Status: **" . ucfirst($order->pooling_status ?? 'pending') . "**\n";
+                    } else {
+                        $bodyText .= "💰 Total: **\u{20B1}" . number_format($order->total, 2) . "** ({$fulfillmentLabel})\n";
+                    }
+                    $bodyText .= "📦 Items: {$firstItems}";
+
                     \Filament\Notifications\Notification::make()
-                        ->title("🛍️ New Order #{$order->order_number}")
-                        ->body("👤 Customer: **{$order->customer_name}**\n💰 Total: **₱" . number_format($order->total, 2) . "** ({$fulfillmentLabel})\n📦 Items: {$firstItems}")
-                        ->icon('heroicon-o-shopping-bag')
-                        ->iconColor('success')
+                        ->title("{$titleIcon} #{$order->order_number}")
+                        ->body($bodyText)
+                        ->icon($isPooling ? 'heroicon-o-truck' : 'heroicon-o-shopping-bag')
+                        ->iconColor($isPooling ? 'info' : 'success')
                         ->actions([
                             \Filament\Actions\Action::make('mark_settled')
-                                ->label('✓ Mark as Settled')
+                                ->label($isPooling ? '🤝 View Pooling Batch' : '✓ View Order')
                                 ->button()
-                                ->color('success')
+                                ->color('primary')
                                 ->markAsRead()
                                 ->url($orderUrl),
                         ])

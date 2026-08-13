@@ -25,15 +25,40 @@
           </div>
 
           <!-- Order Summary Badge -->
-          <div class="bg-amber-50 dark:bg-[#2A1C13] p-4 rounded-2xl border border-amber-200 dark:border-amber-900/40 space-y-2 text-xs">
+          <div class="bg-amber-50 dark:bg-[#2A1C13] p-4 rounded-2xl border border-amber-200 dark:border-amber-900/40 space-y-2.5 text-xs">
             <div class="flex justify-between text-warm-gray">
               <span>Items Subtotal:</span>
               <span class="font-bold text-ink dark:text-white">₱{{ (order?.subtotal || 0).toFixed(2) }}</span>
             </div>
-            <div class="flex justify-between text-emerald-700 dark:text-emerald-400">
-              <span>Assigned Pooled Delivery Fee:</span>
+
+            <!-- Pooling Specific Details Badge -->
+            <div v-if="order?.delivery_mode === 'pooling'" class="p-3 rounded-xl bg-emerald-100/80 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-800 space-y-1.5 text-[11px]">
+              <div class="flex items-center justify-between text-emerald-950 dark:text-emerald-200 font-extrabold pb-1 border-b border-emerald-300/50">
+                <span class="flex items-center gap-1">🤝 Group Delivery Pooling Details</span>
+                <span class="bg-emerald-700 text-white px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">
+                  {{ order?.pooling_status === 'settled' ? '✓ Rate Settled' : '⏳ Pending Rate' }}
+                </span>
+              </div>
+              <div v-if="order?.delivery_pool?.pool_code" class="text-emerald-900 dark:text-emerald-300 flex justify-between">
+                <span class="text-emerald-800 dark:text-emerald-400">Batch Pool Code:</span>
+                <span class="font-mono font-bold">#{{ order.delivery_pool.pool_code }}</span>
+              </div>
+              <div v-if="order?.barangay || order?.city" class="text-emerald-900 dark:text-emerald-300 flex justify-between">
+                <span class="text-emerald-800 dark:text-emerald-400">Pooled Zone Location:</span>
+                <span class="font-bold text-right">{{ [order?.barangay, order?.city].filter(Boolean).join(', ') }}</span>
+              </div>
+              <div class="text-emerald-900 dark:text-emerald-300 flex justify-between pt-1 border-t border-emerald-300/50">
+                <span class="font-bold">Assigned Group Shipping Fee:</span>
+                <span class="font-black text-emerald-900 dark:text-emerald-200">₱{{ (order?.shipping_fee || order?.delivery_fee || 0).toFixed(2) }}</span>
+              </div>
+            </div>
+
+            <!-- Priority / Standard Delivery Fee -->
+            <div v-else class="flex justify-between text-emerald-700 dark:text-emerald-400">
+              <span>Priority Delivery Fee:</span>
               <span class="font-bold">₱{{ (order?.shipping_fee || order?.delivery_fee || 0).toFixed(2) }}</span>
             </div>
+
             <div v-if="order?.discount" class="flex justify-between text-rose-600">
               <span>Voucher Discount:</span>
               <span class="font-bold">-₱{{ (order?.discount || 0).toFixed(2) }}</span>

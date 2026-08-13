@@ -505,9 +505,8 @@ class OrderResource extends Resource
                     ->options([
                         'gcash' => 'GCash E-Wallet',
                         'maya' => 'Maya Wallet / Card',
-                        'qrph' => 'QR Ph (Any Bank)',
+                        'qrph' => 'QR Ph (Any Bank / E-Wallet)',
                         'bank_transfer' => 'BDO Bank Transfer',
-                        'cod' => 'Cash on Delivery (COD)',
                     ]),
 
                 SelectFilter::make('fulfillment_type')
@@ -589,6 +588,23 @@ class OrderResource extends Resource
                             default =>
                                 $record->status,
                         };
+
+                        if (
+                            $record->delivery_mode === Order::MODE_POOLING &&
+                            $record->payment_status !== 'paid' &&
+                            in_array($nextStatus, [Order::STATUS_PREPARING, Order::STATUS_PACKAGING, Order::STATUS_OUT_FOR_DELIVERY, Order::STATUS_COMPLETED])
+                        ) {
+                            Notification::make()
+                                ->title('💳 Customer Payment Required')
+                                ->body(
+                                    "Order #{$record->order_number} uses Group Delivery Pooling. The customer MUST settle their payment (₱" . number_format($record->total, 2) . ") before kitchen baking & processing can begin."
+                                )
+                                ->danger()
+                                ->persistent()
+                                ->send();
+
+                            return;
+                        }
 
                         /*
                         |--------------------------------------------------------------------------

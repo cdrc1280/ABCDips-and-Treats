@@ -25,7 +25,7 @@ class CheckoutRequest extends FormRequest
             'postal_code'      => ['nullable', 'string', 'max:20'],
             'scheduled_time'   => ['nullable', 'date', 'after_or_equal:now'],
             'notes'            => ['nullable', 'string', 'max:1000'],
-            'payment_method'   => ['required', 'in:gcash,maya,bank_transfer,cod,qrph'],
+            'payment_method'   => ['required', 'in:gcash,maya,bank_transfer,qrph'],
         ];
     }
 }

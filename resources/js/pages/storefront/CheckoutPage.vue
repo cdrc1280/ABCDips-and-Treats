@@ -50,20 +50,53 @@
           ]">📱 Verify via Mobile Number (SMS Code)</button>
         </div>
 
-        <!-- Tab 1: Email Verification -->
+        <!-- Tab 1: Email OTP Verification (6-Digit Code) -->
         <div v-if="verificationTab === 'email'"
           class="space-y-4 bg-white/80 dark:bg-[#1E1510]/80 rounded-2xl p-5 border border-amber-200/80">
           <p class="text-sm text-ink dark:text-[#FBF3E7]">
-            We will send a secure verification link to <strong>{{ authStore.user.email }}</strong>.
+            We will send a <strong>6-digit verification code</strong> to <strong>{{ authStore.user.email }}</strong>.
           </p>
-          <div class="flex items-center gap-3 flex-wrap">
-            <BaseButton type="button" variant="primary" :loading="sendingEmail" @click="sendVerificationEmail">
-              ✉️ Send Verification Link to Email
+
+          <!-- Step 1: Send Code -->
+          <div v-if="!emailOtpSent" class="flex items-center gap-3 flex-wrap">
+            <BaseButton type="button" variant="primary" :loading="sendingEmailOtp" @click="sendEmailOtp">
+              ✉️ Send 6-Digit Code to Email
             </BaseButton>
-            <span v-if="emailSent" class="text-xs font-bold text-success">✓ Link Sent! Please check your email
-              inbox.</span>
+          </div>
+
+          <!-- Step 2: Enter Code -->
+          <div v-else class="space-y-3">
+            <p class="text-xs font-semibold text-success flex items-center gap-1.5">
+              ✓ Verification code sent to <strong>{{ authStore.user.email }}</strong>! Check your inbox.
+            </p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <div>
+                <label class="block text-xs font-bold text-ink dark:text-[#FBF3E7] mb-1">Enter 6-Digit Code</label>
+                <input
+                  v-model="emailOtpCode"
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="6"
+                  placeholder="e.g. 482915"
+                  @input="emailOtpCode = $event.target.value.replace(/\D/g, '')"
+                  class="w-36 bg-white dark:bg-[#271C15] border border-brand-caramel/30 dark:border-[#C08E5D]/30 rounded-xl px-3.5 py-2 text-sm font-extrabold text-center tracking-widest text-ink dark:text-[#FBF3E7] focus:ring-2 focus:ring-brand-choco outline-none"
+                />
+              </div>
+              <div class="flex flex-col gap-2">
+                <button type="button" @click="verifyEmailOtp" :disabled="verifyingEmailOtp || emailOtpCode.length !== 6"
+                  class="px-4 py-2 bg-success text-white text-xs font-bold rounded-xl hover:bg-green-700 disabled:opacity-50 transition-all">
+                  {{ verifyingEmailOtp ? 'Verifying...' : '✓ Verify & Unlock Checkout' }}
+                </button>
+                <button type="button" @click="sendEmailOtp" :disabled="sendingEmailOtp"
+                  class="px-3 py-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300 hover:underline disabled:opacity-50">
+                  {{ sendingEmailOtp ? 'Resending...' : '↺ Resend Code' }}
+                </button>
+              </div>
+            </div>
+            <p v-if="emailOtpError" class="text-xs font-semibold text-error">⚠️ {{ emailOtpError }}</p>
           </div>
         </div>
+
 
         <!-- Tab 2: Mobile Phone Verification -->
         <div v-else-if="verificationTab === 'phone'"
@@ -329,23 +362,8 @@
               </div>
             </label>
 
-            <!-- Cash on Delivery -->
-            <label v-tooltip="'Pay cash directly upon delivery / store pickup'"
-              class="border-2 rounded-2xl p-4 cursor-pointer flex items-center gap-3 transition-all"
-              :class="form.payment_method === 'cod' ? 'border-brand-choco bg-surface dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
-              <input type="radio" v-model="form.payment_method" value="cod" class="sr-only" />
-              <div
-                class="w-10 h-10 rounded-xl bg-amber-700 text-white font-bold text-xs flex items-center justify-center shrink-0">
-                COD
-              </div>
-              <div>
-                <div class="font-bold text-sm text-ink dark:text-[#FBF3E7]">Cash on Delivery</div>
-                <div class="text-[11px] text-warm-gray">Pay cash upon arrival</div>
-              </div>
-            </label>
-
             <!-- QR Ph (Any Bank via PayMongo) -->
-            <label v-if="storeInfo.enable_qrph !== false" v-tooltip="'Pay via QR Ph - scan with any Philippine bank app'"
+            <label v-tooltip="'Pay via QR Ph - scan with any Philippine bank app'"
               class="border-2 rounded-2xl p-4 cursor-pointer flex items-center gap-3 transition-all"
               :class="form.payment_method === 'qrph' ? 'border-brand-choco bg-surface dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
               <input type="radio" v-model="form.payment_method" value="qrph" class="sr-only" />
@@ -353,8 +371,8 @@
                 QR Ph
               </div>
               <div>
-                <div class="font-bold text-sm text-ink dark:text-[#FBF3E7]">QR Ph (Any Bank)</div>
-                <div class="text-[11px] text-warm-gray">Scan QR code via any PH bank app</div>
+                <div class="font-bold text-sm text-ink dark:text-[#FBF3E7]">QR Ph (Any Bank / E-Wallet)</div>
+                <div class="text-[11px] text-warm-gray">Scan QR code via GCash, Maya, ShopeePay, BDO, BPI, UnionBank</div>
               </div>
             </label>
           </div>
@@ -403,16 +421,8 @@
                     Option: {{ item.options.variation }}
                   </div>
 
-                  <div class="flex items-center gap-2 mt-1">
-                    <div class="flex items-center border border-brand-caramel/30 rounded-lg overflow-hidden bg-surface">
-                      <button type="button" @click.prevent="adjustItemQty(item, -1)" v-tooltip="'Decrease quantity'"
-                        class="px-2 py-0.5 text-xs font-bold text-brand-choco hover:bg-brand-tan/40 transition-colors">-</button>
-                      <span class="px-2 text-[11px] font-bold text-ink dark:text-[#FBF3E7]">{{ item.qty }}</span>
-                      <button type="button" @click.prevent="adjustItemQty(item, 1)" v-tooltip="'Increase quantity'"
-                        class="px-2 py-0.5 text-xs font-bold text-brand-choco hover:bg-brand-tan/40 transition-colors">+</button>
-                    </div>
-                    <button type="button" @click.prevent="cartStore.removeItem(item.id)" v-tooltip="'Remove item'"
-                      class="text-[10px] text-red-500 hover:underline">Remove</button>
+                  <div class="text-[11px] font-semibold text-warm-gray dark:text-[#C5B4A4] mt-1">
+                    Qty: <strong>{{ item.qty }}</strong> × ₱{{ (item.unit_price || 0).toFixed(2) }}
                   </div>
 
                 </div>
@@ -628,16 +638,44 @@ const otpSent = ref(false)
 const verifyingOtp = ref(false)
 const errors = ref({})
 
-async function sendVerificationEmail() {
-  sendingEmail.value = true
+const sendingEmailOtp = ref(false)
+const emailOtpSent = ref(false)
+const verifyingEmailOtp = ref(false)
+const emailOtpCode = ref('')
+const emailOtpError = ref('')
+
+async function sendEmailOtp() {
+  sendingEmailOtp.value = true
+  emailOtpError.value = ''
   try {
-    const { data } = await axios.post('/api/customer/send-verification-email')
-    emailSent.value = true
-    toast.success(data.message || 'Verification email sent to your inbox!', 'Verification Email Sent ✉️')
+    const { data } = await axios.post('/api/otp/email/send')
+    emailOtpSent.value = true
+    toast.success(data.message || '6-digit verification code sent to your email!', 'Code Sent ✉️')
   } catch (err) {
-    toast.error('Failed to send verification email.', 'Error')
+    emailOtpError.value = err.response?.data?.message || 'Failed to send verification code.'
+    toast.error(emailOtpError.value, 'Error')
   } finally {
-    sendingEmail.value = false
+    sendingEmailOtp.value = false
+  }
+}
+
+async function verifyEmailOtp() {
+  if (emailOtpCode.value.length !== 6) return
+  verifyingEmailOtp.value = true
+  emailOtpError.value = ''
+  try {
+    const { data } = await axios.post('/api/otp/email/verify', { otp: emailOtpCode.value })
+    if (data.verified) {
+      if (authStore.user) {
+        authStore.user.email_verified_at = new Date().toISOString()
+      }
+      toast.success(data.message || 'Email verified successfully!', 'Verified! 🎉')
+    }
+  } catch (err) {
+    emailOtpError.value = err.response?.data?.message || 'Invalid or expired verification code.'
+    toast.error(emailOtpError.value, 'Verification Failed')
+  } finally {
+    verifyingEmailOtp.value = false
   }
 }
 
@@ -753,7 +791,26 @@ function fetchDeliveryQuote() {
     return
   }
 
-  const fullAddr = (form.value.delivery_address || (form.value.street_address + ' ' + form.value.barangay + ' ' + form.value.city)).trim()
+  // Build best possible address string from PSGC fields first, fall back to free-text
+  const parts = [
+    form.value.street_address,
+    form.value.barangay,
+    form.value.city,
+    form.value.province,
+    form.value.region,
+  ].filter(Boolean)
+
+  const fullAddr = parts.length >= 2
+    ? parts.join(', ')
+    : (form.value.delivery_address || '').trim()
+
+  // Need at minimum barangay + city to get a meaningful quote
+  if (!form.value.barangay || !form.value.city) {
+    quotedFee.value = null
+    quoteError.value = ''
+    return
+  }
+
   if (fullAddr.length < 5) {
     quotedFee.value = null
     quoteError.value = ''
@@ -773,17 +830,17 @@ function fetchDeliveryQuote() {
       const { data } = await axios.post('/api/delivery/quote', payload)
       if (data.success && data.fee !== null) {
         quotedFee.value = parseFloat(data.fee)
-        quoteProvider.value = data.provider || 'Lalamove'
+        quoteProvider.value = data.provider_label || data.provider || 'Estimated'
         quoteNote.value = data.note || ''
       } else {
         quotedFee.value = null
         quoteProvider.value = ''
-        quoteError.value = data.error || 'Could not locate address to calculate delivery fee. Please select complete Barangay & City.'
+        quoteError.value = data.error || 'Could not calculate delivery fee. Please verify your address.'
       }
     } catch (err) {
       quotedFee.value = null
       quoteProvider.value = ''
-      quoteError.value = err.response?.data?.error || 'Unable to locate address. Please select complete Barangay & City.'
+      quoteError.value = err.response?.data?.message || err.response?.data?.error || 'Could not calculate delivery fee. Please complete your address.'
     } finally {
       quotingDelivery.value = false
     }
@@ -818,10 +875,20 @@ watch(() => form.value.customer_name, (val) => { if (val) localStorage.setItem('
 watch(() => form.value.customer_email, (val) => { if (val) localStorage.setItem('customer_email', val) })
 watch(() => form.value.customer_phone, (val) => { if (val) localStorage.setItem('customer_phone', val) })
 watch(() => form.value.delivery_address, (val) => { if (val) localStorage.setItem('delivery_address', val) })
-watch(() => form.value.city, (val) => { if (val) localStorage.setItem('delivery_city', val) })
+watch(() => form.value.city, (val) => {
+  if (val) {
+    localStorage.setItem('delivery_city', val)
+    if (form.value.fulfillment_type === 'delivery') fetchDeliveryQuote()
+  }
+})
 watch(() => form.value.region, (val) => { if (val) localStorage.setItem('delivery_region', val) })
 watch(() => form.value.province, (val) => { if (val) localStorage.setItem('delivery_province', val) })
-watch(() => form.value.barangay, (val) => { if (val) localStorage.setItem('delivery_barangay', val) })
+watch(() => form.value.barangay, (val) => {
+  if (val) {
+    localStorage.setItem('delivery_barangay', val)
+    if (form.value.fulfillment_type === 'delivery') fetchDeliveryQuote()
+  }
+})
 watch(() => form.value.street_address, (val) => { if (val) localStorage.setItem('delivery_street_address', val) })
 
 watch(() => authStore.user, (user) => {

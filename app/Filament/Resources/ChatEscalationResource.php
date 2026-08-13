@@ -40,48 +40,126 @@ class ChatEscalationResource extends Resource
     public static function renderConversationHtml(?ChatEscalation $record): HtmlString
     {
         if (!$record || empty($record->conversation)) {
-            return new HtmlString('<div class="text-sm text-gray-500 italic p-4 text-center">No messages in conversation.</div>');
+            return new HtmlString('<div style="padding: 24px; text-align: center; color: #a1a1aa; font-size: 13px; font-style: italic;">No messages in conversation history.</div>');
         }
 
-        $html = '<div class="space-y-4 max-h-[500px] overflow-y-auto p-4 bg-gray-50 dark:bg-[#140D09] rounded-2xl border border-gray-200 dark:border-[#C08E5D]/30">';
+        $html = '<style>
+            .chat-thread-container {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+                padding: 16px;
+                max-height: 520px;
+                overflow-y: auto;
+                background-color: #18181b;
+                border-radius: 16px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                font-family: inherit;
+            }
+            .chat-msg-group {
+                display: flex;
+                flex-direction: column;
+                max-width: 85%;
+            }
+            .chat-msg-user {
+                align-self: flex-start;
+            }
+            .chat-msg-ai {
+                align-self: flex-start;
+            }
+            .chat-msg-admin {
+                align-self: flex-end;
+            }
+            .chat-msg-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 11px;
+                font-weight: 700;
+                margin-bottom: 4px;
+            }
+            .chat-msg-header-user { color: #60a5fa; }
+            .chat-msg-header-ai { color: #fbbf24; }
+            .chat-msg-header-admin { color: #34d399; justify-content: flex-end; }
+            .chat-msg-bubble {
+                padding: 12px 16px;
+                border-radius: 16px;
+                font-size: 13px;
+                line-height: 1.5;
+                word-break: break-word;
+            }
+            .chat-msg-bubble-user {
+                background-color: #1e293b;
+                color: #f8fafc;
+                border-top-left-radius: 4px;
+                border: 1px solid #334155;
+            }
+            .chat-msg-bubble-ai {
+                background-color: #27272a;
+                color: #f4f4f5;
+                border-top-left-radius: 4px;
+                border: 1px solid #3f3f46;
+            }
+            .chat-msg-bubble-admin {
+                background-color: #064e3b;
+                color: #ecfdf5;
+                border-top-right-radius: 4px;
+                border: 1px solid #047857;
+            }
+            .chat-msg-bubble p { margin: 0 0 8px 0; }
+            .chat-msg-bubble p:last-child { margin: 0; }
+            .chat-msg-bubble ul, .chat-msg-bubble ol { margin: 4px 0 8px 18px; padding: 0; }
+            .chat-msg-bubble li { margin-bottom: 2px; }
+            .chat-msg-bubble strong { color: #ffffff; font-weight: 700; }
+            .chat-msg-time {
+                font-size: 10px;
+                opacity: 0.65;
+                font-weight: 400;
+            }
+        </style>';
+
+        $html .= '<div class="chat-thread-container">';
         $clientName = e($record->guest_name ?? $record->user?->name ?? 'Client');
 
         foreach ($record->conversation as $msg) {
             $role = $msg['role'] ?? 'user';
-            $content = e($msg['content'] ?? '');
-            $time = e($msg['time'] ?? '');
+            $rawContent = $msg['content'] ?? '';
+            $time = e($msg['time'] ?? ($msg['created_at'] ?? ''));
+
+            // Format markdown text to clean HTML
+            $parsedHtml = \Illuminate\Support\Str::markdown($rawContent);
 
             if ($role === 'admin') {
                 $html .= "
-                <div class='flex justify-end mb-3'>
-                    <div class='max-w-[80%] bg-[#5C3A22] text-[#FBF3E7] p-3.5 rounded-2xl rounded-tr-sm shadow-sm border border-[#C08E5D]/30'>
-                        <div class='flex items-center justify-between gap-3 text-[11px] font-bold text-[#E2C08A] mb-1 pb-1 border-b border-[#E2C08A]/20'>
-                            <span>🛡️ Support Agent (Admin)</span>
-                            <span>{$time}</span>
-                        </div>
-                        <p class='text-xs leading-relaxed whitespace-pre-line'>{$content}</p>
+                <div class='chat-msg-group chat-msg-admin'>
+                    <div class='chat-msg-header chat-msg-header-admin'>
+                        <span class='chat-msg-time'>{$time}</span>
+                        <span>🛡️ Support Agent (Admin)</span>
+                    </div>
+                    <div class='chat-msg-bubble chat-msg-bubble-admin'>
+                        {$parsedHtml}
                     </div>
                 </div>";
             } elseif ($role === 'assistant') {
                 $html .= "
-                <div class='flex justify-start mb-3'>
-                    <div class='max-w-[80%] bg-[#F5E8D0] dark:bg-[#2A1C13] text-[#1C1410] dark:text-[#FBF3E7] p-3.5 rounded-2xl rounded-tl-sm shadow-sm border border-[#C08E5D]/20'>
-                        <div class='flex items-center justify-between gap-3 text-[11px] font-bold text-[#5C3A22] dark:text-[#E2C08A] mb-1 pb-1 border-b border-[#C08E5D]/20'>
-                            <span>🧁 Dips AI Helper</span>
-                            <span>{$time}</span>
-                        </div>
-                        <p class='text-xs leading-relaxed whitespace-pre-line'>{$content}</p>
+                <div class='chat-msg-group chat-msg-ai'>
+                    <div class='chat-msg-header chat-msg-header-ai'>
+                        <span>🧁 Dips AI Helper</span>
+                        <span class='chat-msg-time'>{$time}</span>
+                    </div>
+                    <div class='chat-msg-bubble chat-msg-bubble-ai'>
+                        {$parsedHtml}
                     </div>
                 </div>";
             } else {
                 $html .= "
-                <div class='flex justify-start mb-3'>
-                    <div class='max-w-[80%] bg-white dark:bg-[#1E1510] text-[#1C1410] dark:text-[#FBF3E7] p-3.5 rounded-2xl rounded-tl-sm shadow-sm border border-gray-300 dark:border-[#C08E5D]/30'>
-                        <div class='flex items-center justify-between gap-3 text-[11px] font-bold text-gray-700 dark:text-[#E2C08A] mb-1 pb-1 border-b border-gray-200 dark:border-[#C08E5D]/20'>
-                            <span>👤 {$clientName}</span>
-                            <span>{$time}</span>
-                        </div>
-                        <p class='text-xs leading-relaxed whitespace-pre-line'>{$content}</p>
+                <div class='chat-msg-group chat-msg-user'>
+                    <div class='chat-msg-header chat-msg-header-user'>
+                        <span>👤 {$clientName}</span>
+                        <span class='chat-msg-time'>{$time}</span>
+                    </div>
+                    <div class='chat-msg-bubble chat-msg-bubble-user'>
+                        {$parsedHtml}
                     </div>
                 </div>";
             }
@@ -177,7 +255,6 @@ class ChatEscalationResource extends Resource
             ])
             ->defaultSort('updated_at', 'desc')
             ->actions([
-                ViewAction::make(),
                 Action::make('view_messages')
                     ->label('View Messages 👁️')
                     ->color('info')

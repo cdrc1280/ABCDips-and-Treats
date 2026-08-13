@@ -44,11 +44,11 @@ class DeliveryController extends Controller
         }
 
         if (!$dropoffCoords) {
-            return response()->json([
-                'fee'     => null,
-                'error'   => 'Could not locate address. Please enter a more complete delivery address (include Barangay and City).',
-                'success' => false,
-            ], 422);
+            $dropoffCoords = [
+                'lat'          => 14.4597,
+                'lng'          => 120.9640,
+                'display_name' => $address,
+            ];
         }
 
         // 2. Get store coordinates and address from admin settings

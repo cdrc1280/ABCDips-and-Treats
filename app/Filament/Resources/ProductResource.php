@@ -71,12 +71,6 @@ class ProductResource extends Resource
                             ->rows(2)
                             ->columnSpanFull(),
 
-                        TextInput::make('flavor')
-                            ->label('Product Flavor / Sub-variant')
-                            ->placeholder('e.g. Belgian Dark Chocolate, Ube Halaya, Cinnamon Butter')
-                            ->maxLength(100)
-                            ->columnSpanFull(),
-
                         RichEditor::make('description')
                             ->columnSpanFull(),
                     ])->columns(2),
@@ -372,8 +366,9 @@ class ProductResource extends Resource
                                     ])
                                     ->columns(3)
                                     ->columnSpanFull()
-                                    ->defaultItems(0)
-                                    ->addActionLabel('Add Ingredient Item'),
+                                    ->minItems(1)
+                                    ->defaultItems(1)
+                                    ->addActionLabel('+ Add Another Ingredient'),
 
                                 Repeater::make('recipePackagings')
                                     ->relationship('recipePackagings')
@@ -485,8 +480,9 @@ class ProductResource extends Resource
                                     ])
                                     ->columns(4)
                                     ->columnSpanFull()
-                                    ->defaultItems(0)
-                                    ->addActionLabel('Add Packaging Item'),
+                                    ->minItems(1)
+                                    ->defaultItems(1)
+                                    ->addActionLabel('+ Add Another Packaging Item'),
                             ])->columns(2),
                     ]),
 
@@ -561,13 +557,7 @@ class ProductResource extends Resource
                     ->sortable()
                     ->weight('bold'),
 
-                TextColumn::make('flavor')
-                    ->label('Flavor')
-                    ->searchable()
-                    ->placeholder('—')
-                    ->badge()
-                    ->color('warning')
-                    ->toggleable(),
+
 
                 TextColumn::make('category.name')
                     ->sortable()

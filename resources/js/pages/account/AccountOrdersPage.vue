@@ -71,8 +71,9 @@
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
-            <!-- Invoice Button -->
+            <!-- Invoice Button (Available only when payment is settled) -->
             <BaseButton
+              v-if="canShowInvoice(order)"
               size="sm"
               variant="secondary"
               v-tooltip="'View & download printable official bakery invoice'"
@@ -315,6 +316,14 @@ const storeInfo = ref({})
 const activeInvoiceOrder = ref(null)
 const selectedOrder = ref(null)
 const cancelling = ref(false)
+
+function canShowInvoice(order) {
+  if (!order) return false
+  if (order.delivery_mode === 'pooling' && (order.pooling_status !== 'settled' || order.payment_status !== 'paid')) {
+    return false
+  }
+  return order.payment_status === 'paid' || order.status === 'confirmed' || order.status === 'completed'
+}
 
 function openInvoiceModal(order) {
   activeInvoiceOrder.value = order

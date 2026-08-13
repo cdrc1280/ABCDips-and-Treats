@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\SuggestionController;
 use App\Http\Controllers\Api\PublicAiController;
 use App\Http\Controllers\Api\ChatEscalationController;
+use App\Http\Controllers\Api\OtpController;
 
 // ─── Auth Routes ──────────────────────────────────────────────
 Route::prefix('auth')->group(function () {
@@ -82,8 +83,6 @@ Route::middleware(['auth:sanctum', 'role:super_admin|admin'])->group(function ()
     Route::post('pos/checkout', [PosController::class, 'checkout']);
     Route::get('admin/analytics', [AnalyticsAndAiController::class, 'analytics']);
     Route::post('admin/ai/query', [AnalyticsAndAiController::class, 'aiQuery'])->middleware('throttle:30,1');
-    Route::get('orders/{order}/invoice', [OrderController::class, 'adminInvoice']);
-    Route::get('orders/{order}/invoice/download', [OrderController::class, 'downloadInvoice']);
 });
 
 // ─── Authenticated User Routes ────────────────────────────────
@@ -113,6 +112,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Cart merge (post-login)
     Route::post('cart/merge', [CartController::class, 'merge']);
+
+    // Email OTP Verification (6-digit code)
+    Route::post('otp/email/send', [OtpController::class, 'sendEmailOtp'])->middleware('throttle:3,10');
+    Route::post('otp/email/verify', [OtpController::class, 'verifyEmailOtp'])->middleware('throttle:10,1');
 });
 
 // ─── Contact Form (Public) ───────────────────────────────────

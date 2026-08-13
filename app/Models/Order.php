@@ -98,8 +98,14 @@ class Order extends Model
 
     public function transitionTo(string $newStatus, ?string $comment = null, ?int $userId = null): void
     {
-        if ($this->delivery_mode === self::MODE_POOLING && $this->pooling_status !== self::POOLING_SETTLED && in_array($newStatus, [self::STATUS_CONFIRMED, self::STATUS_PREPARING, self::STATUS_PACKAGING, self::STATUS_OUT_FOR_DELIVERY, self::STATUS_COMPLETED])) {
-            throw new \DomainException("Order #{$this->order_number} is a Delivery Pooling order awaiting admin assignment. Please assign to a Delivery Pool Batch and Settle the shared shipping fee in 'Delivery Pooling' before advancing status.");
+        if ($this->delivery_mode === self::MODE_POOLING) {
+            if ($this->pooling_status !== self::POOLING_SETTLED && in_array($newStatus, [self::STATUS_CONFIRMED, self::STATUS_PREPARING, self::STATUS_PACKAGING, self::STATUS_OUT_FOR_DELIVERY, self::STATUS_COMPLETED])) {
+                throw new \DomainException("Order #{$this->order_number} is a Delivery Pooling order awaiting admin assignment. Please assign to a Delivery Pool Batch and Settle the shared shipping fee in 'Delivery Pooling' before advancing status.");
+            }
+
+            if ($this->payment_status !== 'paid' && in_array($newStatus, [self::STATUS_PREPARING, self::STATUS_PACKAGING, self::STATUS_OUT_FOR_DELIVERY, self::STATUS_COMPLETED])) {
+                throw new \DomainException("Order #{$this->order_number} cannot proceed to {$newStatus}: Customer has not settled payment for Group Delivery Pooling yet.");
+            }
         }
 
         $oldStatus = $this->status;
