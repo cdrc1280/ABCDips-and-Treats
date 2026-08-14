@@ -41,28 +41,35 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage roles', 'manage permissions',
         ];
 
+        // Use firstOrCreate — NEVER deletes or modifies existing permissions.
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
         // ─── Roles ────────────────────────────────────────────────
+        // Use firstOrCreate — NEVER overwrites existing roles or their assigned users.
         $customer = Role::firstOrCreate(['name' => 'customer',    'guard_name' => 'web']);
         $staff    = Role::firstOrCreate(['name' => 'staff',       'guard_name' => 'web']);
         $manager  = Role::firstOrCreate(['name' => 'manager',     'guard_name' => 'web']);
         $admin    = Role::firstOrCreate(['name' => 'admin',       'guard_name' => 'web']);
         $super    = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
 
-        // Customer — read only storefront
-        $customer->syncPermissions([]);
+        // ─── Permission assignments ────────────────────────────────
+        // IMPORTANT: We use givePermissionTo() instead of syncPermissions().
+        // syncPermissions() REMOVES existing permissions that aren't in the list.
+        // givePermissionTo() only ADDS — it never removes what's already assigned.
+        // This means re-deploying will never strip permissions from customized roles.
 
-        // Staff — can view most things, limited management
-        $staff->syncPermissions([
+        $staffPerms = [
             'view products', 'view orders', 'manage orders',
             'view inventory', 'view production', 'view customers',
-        ]);
+        ];
+        $missingStaff = array_diff($staffPerms, $staff->permissions->pluck('name')->toArray());
+        if (!empty($missingStaff)) {
+            $staff->givePermissionTo($missingStaff);
+        }
 
-        // Manager — broader management without settings/RBAC
-        $manager->syncPermissions([
+        $managerPerms = [
             'view products', 'create products', 'edit products',
             'view orders', 'manage orders', 'cancel orders', 'refund orders',
             'view inventory', 'manage inventory',
@@ -72,16 +79,27 @@ class RolesAndPermissionsSeeder extends Seeder
             'view customers', 'manage customers',
             'view reviews', 'moderate reviews',
             'view analytics', 'view reports', 'export reports',
-        ]);
+        ];
+        $missingManager = array_diff($managerPerms, $manager->permissions->pluck('name')->toArray());
+        if (!empty($missingManager)) {
+            $manager->givePermissionTo($missingManager);
+        }
 
-        // Admin — full access except RBAC management
-        $admin->syncPermissions(
-            Permission::all()->pluck('name')
-                ->reject(fn ($p) => in_array($p, ['manage roles', 'manage permissions']))
-                ->toArray()
-        );
+        $adminPerms = Permission::all()
+            ->pluck('name')
+            ->reject(fn ($p) => in_array($p, ['manage roles', 'manage permissions']))
+            ->toArray();
+        $missingAdmin = array_diff($adminPerms, $admin->permissions->pluck('name')->toArray());
+        if (!empty($missingAdmin)) {
+            $admin->givePermissionTo($missingAdmin);
+        }
 
-        // Super admin — all permissions (Spatie also checks gate for this role)
-        $super->syncPermissions(Permission::all());
+        $superPerms = Permission::all()->pluck('name')->toArray();
+        $missingSuper = array_diff($superPerms, $super->permissions->pluck('name')->toArray());
+        if (!empty($missingSuper)) {
+            $super->givePermissionTo($missingSuper);
+        }
+
+        // customer role intentionally has no permissions (storefront access only)
     }
 }

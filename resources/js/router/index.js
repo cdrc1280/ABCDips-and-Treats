@@ -110,6 +110,16 @@ router.beforeEach(async (to) => {
   document.title = to.meta.title || 'ABCDips & Treats'
   const authStore = useAuthStore()
 
+  // Always sync from localStorage on every navigation.
+  // This detects: logout in another tab, browser back-button bfcache restores,
+  // or page reloads where the JS store state is fresh but token was cleared.
+  const tokenPresent = authStore.syncFromStorage()
+
+  // If token is gone and store thinks we're initialized, force a full re-check
+  if (!tokenPresent) {
+    authStore.initialized = false
+  }
+
   // Restore authenticated session from token/API before checking route guards
   if (!authStore.initialized) {
     try {
@@ -136,5 +146,22 @@ router.beforeEach(async (to) => {
     return { name: 'home' }
   }
 })
+
+// Handle browser back-forward cache (bfcache) restores.
+// When user goes back after logout, the browser may restore the JS state from cache.
+// This listener detects that and forces a re-check of the actual auth state.
+if (typeof window !== 'undefined') {
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+      // Page was restored from bfcache — force sync auth state
+      const authStore = useAuthStore()
+      const tokenPresent = authStore.syncFromStorage()
+      if (!tokenPresent && authStore.isAuthenticated) {
+        // State was stale — force hard reload so the UI reflects the logged-out state
+        window.location.reload()
+      }
+    }
+  })
+}
 
 export default router

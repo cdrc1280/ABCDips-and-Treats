@@ -8,6 +8,10 @@ storage/logs/*
 storage/framework/cache/*
 storage/framework/views/*
 storage/framework/sessions/*
+storage/app/*
+# Logs are a separate volume — never bake them into the image
+storage/logs/*
+
 
 .env
 .env.*

@@ -18,10 +18,20 @@ export const useAuthStore = defineStore('auth', () => {
   // ─── Actions ─────────────────────────────────────────────────
   async function fetchUser(force = false) {
     if (initialized.value && !force) return
+
     const authToken = localStorage.getItem('auth_token')
-    if (authToken) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`
+
+    // No token — we know the user is not logged in, skip the API call entirely.
+    // This prevents 401 errors from spamming the console on every navigation.
+    if (!authToken) {
+      user.value = null
+      initialized.value = true
+      loading.value = false
+      return
     }
+
+    axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`
+
     try {
       loading.value = true
       const { data } = await axios.get('/api/me')
@@ -104,7 +114,9 @@ export const useAuthStore = defineStore('auth', () => {
       // Ignore network errors during logout
     } finally {
       user.value = null
+      initialized.value = false  // Force re-check on next navigation / bfcache restore
       localStorage.removeItem('auth_token')
+      sessionStorage.setItem('logged_out', '1') // Signal for bfcache detection
       delete axios.defaults.headers.common['Authorization']
       localStorage.removeItem('cart_token')
       delete axios.defaults.headers.common['X-Cart-Token']
@@ -113,6 +125,34 @@ export const useAuthStore = defineStore('auth', () => {
       cartStore.clearCart()
       loading.value = false
     }
+  }
+
+  // Call this on every route navigation to detect token mismatch
+  // (e.g. user logged out in another tab, or bfcache restored stale state)
+  function syncFromStorage() {
+    const storedToken = localStorage.getItem('auth_token')
+    const loggedOut = sessionStorage.getItem('logged_out')
+
+    // If sessionStorage says logged out, trust it and clear state
+    if (loggedOut === '1') {
+      sessionStorage.removeItem('logged_out')
+      if (user.value !== null || initialized.value) {
+        user.value = null
+        initialized.value = false
+        delete axios.defaults.headers.common['Authorization']
+      }
+      return false // not authenticated
+    }
+
+    // If Pinia says authenticated but localStorage token is gone → clear
+    if (user.value && !storedToken) {
+      user.value = null
+      initialized.value = false
+      delete axios.defaults.headers.common['Authorization']
+      return false
+    }
+
+    return !!storedToken
   }
 
   async function mergeCart() {
@@ -138,6 +178,6 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     user, loading, initialized, error,
     isAuthenticated, isAdmin, userName, userEmail,
-    fetchUser, login, register, logout, clearUser,
+    fetchUser, login, register, logout, clearUser, syncFromStorage,
   }
 })

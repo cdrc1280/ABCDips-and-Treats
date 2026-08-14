@@ -19,9 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Prevent 500 RouteNotFoundException on route('login') for unauthenticated API/invoice requests
         $middleware->redirectGuestsTo(fn (Request $request) => null);
 
-        // Trust Railway Reverse Proxy
+        // Trust Reverse Proxy (Railway, Render, etc.)
+        // Set TRUST_PROXIES=* in production only if behind a managed PaaS load balancer.
+        // For self-hosted, set TRUST_PROXIES to the actual proxy IP/CIDR range.
         $middleware->trustProxies(
-            at: '*',
+            at: env('TRUST_PROXIES', '127.0.0.1,::1'),
             headers: Request::HEADER_X_FORWARDED_FOR
             | Request::HEADER_X_FORWARDED_HOST
             | Request::HEADER_X_FORWARDED_PORT

@@ -28,11 +28,21 @@ class AnalyticsAndAiController extends Controller
 
     public function aiQuery(Request $request): JsonResponse
     {
+        $request->validate([
+            'prompt'   => ['nullable', 'string', 'max:2000'],
+            'query'    => ['nullable', 'string', 'max:2000'],
+            'message'  => ['nullable', 'string', 'max:2000'],
+            'category' => ['nullable', 'string', 'max:50', 'in:general,inventory,orders,sales,customers,products'],
+        ]);
+
         $prompt = $request->input('prompt') ?: $request->input('query') ?: $request->input('message');
 
         if (!$prompt || strlen(trim($prompt)) < 2) {
             return response()->json(['message' => 'Please enter a valid question or message.'], 422);
         }
+
+        // Strip HTML/script tags to prevent prompt injection via markup
+        $prompt = strip_tags(trim($prompt));
 
         $category = $request->input('category', 'general');
         // Defense-in-depth: ensure the requester is an admin

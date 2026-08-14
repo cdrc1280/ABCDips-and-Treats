@@ -17,6 +17,11 @@ class PublicAiController extends Controller
 
     public function query(Request $request)
     {
+        $request->validate([
+            'prompt' => ['nullable', 'string', 'max:2000'],
+            'query'  => ['nullable', 'string', 'max:2000'],
+        ]);
+
         $prompt = $request->input('prompt') ?? $request->input('query');
 
         if (! $prompt || ! is_string($prompt) || strlen(trim($prompt)) < 2) {
@@ -26,7 +31,10 @@ class PublicAiController extends Controller
             ], 422);
         }
 
-        $response = $this->aiAdvisorService->ask(trim($prompt), 'customer');
+        // Strip HTML/script tags to prevent prompt injection via markup
+        $prompt = strip_tags(trim($prompt));
+
+        $response = $this->aiAdvisorService->ask($prompt, 'customer');
 
         return response()->json($response);
     }

@@ -29,5 +29,9 @@ Route::post('/email/verification-notification', function (\Illuminate\Http\Reque
 
 // SPA catch-all — serves the Vue app for all non-API, non-admin routes
 Route::get('/{any?}', function () {
-    return view('app');
+    return response(view('app'))
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
 })->where('any', '^(?!api|admin|sanctum|download-test-cases-pdf|order-invoice|admin-report-download|email).*$');
+

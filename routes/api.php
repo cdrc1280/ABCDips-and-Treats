@@ -60,9 +60,9 @@ Route::get('orders/track/{token}', [OrderController::class, 'track']);
 // ─── Delivery & Payment (Public) ─────────────────────────────────────
 Route::post('delivery/quote', [DeliveryController::class, 'quote'])->middleware('throttle:20,1');
 Route::post('payments/create-source', [PaymentController::class, 'createSource'])->middleware('throttle:20,1');
-Route::get('payments/success', [PaymentController::class, 'success']);
-Route::get('payments/failed', [PaymentController::class, 'failed']);
-Route::get('settings/store', [PaymentController::class, 'storeSettings']);
+Route::get('payments/success', [PaymentController::class, 'success'])->middleware('throttle:30,1');
+Route::get('payments/failed', [PaymentController::class, 'failed'])->middleware('throttle:30,1');
+Route::get('settings/store', [PaymentController::class, 'storeSettings'])->middleware('throttle:60,1');
 
 // ─── Reviews & Custom Orders (Public) ─────────────────────────
 Route::get('store/reviews', [ReviewController::class, 'storeReviews']);
@@ -75,7 +75,6 @@ Route::post('custom-orders', [CustomOrderController::class, 'store'])->middlewar
 // ─── Public AI Chat (Customer-Facing) ────────────────────────
 Route::post('ai/query', [PublicAiController::class, 'query'])->middleware('throttle:20,1');
 Route::post('chat/escalate', [ChatEscalationController::class, 'store'])->middleware('throttle:15,1');
-Route::get('chat/escalate/messages', [ChatEscalationController::class, 'fetchClientConversation']);
 
 // ─── POS, Analytics & AI Admin API ───────────────────────────
 Route::middleware(['auth:sanctum', 'role:super_admin|admin'])->group(function () {
@@ -112,6 +111,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Cart merge (post-login)
     Route::post('cart/merge', [CartController::class, 'merge']);
+
+    // Chat escalation message fetch — auth required to prevent data enumeration
+    Route::get('chat/escalate/messages', [ChatEscalationController::class, 'fetchClientConversation'])->middleware('throttle:30,1');
 
     // Email OTP Verification (6-digit code)
     Route::post('otp/email/send', [OtpController::class, 'sendEmailOtp'])->middleware('throttle:3,10');

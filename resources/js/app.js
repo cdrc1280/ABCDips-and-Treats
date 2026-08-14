@@ -38,7 +38,7 @@ axios.interceptors.request.use((config) => {
   return config
 }, (error) => Promise.reject(error))
 
-// Response interceptor — capture cart token from server headers
+// Response interceptor — capture cart token + handle expired sessions silently
 axios.interceptors.response.use(
   (response) => {
     const newCartToken = response.headers['x-cart-token']
@@ -49,6 +49,18 @@ axios.interceptors.response.use(
     return response
   },
   (error) => {
+    // Silently handle token expiry — clear stale credentials and let the
+    // router guard redirect to login. This prevents 401s from appearing in
+    // the browser console for normal unauthenticated visitors.
+    if (error.response?.status === 401) {
+      const isApiMe = error.config?.url?.includes('/api/me')
+      if (!isApiMe) {
+        // For non-/api/me 401s, clear the stale token immediately.
+        // (fetchUser handles /api/me 401 itself with its own catch block)
+        localStorage.removeItem('auth_token')
+        delete axios.defaults.headers.common['Authorization']
+      }
+    }
     return Promise.reject(error)
   }
 )
@@ -56,6 +68,13 @@ axios.interceptors.response.use(
 // ─── Bootstrap app ───────────────────────────────────────────
 const pinia = createPinia()
 const app = createApp(App)
+
+// ─── Production hardening ────────────────────────────────────
+if (import.meta.env.PROD) {
+  app.config.devtools = false       // Disable Vue Devtools panel
+  app.config.performance = false    // No performance tracing
+  app.config.warnHandler = () => {} // Silence Vue runtime warnings
+}
 
 app.use(pinia)
 app.use(router)
