@@ -229,11 +229,15 @@ class OrderResource extends Resource
                                     ),
 
                                 TextEntry::make('options.flavor')
-                                    ->label('Flavor')
+                                    ->label('Flavor / Assorted')
                                     ->placeholder('—')
-                                    ->formatStateUsing(
-                                        fn ($state): string => $state ?: '—'
-                                    ),
+                                    ->formatStateUsing(function ($state, $record) {
+                                        $options = is_array($record?->options) ? $record->options : json_decode($record?->options ?? '{}', true);
+                                        if (!empty($options['flavors']) && is_array($options['flavors'])) {
+                                            return 'Assorted: ' . implode(', ', $options['flavors']);
+                                        }
+                                        return $state ?: '—';
+                                    }),
 
                                 TextEntry::make('options.variation')
                                     ->label('Variation / Size')

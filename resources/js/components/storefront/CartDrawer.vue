@@ -67,7 +67,12 @@
                             </h4>
 
                             <!-- Flavor Option Badge -->
-                            <div v-if="item.options?.flavor" class="text-xs font-semibold text-amber-700 dark:text-amber-300 mt-0.5">
+                            <div v-if="item.options?.flavors && Array.isArray(item.options.flavors)" class="flex flex-wrap gap-1 mt-1">
+                                <span class="text-[11px] font-bold text-amber-900 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-200">
+                                    Assorted: {{ item.options.flavors.join(', ') }}
+                                </span>
+                            </div>
+                            <div v-else-if="item.options?.flavor" class="text-xs font-semibold text-amber-700 dark:text-amber-300 mt-0.5">
                                 Flavor: {{ item.options.flavor }}
                             </div>
 

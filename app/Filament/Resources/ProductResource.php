@@ -105,20 +105,37 @@ class ProductResource extends Resource
                             ->visibility('public'),
                     ])->columns(2),
 
-                Section::make('Flavor Options (Separate Flavor Encoding)')
+                Section::make('Flavor Options (Separate Flavor Encoding & Assorted Selection)')
                     ->columnSpanFull()
-                    ->description('Set up separate flavor choices (e.g. Belgian Dark Chocolate, Strawberry, Ube Halaya) with optional price adjustments.')
+                    ->description('Set up separate flavor choices (e.g. Belgian Dark Chocolate, Strawberry, Ube Halaya). If Assorted is enabled, customers can select multiple flavors where each flavor has its own distinct price adjustment.')
                     ->components([
+                        Grid::make(2)
+                            ->schema([
+                                Toggle::make('is_assorted')
+                                    ->label('Assorted Product (Multi-Flavor Selection)')
+                                    ->helperText('Turn ON to allow customers to pick multiple flavors with individual pricing in the storefront modal.')
+                                    ->default(false)
+                                    ->live(),
+
+                                TextInput::make('max_flavors')
+                                    ->label('Max Flavors Allowed (Optional Limit)')
+                                    ->helperText('e.g. 6 for a Box of 6. Leave empty for unrestricted flavor selection.')
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->placeholder('e.g. 6')
+                                    ->visible(fn(callable $get) => (bool) $get('is_assorted') || $get('variation_type') === 'assorted'),
+                            ]),
+
                         Repeater::make('flavors')
-                            ->label('Selectable Flavor Variations')
+                            ->label('Selectable Flavor Options & Pricing')
                             ->schema([
                                 TextInput::make('name')
-                                    ->label('Flavor Name (e.g. Strawberry, Dark Chocolate, Ube)')
+                                    ->label('Flavor Name (e.g. Strawberry, Dark Chocolate, Ube, Matcha)')
                                     ->required()
                                     ->maxLength(100),
                                 TextInput::make('price_modifier')
                                     ->label('Flavor Price Adjustment (₱)')
-                                    ->helperText('Use positive or negative value. 0 = same price.')
+                                    ->helperText('Individual price modifier for this flavor. e.g. 20.00 for +₱20, or 0.00 for standard price.')
                                     ->numeric()
                                     ->default(0)
                                     ->step('0.01')
@@ -136,9 +153,10 @@ class ProductResource extends Resource
                     ->description('Set up size, weight/grams, pieces, or custom options (e.g. 250g, 500g, 6 pcs) with optional price modifiers.')
                     ->components([
                         Select::make('variation_type')
-                            ->label('Variation Type (e.g. Grams, Weight, Size, Pieces)')
+                            ->label('Variation Type (e.g. Grams, Weight, Size, Pieces, Assorted)')
                             ->options([
                                 'none'      => 'No Variations',
+                                'assorted'  => 'Assorted (Multi-Flavor Box / Pack)',
                                 'weight'    => 'Weight / Grams (e.g. 250g, 500g, 1kg)',
                                 'pieces'    => 'Pieces (e.g. 6 pcs, 12 pcs, 24 pcs)',
                                 'size'      => 'Size (e.g. Small, Medium, Large)',
@@ -148,7 +166,7 @@ class ProductResource extends Resource
                             ->default('none')
                             ->live()
                             ->afterStateHydrated(function (Select $component, $state, callable $set) {
-                                $presetKeys = ['none', 'weight', 'pieces', 'size', 'packaging'];
+                                $presetKeys = ['none', 'assorted', 'weight', 'pieces', 'size', 'packaging'];
                                 if (!empty($state) && !in_array($state, $presetKeys)) {
                                     $set('variation_type', 'custom');
                                     $set('custom_variation_name', $state);

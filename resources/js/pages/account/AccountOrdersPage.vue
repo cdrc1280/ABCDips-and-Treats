@@ -152,6 +152,15 @@
               />
               <div>
                 <span class="font-extrabold text-ink text-sm block">{{ item.product_name }}</span>
+                <div v-if="item.options?.flavors && Array.isArray(item.options.flavors)" class="text-xs font-semibold text-amber-700">
+                  Assorted: {{ item.options.flavors.join(', ') }}
+                </div>
+                <div v-else-if="item.options?.flavor" class="text-xs font-semibold text-amber-700">
+                  Flavor: {{ item.options.flavor }}
+                </div>
+                <div v-if="item.options?.variation" class="text-xs font-semibold text-brand-caramel">
+                  Option: {{ item.options.variation }}
+                </div>
                 <span class="text-warm-gray text-xs">Qty: {{ item.qty }} × ₱{{ (item.price || item.unit_price || 0).toFixed(2) }}</span>
                 <div v-if="item.product_slug" class="mt-1">
                   <RouterLink

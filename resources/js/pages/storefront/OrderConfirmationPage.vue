@@ -78,7 +78,10 @@
           <div v-for="item in order.items" :key="item.id" class="py-3 flex justify-between items-center text-sm">
             <div>
               <div class="font-bold text-ink">{{ item.product_name }}</div>
-              <div v-if="item.options?.flavor" class="text-xs font-semibold text-amber-700 dark:text-amber-300">
+              <div v-if="item.options?.flavors && Array.isArray(item.options.flavors)" class="text-xs font-semibold text-amber-700 dark:text-amber-300">
+                Assorted: {{ item.options.flavors.join(', ') }}
+              </div>
+              <div v-else-if="item.options?.flavor" class="text-xs font-semibold text-amber-700 dark:text-amber-300">
                 Flavor: {{ item.options.flavor }}
               </div>
               <div v-if="item.options?.variation" class="text-xs font-semibold text-brand-caramel dark:text-[#E2C08A]">

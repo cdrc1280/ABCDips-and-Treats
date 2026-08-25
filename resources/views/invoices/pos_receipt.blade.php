@@ -106,6 +106,12 @@
                 <tr>
                     <td class="text-left">
                         <div class="font-bold">{{ $item['product_name'] }}</div>
+                        @if (!empty($item['flavor']))
+                            <div style="font-size: 8px; color: #555;">{{ $item['flavor'] }}</div>
+                        @endif
+                        @if (!empty($item['variation']))
+                            <div style="font-size: 8px; color: #555;">{{ $item['variation'] }}</div>
+                        @endif
                         <div style="font-size: 9px; opacity: 0.8;">@ &#8369;{{ $item['unit_price'] }}</div>
                     </td>
                     <td class="text-center font-bold">{{ $item['quantity'] }}</td>

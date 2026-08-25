@@ -413,7 +413,10 @@
                     :
                     item.name }}</div>
 
-                  <div v-if="item.options?.flavor" class="text-[11px] font-semibold text-amber-700 dark:text-amber-300 truncate">
+                  <div v-if="item.options?.flavors && Array.isArray(item.options.flavors)" class="text-[11px] font-semibold text-amber-700 dark:text-amber-300 truncate">
+                    Assorted: {{ item.options.flavors.join(', ') }}
+                  </div>
+                  <div v-else-if="item.options?.flavor" class="text-[11px] font-semibold text-amber-700 dark:text-amber-300 truncate">
                     Flavor: {{ item.options.flavor }}
                   </div>
 

@@ -376,47 +376,44 @@ alg, idx
                                     <!-- ========================= -->
                                     <!-- FLAVORS -->
                                     <!-- ========================= -->
-                                    <div v-if="normalizedFlavors.length" class="space-y-2">
-                                        <span class="block text-xs font-bold uppercase tracking-wider text-brand-choco">
-                                            Select Flavor
-
-                                            <span class="text-[10px] font-normal text-warm-gray lowercase">
-                                                (optional)
+                                    <div v-if="normalizedFlavors.length" class="space-y-2.5">
+                                        <div class="flex items-center justify-between">
+                                            <span class="block text-xs font-bold uppercase tracking-wider text-brand-choco flex items-center gap-1.5">
+                                                <span>{{ isAssorted ? '🍫 Select Assorted Flavors' : 'Select Flavor' }}</span>
+                                                <span v-if="isAssorted" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
+                                                    Multi-Select
+                                                </span>
+                                                <span v-else class="text-[10px] font-normal text-warm-gray lowercase">
+                                                    (optional)
+                                                </span>
                                             </span>
-                                        </span>
+
+                                            <span v-if="isAssorted" class="text-xs font-bold" :class="selectedFlavorIndexes.length > 0 ? 'text-amber-700 font-extrabold' : 'text-warm-gray'">
+                                                <template v-if="maxAllowedFlavors">
+                                                    {{ selectedFlavorIndexes.length }} of {{ maxAllowedFlavors }} selected
+                                                </template>
+                                                <template v-else>
+                                                    {{ selectedFlavorIndexes.length }} selected
+                                                </template>
+                                            </span>
+                                        </div>
 
                                         <div class="flex flex-wrap gap-2">
-                                            <button v-for="(
-flv, idx
-                                                ) in normalizedFlavors" :key="getOptionKey(flv, idx)
-                                                    " type="button"
-                                                class="px-3.5 py-1.5 rounded-xl border-2 text-xs font-bold transition-all cursor-pointer"
-                                                :class="selectedFlavorIdx === idx
-                                                        ? 'border-amber-600 bg-amber-600 text-white'
-                                                        : 'border-amber-200 text-amber-900 bg-amber-50/50 hover:border-amber-500'
-                                                    " @click="
-                                                    selectedFlavorIdx =
-                                                    selectedFlavorIdx ===
-                                                        idx
-                                                        ? null
-                                                        : idx
-                                                    ">
-                                                {{ getFlavorName(flv) }}
+                                            <button v-for="(flv, idx) in normalizedFlavors" :key="getOptionKey(flv, idx)"
+                                                type="button"
+                                                class="px-3.5 py-2 rounded-xl border-2 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                                                :class="isFlavorSelected(idx)
+                                                        ? 'border-amber-600 bg-amber-600 text-white shadow-sm ring-2 ring-amber-400/40'
+                                                        : 'border-amber-200 text-amber-900 bg-amber-50/60 hover:border-amber-400 hover:bg-amber-100/50'
+                                                    "
+                                                @click="toggleFlavor(idx)">
+                                                <span v-if="isFlavorSelected(idx)" class="text-[11px] font-black">✓</span>
+                                                <span>{{ getFlavorName(flv) }}</span>
 
-                                                <span v-if="
-                                                    getPriceModifier(flv) !==
-                                                    0
-                                                " class="ml-1 font-normal opacity-80">
-                                                    {{
-                                                        getPriceModifier(flv) >
-                                                            0
-                                                            ? "+"
-                                                            : ""
-                                                    }}₱{{
-                                                        getPriceModifier(
-                                                            flv
-                                                        ).toFixed(2)
-                                                    }}
+                                                <span v-if="getPriceModifier(flv) !== 0"
+                                                    class="ml-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold"
+                                                    :class="isFlavorSelected(idx) ? 'bg-amber-700/80 text-amber-100' : 'bg-amber-200/80 text-amber-900'">
+                                                    {{ getPriceModifier(flv) > 0 ? "+" : "" }}₱{{ getPriceModifier(flv).toFixed(2) }}
                                                 </span>
                                             </button>
                                         </div>
@@ -760,6 +757,7 @@ const touchCurrentX = ref(0);
 
 const selectedVariationIdx = ref(null);
 const selectedFlavorIdx = ref(null);
+const selectedFlavorIndexes = ref([]);
 
 const failedImageUrls = ref(new Set());
 
@@ -1616,6 +1614,7 @@ function restoreEditingState() {
         quantity.value = 1;
         selectedVariationIdx.value = normalizedVariations.value.length > 0 ? 0 : null;
         selectedFlavorIdx.value = null;
+        selectedFlavorIndexes.value = [];
 
         return;
     }
@@ -1636,15 +1635,46 @@ function restoreEditingState() {
     const existingFlavor =
         getEditingFlavor();
 
+    const existingFlavors =
+        getValueFromSources(["flavors", "selected_flavors", "selectedFlavors"]);
+
     selectedVariationIdx.value =
         findVariationIndex(
             existingVariation
         );
 
-    selectedFlavorIdx.value =
-        findFlavorIndex(
-            existingFlavor
-        );
+    if (Array.isArray(existingFlavors) && existingFlavors.length > 0) {
+        const idxs = [];
+        for (const flvName of existingFlavors) {
+            const idx = findFlavorIndex(flvName);
+            if (idx !== null && !idxs.includes(idx)) {
+                idxs.push(idx);
+            }
+        }
+        selectedFlavorIndexes.value = idxs;
+        selectedFlavorIdx.value = idxs[0] ?? null;
+    } else if (typeof existingFlavor === "string" && existingFlavor.includes(",")) {
+        const parts = existingFlavor.split(",").map(s => s.replace(/\s*\([+-]?₱[\d.]+\)/g, "").trim());
+        const idxs = [];
+        for (const part of parts) {
+            const idx = findFlavorIndex(part);
+            if (idx !== null && !idxs.includes(idx)) {
+                idxs.push(idx);
+            }
+        }
+        selectedFlavorIndexes.value = idxs;
+        selectedFlavorIdx.value = idxs[0] ?? null;
+    } else {
+        selectedFlavorIdx.value =
+            findFlavorIndex(
+                existingFlavor
+            );
+        if (selectedFlavorIdx.value !== null) {
+            selectedFlavorIndexes.value = [selectedFlavorIdx.value];
+        } else {
+            selectedFlavorIndexes.value = [];
+        }
+    }
 }
 
 /*
@@ -1676,6 +1706,7 @@ watch(
                 quantity.value = 1;
                 selectedVariationIdx.value = null;
                 selectedFlavorIdx.value = null;
+                selectedFlavorIndexes.value = [];
                 return;
             }
 
@@ -1688,6 +1719,7 @@ watch(
                 quantity.value = 1;
                 selectedVariationIdx.value = null;
                 selectedFlavorIdx.value = null;
+                selectedFlavorIndexes.value = [];
             }
         } finally {
             isRestoring = false;
@@ -1723,6 +1755,7 @@ const variationLabel = computed(() => {
         size: "Select Size",
         packaging: "Select Packaging",
         bundle: "Select Bundle",
+        assorted: "Select Box / Package Type",
         flavor: "Select Option / Quantity",
     };
 
@@ -1759,18 +1792,93 @@ const selectedVariation = computed(() => {
     );
 });
 
-const selectedFlavor = computed(() => {
-    if (
-        selectedFlavorIdx.value === null
-    ) {
-        return null;
-    }
+/*
+|--------------------------------------------------------------------------
+| ASSORTED & MULTI-FLAVOR DETECTION
+|--------------------------------------------------------------------------
+*/
 
-    return (
-        normalizedFlavors.value[
-        selectedFlavorIdx.value
-        ] ?? null
+const isAssorted = computed(() => {
+    const p = modalStore.product;
+    if (!p) return false;
+    if (p.is_assorted) return true;
+    if (p.variation_type === 'assorted') return true;
+    if (p.name && p.name.toLowerCase().includes('assorted')) return true;
+    const currentVar = selectedVariation.value;
+    if (currentVar) {
+        const varLabel = getVariationLabel(currentVar).toLowerCase();
+        if (varLabel.includes('assorted') || varLabel.includes('mix') || varLabel.includes('bundle')) {
+            return true;
+        }
+    }
+    return false;
+});
+
+const maxAllowedFlavors = computed(() => {
+    const p = modalStore.product;
+    if (p?.max_flavors && Number(p.max_flavors) > 0) {
+        return Number(p.max_flavors);
+    }
+    const currentVar = selectedVariation.value;
+    if (currentVar) {
+        const varLabel = getVariationLabel(currentVar);
+        const match = varLabel.match(/(\d+)\s*(?:pcs|pc|pieces|pack|box)/i);
+        if (match && parseInt(match[1], 10) > 0) {
+            return parseInt(match[1], 10);
+        }
+    }
+    return null;
+});
+
+function isFlavorSelected(idx) {
+    if (isAssorted.value) {
+        return selectedFlavorIndexes.value.includes(idx);
+    }
+    return selectedFlavorIdx.value === idx;
+}
+
+function toggleFlavor(idx) {
+    if (isAssorted.value) {
+        const pos = selectedFlavorIndexes.value.indexOf(idx);
+        if (pos >= 0) {
+            selectedFlavorIndexes.value.splice(pos, 1);
+        } else {
+            if (maxAllowedFlavors.value && selectedFlavorIndexes.value.length >= maxAllowedFlavors.value) {
+                toast.warning(`You can select a maximum of ${maxAllowedFlavors.value} flavor(s).`, "Flavor Limit Reached");
+                return;
+            }
+            selectedFlavorIndexes.value.push(idx);
+        }
+    } else {
+        selectedFlavorIdx.value = selectedFlavorIdx.value === idx ? null : idx;
+    }
+}
+
+const selectedFlavors = computed(() => {
+    if (isAssorted.value) {
+        return selectedFlavorIndexes.value
+            .map((idx) => normalizedFlavors.value[idx])
+            .filter(Boolean);
+    }
+    if (selectedFlavorIdx.value !== null) {
+        const flv = normalizedFlavors.value[selectedFlavorIdx.value];
+        return flv ? [flv] : [];
+    }
+    return [];
+});
+
+const totalFlavorPriceModifier = computed(() => {
+    return selectedFlavors.value.reduce(
+        (sum, flv) => sum + getPriceModifier(flv),
+        0
     );
+});
+
+const selectedFlavor = computed(() => {
+    if (selectedFlavors.value.length > 0) {
+        return selectedFlavors.value[0];
+    }
+    return null;
 });
 
 /*
@@ -1797,9 +1905,7 @@ const effectivePrice = computed(() => {
         getPriceModifier(
             selectedVariation.value
         ) +
-        getPriceModifier(
-            selectedFlavor.value
-        )
+        totalFlavorPriceModifier.value
     );
 });
 
@@ -1986,9 +2092,23 @@ function buildCartOptions() {
     const options = {};
 
     /*
-     * FLAVOR
+     * FLAVOR(S)
      */
-    if (selectedFlavor.value) {
+    if (isAssorted.value) {
+        if (selectedFlavors.value.length > 0) {
+            options.is_assorted = true;
+            options.flavors = selectedFlavors.value.map((f) => getFlavorName(f));
+            options.flavor = selectedFlavors.value
+                .map((f) => {
+                    const mod = getPriceModifier(f);
+                    return mod !== 0
+                        ? `${getFlavorName(f)} (${mod > 0 ? "+" : ""}₱${mod.toFixed(2)})`
+                        : getFlavorName(f);
+                })
+                .join(", ");
+            options.flavor_price_modifier = totalFlavorPriceModifier.value;
+        }
+    } else if (selectedFlavor.value) {
         const flavor =
             selectedFlavor.value;
 
@@ -2085,6 +2205,14 @@ function validateSelection() {
             "Variation Required"
         );
 
+        return false;
+    }
+
+    if (isAssorted.value && normalizedFlavors.value.length > 0 && selectedFlavorIndexes.value.length === 0) {
+        toast.warning(
+            "Please select at least one flavor for your assorted selection.",
+            "Flavor Selection Required"
+        );
         return false;
     }
 

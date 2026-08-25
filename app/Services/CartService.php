@@ -56,12 +56,18 @@ class CartService
     {
         $product = Product::findOrFail($productId);
 
-        // Respect custom unit_price or variation price_modifier set in options
+        $varMod = (isset($options['price_modifier']) && is_numeric($options['price_modifier']))
+            ? (float) $options['price_modifier']
+            : ((isset($options['variation_price_modifier']) && is_numeric($options['variation_price_modifier'])) ? (float) $options['variation_price_modifier'] : 0);
+
+        $flvMod = (isset($options['flavor_price_modifier']) && is_numeric($options['flavor_price_modifier']))
+            ? (float) $options['flavor_price_modifier']
+            : 0;
+
+        // Respect custom unit_price or sum of variation + flavor price modifiers
         $unitPrice = (isset($options['unit_price']) && (float) $options['unit_price'] > 0)
             ? (float) $options['unit_price']
-            : ((isset($options['price_modifier']) && is_numeric($options['price_modifier']))
-                ? $product->effective_price + (float) $options['price_modifier']
-                : $product->effective_price);
+            : round($product->effective_price + $varMod + $flvMod, 2);
 
         $query = CartItem::where('cart_id', $cart->id)
             ->where('product_id', $productId)
@@ -71,12 +77,15 @@ class CartService
             $options = array_merge($options ?? [], ['flavor' => $product->flavor]);
         }
 
-        if (isset($options['variation']) || isset($options['flavor'])) {
+        if (isset($options['variation']) || isset($options['flavor']) || isset($options['flavors'])) {
             if (!empty($options['variation'])) {
                 $query->where('options->variation', $options['variation']);
             }
             if (!empty($options['flavor'])) {
                 $query->where('options->flavor', $options['flavor']);
+            }
+            if (!empty($options['flavors']) && is_array($options['flavors'])) {
+                $query->where('options->flavors', json_encode($options['flavors']));
             }
         } elseif (!empty($options['is_custom'])) {
             $query->where('options->is_custom', true);
@@ -123,11 +132,18 @@ class CartService
             if ($options !== null) {
                 $product = $item->product ?? Product::find($item->product_id);
                 if ($product) {
+                    $varMod = (isset($options['price_modifier']) && is_numeric($options['price_modifier']))
+                        ? (float) $options['price_modifier']
+                        : ((isset($options['variation_price_modifier']) && is_numeric($options['variation_price_modifier'])) ? (float) $options['variation_price_modifier'] : 0);
+
+                    $flvMod = (isset($options['flavor_price_modifier']) && is_numeric($options['flavor_price_modifier']))
+                        ? (float) $options['flavor_price_modifier']
+                        : 0;
+
                     $unitPrice = (isset($options['unit_price']) && (float) $options['unit_price'] > 0)
                         ? (float) $options['unit_price']
-                        : ((isset($options['price_modifier']) && is_numeric($options['price_modifier']))
-                            ? $product->effective_price + (float) $options['price_modifier']
-                            : $product->effective_price);
+                        : round($product->effective_price + $varMod + $flvMod, 2);
+
                     $updateData['unit_price'] = $unitPrice;
                 }
                 $updateData['options'] = $options;

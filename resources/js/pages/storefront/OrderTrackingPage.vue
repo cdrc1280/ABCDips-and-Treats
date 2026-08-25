@@ -157,7 +157,16 @@
           <div class="divide-y divide-brand-caramel/15 max-h-48 overflow-y-auto pr-1">
             <div v-for="item in order.items" :key="item.id" class="py-2 flex justify-between items-center text-xs">
               <div>
-                <span class="font-bold text-ink">{{ item.product_name }}</span>
+                <span class="font-bold text-ink block">{{ item.product_name }}</span>
+                <span v-if="item.options?.flavors && Array.isArray(item.options.flavors)" class="text-[11px] font-semibold text-amber-700 block">
+                  Assorted: {{ item.options.flavors.join(', ') }}
+                </span>
+                <span v-else-if="item.options?.flavor" class="text-[11px] font-semibold text-amber-700 block">
+                  Flavor: {{ item.options.flavor }}
+                </span>
+                <span v-if="item.options?.variation" class="text-[11px] font-semibold text-brand-caramel block">
+                  Option: {{ item.options.variation }}
+                </span>
                 <span class="text-warm-gray block">Qty: {{ item.qty }}</span>
               </div>
               <span class="font-bold text-brand-choco">₱{{ (item.subtotal || 0).toFixed(2) }}</span>

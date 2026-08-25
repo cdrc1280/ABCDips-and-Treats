@@ -22,6 +22,8 @@ class ProductResource extends JsonResource
             'short_description' => $this->short_description,
             'flavor' => $this->flavor,
             'flavors' => $this->flavors ?? [],
+            'is_assorted' => (bool) ($this->is_assorted ?? false),
+            'max_flavors' => $this->max_flavors ? (int) $this->max_flavors : null,
             'description' => $this->description,
             'price' => (float) $this->price,
             'variation_type'   => $this->variation_type ?? 'none',

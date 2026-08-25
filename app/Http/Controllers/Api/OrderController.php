@@ -228,12 +228,25 @@ class OrderController extends Controller
             'fulfillment' => ucfirst($order->fulfillment_type),
             'isPooling' => $order->delivery_mode === Order::MODE_POOLING,
             'poolCode' => $order->deliveryPool?->pool_code ?? '',
-            'items' => $order->items->map(fn($item) => [
-                'product_name' => $item->product->name ?? $item->name ?? 'Item',
-                'quantity' => (int) $item->quantity,
-                'unit_price' => number_format((float) $item->unit_price, 2),
-                'subtotal' => number_format((float) $item->subtotal, 2),
-            ])->all(),
+            'items' => $order->items->map(function ($item) {
+                $options = is_array($item->options) ? $item->options : json_decode($item->options ?? '{}', true);
+                $flavor = null;
+                if (!empty($options['flavors']) && is_array($options['flavors'])) {
+                    $flavor = 'Assorted: ' . implode(', ', $options['flavors']);
+                } elseif (!empty($options['flavor'])) {
+                    $flavor = 'Flavor: ' . $options['flavor'];
+                }
+                $variation = !empty($options['variation']) ? 'Option: ' . $options['variation'] : null;
+
+                return [
+                    'product_name' => $item->product_name ?? $item->product?->name ?? $item->name ?? 'Item',
+                    'flavor' => $flavor,
+                    'variation' => $variation,
+                    'quantity' => (int) ($item->qty ?? $item->quantity ?? 1),
+                    'unit_price' => number_format((float) $item->unit_price, 2),
+                    'subtotal' => number_format((float) $item->subtotal, 2),
+                ];
+            })->all(),
             'hasDeliveryFee' => (float) $order->delivery_fee > 0,
             'downloadUrl' => url("/api/orders/{$order->id}/invoice/download{$tokenParam}"),
             'isPdf' => $isPdf,

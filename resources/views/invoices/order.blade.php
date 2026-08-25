@@ -230,7 +230,15 @@
                 @foreach ($items as $item)
                     <tr>
                         <td style="text-align: center;">{{ $loop->iteration }}</td>
-                        <td style="font-weight: 600; color: #1C1410;">{{ $item['product_name'] }}</td>
+                        <td style="font-weight: 600; color: #1C1410;">
+                            {{ $item['product_name'] }}
+                            @if (!empty($item['flavor']))
+                                <div style="font-size: 11px; color: #B45309; font-weight: 600; margin-top: 2px;">{{ $item['flavor'] }}</div>
+                            @endif
+                            @if (!empty($item['variation']))
+                                <div style="font-size: 11px; color: #78350F; font-weight: 600; margin-top: 1px;">{{ $item['variation'] }}</div>
+                            @endif
+                        </td>
                         <td style="text-align: center;">{{ $item['quantity'] }}</td>
                         <td style="text-align: right;">&#8369;{{ $item['unit_price'] }}</td>
                         <td style="text-align: right; font-weight: bold;">&#8369;{{ $item['subtotal'] }}</td>

@@ -126,7 +126,8 @@
                                                 }}</td>
                                             <td class="p-2.5 font-semibold text-ink border-r border-[#E5D5C5]">
                                                 {{ item.product_name }}
-                                                <span v-if="item.options?.flavor" class="block text-[10px] font-semibold text-amber-700">Flavor: {{ item.options.flavor }}</span>
+                                                <span v-if="item.options?.flavors && Array.isArray(item.options.flavors)" class="block text-[10px] font-semibold text-amber-700">Assorted: {{ item.options.flavors.join(', ') }}</span>
+                                                <span v-else-if="item.options?.flavor" class="block text-[10px] font-semibold text-amber-700">Flavor: {{ item.options.flavor }}</span>
                                                 <span v-if="item.options?.variation" class="block text-[10px] font-semibold text-brand-choco">Option: {{ item.options.variation }}</span>
                                             </td>
                                             <td class="p-2.5 text-center font-mono border-r border-[#E5D5C5]">{{
