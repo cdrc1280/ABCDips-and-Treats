@@ -106,11 +106,23 @@
                 </RouterLink>
 
                 <!-- Dark Mode Toggle Button -->
-                <button @click="toggleDarkMode" v-tooltip="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center p-0 text-brand-choco dark:text-surface-400 bg-brand-tan/20 hover:bg-brand-tan/35 theme-toggle-btn shadow-xs cursor-pointer select-none shrink-0"
+                <button @click="toggleDarkMode($event)" v-tooltip="isDark ? 'Switch to Warm Daylight Mode' : 'Switch to Midnight Dark Mode'"
+                    class="group relative w-10 h-10 rounded-2xl flex items-center justify-center p-0 text-[#5C3A22] dark:text-[#E2C08A] bg-[#D9A876]/20 hover:bg-[#D9A876]/35 dark:bg-[#2A1C13] dark:hover:bg-[#3B281B] border border-[#C08E5D]/30 dark:border-[#C08E5D]/40 theme-toggle-btn shadow-sm hover:shadow-md cursor-pointer select-none shrink-0 overflow-hidden transition-all duration-300 active:scale-90"
                     aria-label="Toggle Dark Mode">
-                    <Sun v-if="isDark" class="w-4 h-4 sm:w-5 sm:h-5 text-[#E2C08A] transform hover:rotate-90 transition-transform duration-500" />
-                    <Moon v-else class="w-4 h-4 sm:w-5 sm:h-5 text-[#5C3A22] transform hover:-rotate-45 transition-transform duration-500" />
+                    
+                    <!-- Ambient Glow Flare -->
+                    <span class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-[#D9A876]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+                    <Transition mode="out-in"
+                        enter-active-class="transition-all duration-350 cubic-bezier(0.34, 1.56, 0.64, 1)"
+                        enter-from-class="opacity-0 rotate-180 scale-50"
+                        enter-to-class="opacity-100 rotate-0 scale-100"
+                        leave-active-class="transition-all duration-200 ease-in"
+                        leave-from-class="opacity-100 rotate-0 scale-100"
+                        leave-to-class="opacity-0 -rotate-180 scale-50">
+                        <Sun v-if="isDark" class="w-5 h-5 text-[#E2C08A] group-hover:rotate-45 transition-transform duration-300" />
+                        <Moon v-else class="w-5 h-5 text-[#5C3A22] group-hover:-rotate-12 transition-transform duration-300" />
+                    </Transition>
                 </button>
 
                 <!-- Basket Button (Only shown when authenticated) -->
