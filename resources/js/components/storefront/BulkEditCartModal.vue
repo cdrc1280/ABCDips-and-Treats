@@ -92,6 +92,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { X } from 'lucide-vue-next'
 import { useCartStore } from '@/stores/cart'
 import { useToast } from '@/composables/useToast'
 import BaseButton from '@/components/ui/BaseButton.vue'

@@ -99,6 +99,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { CheckCircle2, Circle } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'

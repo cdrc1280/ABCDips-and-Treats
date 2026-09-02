@@ -175,6 +175,7 @@
 
 <script setup>
 import { ref, computed, onMounted, inject } from 'vue'
+import { CheckCircle2, Circle, Mail, AlertTriangle, ShieldCheck } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 import PageHeader from '@/components/ui/PageHeader.vue'

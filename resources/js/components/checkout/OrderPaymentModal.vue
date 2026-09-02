@@ -148,6 +148,7 @@
 
 <script setup>
 import { ref, inject } from 'vue'
+import { Users, X, CreditCard, Building2, CheckCircle2 } from 'lucide-vue-next'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { useToast } from '@/composables/useToast'
 

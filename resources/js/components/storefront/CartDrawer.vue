@@ -218,6 +218,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { Ticket, ShoppingBag, X, Trash2, ArrowRight, Cake } from 'lucide-vue-next'
 import { useCartStore } from '@/stores/cart'
 import { useProductModalStore } from '@/stores/productModal'
 import { useToast } from '@/composables/useToast'

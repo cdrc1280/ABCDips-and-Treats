@@ -190,6 +190,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, inject } from 'vue'
+import { Star, Sparkles, MessageSquare, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-vue-next'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'

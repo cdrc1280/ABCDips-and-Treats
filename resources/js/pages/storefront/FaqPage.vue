@@ -55,6 +55,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { HelpCircle, ChevronDown } from 'lucide-vue-next'
 
 const openIndex = ref(null)
 const activeCategory = ref('All')

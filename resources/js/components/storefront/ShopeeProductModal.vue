@@ -731,6 +731,7 @@ import { useWishlistStore } from "@/stores/wishlist";
 import { useToast } from "@/composables/useToast";
 
 import ProductReviews from "@/components/storefront/ProductReviews.vue";
+import { Star, ShoppingBag, Cake, X, Clock, AlertTriangle, Check, Heart } from 'lucide-vue-next';
 
 const modalStore = useProductModalStore();
 const cartStore = useCartStore();
