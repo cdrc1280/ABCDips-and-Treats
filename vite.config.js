@@ -41,7 +41,7 @@ export default defineConfig(({ command }) => ({
             if (id.includes('vue') || id.includes('pinia')) {
               return 'vendor-vue'
             }
-            if (id.includes('gsap')) {
+            if (id.includes('gsap') || id.includes('lenis')) {
               return 'vendor-gsap'
             }
             if (id.includes('lucide-vue-next')) {
