@@ -180,9 +180,9 @@
     <div class="invoice-card">
         @unless ($isPdf)
             <div class="actions-bar">
-                <button class="btn btn-outline" onclick="window.print()">🖨️ Print Invoice (A4/Letter)</button>
-                <button class="btn btn-outline" onclick="window.print()">🧾 Print POS Thermal Receipt (80mm)</button>
-                <a class="btn" href="{{ $downloadUrl }}">📥 Download PDF File</a>
+                <button class="btn btn-outline" onclick="window.print()">Print Invoice (A4/Letter)</button>
+                <button class="btn btn-outline" onclick="window.print()">Print POS Thermal Receipt (80mm)</button>
+                <a class="btn" href="{{ $downloadUrl }}">Download PDF File</a>
             </div>
         @endunless
 
@@ -208,7 +208,7 @@
                     <div style="font-size: 12px; color: #5C3A22; font-weight: 600; margin-top: 2px;">
                         {{ $fulfillment }}
                         @if (!empty($isPooling))
-                            &bull; 🤝 Group Delivery Pooling Batch #{{ $poolCode ?: 'POOL' }}
+                            &bull; Group Delivery Pooling Batch #{{ $poolCode ?: 'POOL' }}
                         @endif
                         &bull; {{ $deliveryAddress }} {{ $city }}
                     </div>
@@ -250,7 +250,7 @@
                         <td style="text-align: center;">{{ count($items) + 1 }}</td>
                         <td style="color: #8C7A68; font-style: italic;">
                             @if (!empty($isPooling))
-                                <strong style="color: #047857;">🤝 Group Delivery Pooling Shared Shipping Rate</strong>
+                                <strong style="color: #047857;">Group Delivery Pooling Shared Shipping Rate</strong>
                                 @if(!empty($poolCode))
                                     <div style="font-size: 10px; color: #065f46; font-family: monospace; font-weight: bold; font-style: normal; margin-top: 2px;">Batch: #{{ $poolCode }}</div>
                                 @endif

@@ -18,7 +18,7 @@
                         <div
                             class="px-6 py-4 bg-brand-choco text-surface flex items-center justify-between flex-wrap gap-2">
                             <div class="flex items-center gap-2">
-                                <span class="text-xl">📄</span>
+                                <FileText class="w-5 h-5 text-[#E2C08A]" />
                                 <div>
                                     <h3 class="font-extrabold text-lg leading-tight uppercase tracking-wider">INVOICE
                                     </h3>
@@ -30,31 +30,27 @@
                                 <button type="button"
                                     class="px-3 py-1.5 rounded-xl bg-brand-tan text-ink font-bold text-xs hover:bg-brand-caramel transition-all flex items-center gap-1 cursor-pointer"
                                     @click="downloadInvoice('a4')">
-                                    <span>📄 A4 PDF</span>
+                                    <span class="flex items-center gap-1.5"><FileText class="w-3.5 h-3.5" /><span>A4 PDF</span></span>
                                 </button>
                                 <button type="button"
                                     class="px-3 py-1.5 rounded-xl bg-amber-200 text-amber-950 font-bold text-xs hover:bg-amber-300 transition-all flex items-center gap-1 cursor-pointer"
                                     @click="downloadInvoice('pos')">
-                                    <span>🧾 80mm POS</span>
+                                    <span class="flex items-center gap-1.5"><Receipt class="w-3.5 h-3.5" /><span>80mm POS</span></span>
                                 </button>
                                 <button type="button"
                                     class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-sm font-bold transition-all cursor-pointer"
-                                    @click="close">
-                                    ✕
-                                </button>
+                                    @click="close"><X class="w-4 h-4" /></button>
                             </div>
                             <div v-else>
                                 <button type="button"
                                     class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-sm font-bold transition-all cursor-pointer"
-                                    @click="close">
-                                    ✕
-                                </button>
+                                    @click="close"><X class="w-4 h-4" /></button>
                             </div>
                         </div>
 
                         <!-- Invoice Pending Pool Settlement Alert -->
                         <div v-if="order?.delivery_mode === 'pooling' && order?.pooling_status !== 'settled'" class="p-8 text-center space-y-4 bg-amber-50/90 dark:bg-[#2A1C13] rounded-b-3xl">
-                            <span class="text-5xl block">⏳</span>
+                            <Clock class="w-12 h-12 text-amber-600 dark:text-amber-400 mx-auto block mb-2" />
                             <div class="space-y-1">
                                 <h3 class="font-extrabold text-lg text-amber-950 dark:text-amber-200">Invoice Pending Admin Settlement</h3>
                                 <p class="text-xs text-amber-900/90 dark:text-amber-300/90 max-w-md mx-auto leading-relaxed">
@@ -99,7 +95,7 @@
                                     <span class="text-xs text-brand-choco font-semibold block capitalize">
                                         {{ order.fulfillment_type }}
                                         <template v-if="order.delivery_mode === 'pooling'">
-                                            &bull; 🤝 Group Delivery Pooling (Batch #{{ order.delivery_pool?.pool_code || 'POOL' }})
+                                            &bull; Group Delivery Pooling (Batch #{{ order.delivery_pool?.pool_code || 'POOL' }})
                                         </template>
                                         &bull; {{ order.delivery_address || 'Store Pickup' }} {{ order.city }}
                                     </span>
@@ -142,7 +138,7 @@
                                                 (order.items?.length || 0) + 1 }}</td>
                                             <td class="p-2.5 border-r border-[#E5D5C5]">
                                                 <template v-if="order.delivery_mode === 'pooling'">
-                                                    <span class="font-bold text-emerald-800 dark:text-emerald-400">🤝 Group Delivery Pooling Shared Shipping Rate</span>
+                                                    <span class="font-bold text-emerald-800 dark:text-emerald-400">Group Delivery Pooling Shared Shipping Rate</span>
                                                     <span v-if="order.delivery_pool?.pool_code" class="block text-[10px] font-mono text-emerald-700 font-bold">Batch: #{{ order.delivery_pool.pool_code }}</span>
                                                 </template>
                                                 <template v-else>
@@ -195,12 +191,12 @@
                                     <button type="button"
                                         class="px-4 py-2 rounded-xl bg-brand-choco text-surface hover:bg-[#442917] font-bold text-xs transition-all cursor-pointer shadow-xs"
                                         @click="downloadInvoice('a4')">
-                                        📄 Download A4 Invoice
+                                        Download A4 Invoice
                                     </button>
                                     <button type="button"
                                         class="px-4 py-2 rounded-xl bg-amber-700 text-white hover:bg-amber-800 font-bold text-xs transition-all cursor-pointer shadow-xs"
                                         @click="downloadInvoice('pos')">
-                                        🧾 Download POS 80mm
+                                        Download POS 80mm
                                     </button>
                                 </template>
                             </div>

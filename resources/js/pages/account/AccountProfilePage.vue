@@ -43,12 +43,16 @@
             <label class="text-sm font-semibold text-ink dark:text-[#E2C08A]">Email Address (Account ID)</label>
             <span
               v-if="authStore.user?.email_verified_at"
-              class="text-xs font-bold text-success bg-success/15 px-2.5 py-0.5 rounded-full flex items-center gap-1"
-            >✓ Verified</span>
+              class="text-xs font-bold text-success bg-success/15 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+              <CheckCircle2 class="w-3 h-3 text-emerald-600" />
+              <span>Verified</span>
+            </span>
             <span
               v-else
-              class="text-xs font-bold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full flex items-center gap-1"
-            >⚠️ Unverified</span>
+              class="text-xs font-bold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+              <AlertTriangle class="w-3 h-3 text-amber-600" />
+              <span>Unverified</span>
+            </span>
           </div>
 
           <input
@@ -66,7 +70,7 @@
               class="text-xs font-bold text-brand-choco bg-surface hover:bg-brand-tan/30 px-3.5 py-2 rounded-lg border border-brand-caramel/30 transition-all flex items-center gap-1.5"
             >
               <span v-if="sendingEmail" class="w-3 h-3 border-2 border-brand-choco border-t-transparent rounded-full animate-spin"></span>
-              <span>✉️ Send Verification Email</span>
+              <span class="flex items-center gap-1.5"><Mail class="w-3.5 h-3.5" /><span>Send Verification Email</span></span>
             </button>
           </div>
         </div>
@@ -133,19 +137,19 @@
           <p class="font-semibold text-brand-choco mb-1">New Password Requirements:</p>
           <div class="grid grid-cols-2 gap-1">
             <div :class="rules.minLength ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
-              <span>{{ rules.minLength ? '✓' : '○' }}</span> At least 8 characters
+              <CheckCircle2 v-if="rules.minLength" class="w-3.5 h-3.5 text-emerald-500 inline mr-1" /><Circle v-else class="w-3.5 h-3.5 text-stone-400 inline mr-1" /> At least 8 characters
             </div>
             <div :class="rules.hasUpper ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
-              <span>{{ rules.hasUpper ? '✓' : '○' }}</span> Uppercase letter (A-Z)
+              <CheckCircle2 v-if="rules.hasUpper" class="w-3.5 h-3.5 text-emerald-500 inline mr-1" /><Circle v-else class="w-3.5 h-3.5 text-stone-400 inline mr-1" /> Uppercase letter (A-Z)
             </div>
             <div :class="rules.hasLower ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
-              <span>{{ rules.hasLower ? '✓' : '○' }}</span> Lowercase letter (a-z)
+              <CheckCircle2 v-if="rules.hasLower" class="w-3.5 h-3.5 text-emerald-500 inline mr-1" /><Circle v-else class="w-3.5 h-3.5 text-stone-400 inline mr-1" /> Lowercase letter (a-z)
             </div>
             <div :class="rules.hasNumber ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
-              <span>{{ rules.hasNumber ? '✓' : '○' }}</span> Number (0-9)
+              <CheckCircle2 v-if="rules.hasNumber" class="w-3.5 h-3.5 text-emerald-500 inline mr-1" /><Circle v-else class="w-3.5 h-3.5 text-stone-400 inline mr-1" /> Number (0-9)
             </div>
             <div :class="rules.hasSpecial ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5 col-span-2">
-              <span>{{ rules.hasSpecial ? '✓' : '○' }}</span> Special character (!@#$%^&* etc.)
+              <CheckCircle2 v-if="rules.hasSpecial" class="w-3.5 h-3.5 text-emerald-500 inline mr-1" /><Circle v-else class="w-3.5 h-3.5 text-stone-400 inline mr-1" /> Special character (!@#$%^&* etc.)
             </div>
           </div>
         </div>
@@ -236,7 +240,7 @@ async function sendVerificationEmail() {
   sendingEmail.value = true
   try {
     const { data } = await axios.post('/api/customer/send-verification-email')
-    toast.success(data.message || 'Verification email sent to your inbox!', 'Verification Email Sent ✉️')
+    toast.success(data.message || 'Verification email sent to your inbox!', 'Verification Email Sent')
   } catch (err) {
     toast.error('Failed to send verification email.', 'Error')
   } finally {

@@ -94,6 +94,7 @@
 
 <script setup>
 import { ref, onMounted, inject } from 'vue'
+import { Sparkles, Heart, Coffee, Star, Home, Award } from 'lucide-vue-next'
 
 const axios = inject('axios')
 
@@ -104,16 +105,16 @@ const content = ref({
   timeline_tagline: 'the journey',
   timeline_title: 'The ABCDips Story',
   timeline: [
-    { year: '2020', emoji: '🏠', title: 'Home Kitchen Beginnings', desc: 'ABCDips & Treats started in a small home kitchen, baking banana bread and cookies for friends and family.' },
-    { year: '2021', emoji: '❤️', title: 'First Online Orders', desc: 'Word spread and we started taking online orders through social media, quickly selling out every weekend.' },
-    { year: '2023', emoji: '🥰', title: 'Full Menu & Delivery', desc: 'Expanded to our full pastry menu including custom cakes, cheesecakes, and cinnamon rolls with city-wide delivery.' },
+    { year: '2020', iconKey: 'home', title: 'Home Kitchen Beginnings', desc: 'ABCDips & Treats started in a small home kitchen, baking banana bread and cookies for friends and family.' },
+    { year: '2021', iconKey: 'heart', title: 'First Online Orders', desc: 'Word spread and we started taking online orders through social media, quickly selling out every weekend.' },
+    { year: '2023', iconKey: 'sparkles', title: 'Full Menu & Delivery', desc: 'Expanded to our full pastry menu including custom cakes, cheesecakes, and cinnamon rolls with city-wide delivery.' },
   ],
   values_tagline: 'what drives us',
   values_title: 'Our Core Values',
   values: [
-    { emoji: '🫖', title: 'Quality Ingredients', desc: 'We use only real creamery butter, imported Belgian chocolate, and fresh farm eggs. No shortcuts, ever.' },
-    { emoji: '❤️', title: 'Made with Love', desc: 'Every pastry is handcrafted in small batches by our dedicated bakers who pour passion into every bite.' },
-    { emoji: '🌟', title: 'Community First', desc: 'We believe in building relationships, supporting local suppliers, and making people smile one pastry at a time.' },
+    { iconKey: 'coffee', title: 'Quality Ingredients', desc: 'We use only real creamery butter, imported Belgian chocolate, and fresh farm eggs. No shortcuts, ever.' },
+    { iconKey: 'heart', title: 'Made with Love', desc: 'Every pastry is handcrafted in small batches by our dedicated bakers who pour passion into every bite.' },
+    { iconKey: 'star', title: 'Community First', desc: 'We believe in building relationships, supporting local suppliers, and making people smile one pastry at a time.' },
   ],
   cta_tagline: 'ready to indulge?',
   cta_title: 'Order Your Favorites Today',
@@ -147,7 +148,7 @@ async function fetchStats() {
       { value: `${data.happy_customers}${data.happy_customers > 0 ? '+' : ''}`, label: 'Happy Customers' },
       { value: `${data.signature_recipes}${data.signature_recipes > 0 ? '+' : ''}`, label: 'Signature Recipes' },
       { value: '100%', label: 'Real Butter' },
-      { value: `${data.average_rating}★`, label: 'Average Rating' },
+      { value: `${data.average_rating} / 5.0`, label: 'Average Rating' },
     ]
   } catch (err) {
     console.error('Failed to load live about stats', err)

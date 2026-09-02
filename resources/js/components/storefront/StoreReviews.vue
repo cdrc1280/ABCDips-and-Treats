@@ -2,7 +2,7 @@
   <div class="space-y-12">
     <!-- Store & Service Rating Overview Card (Only shown if store reviews exist) -->
     <div v-if="stats.total_reviews && stats.total_reviews > 0" class="bg-gradient-to-br from-brand-choco to-[#3D2515] dark:from-[#20150E] dark:to-[#170E0A] text-surface rounded-3xl p-8 md:p-12 shadow-xl border border-brand-caramel/30 dark:border-[#C08E5D]/30 relative overflow-hidden">
-      <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none text-9xl">🧁</div>
+      
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center relative z-10">
         <!-- Main Score -->
@@ -13,7 +13,7 @@
             <span class="text-2xl text-brand-tan dark:text-[#E2C08A]">/ 5.0</span>
           </div>
           <div class="flex items-center justify-center lg:justify-start gap-1 text-2xl text-amber-400">
-            <span v-for="s in 5" :key="s">{{ s <= Math.round(stats.avg_rating || 5) ? '⭐' : '☆' }}</span>
+            <Star v-for="s in 5" :key="s" class="w-6 h-6" :class="s <= Math.round(stats.avg_rating || 5) ? 'fill-amber-400 text-amber-400' : 'text-stone-400/40'" />
           </div>
           <p class="text-xs text-brand-tan dark:text-[#E2C08A]">Based on {{ stats.total_reviews }} verified customer review{{ stats.total_reviews > 1 ? 's' : '' }}</p>
         </div>
@@ -22,8 +22,8 @@
         <div v-if="stats.service_scores" class="space-y-3 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10">
           <div class="space-y-1 text-xs">
             <div class="flex justify-between font-bold text-white dark:text-[#FBF3E7]">
-              <span>🥐 Taste &amp; Freshness</span>
-              <span class="text-amber-300">{{ stats.service_scores.taste_freshness }} ★</span>
+              <span class="flex items-center gap-1.5"><Sparkles class="w-3.5 h-3.5 text-amber-400" /> Taste &amp; Freshness</span>
+              <span class="text-amber-300">{{ stats.service_scores.taste_freshness }} </span>
             </div>
             <div class="w-full bg-white/20 h-2 rounded-full overflow-hidden">
               <div class="bg-amber-400 h-full rounded-full" :style="{ width: ((stats.service_scores.taste_freshness / 5) * 100) + '%' }" />
@@ -32,8 +32,8 @@
 
           <div class="space-y-1 text-xs">
             <div class="flex justify-between font-bold text-white dark:text-[#FBF3E7]">
-              <span>🚚 Delivery Speed &amp; Care</span>
-              <span class="text-amber-300">{{ stats.service_scores.delivery_speed }} ★</span>
+              <span class="flex items-center gap-1.5"><Truck class="w-3.5 h-3.5 text-amber-400" /> Delivery Speed &amp; Care</span>
+              <span class="text-amber-300">{{ stats.service_scores.delivery_speed }} </span>
             </div>
             <div class="w-full bg-white/20 h-2 rounded-full overflow-hidden">
               <div class="bg-amber-400 h-full rounded-full" :style="{ width: ((stats.service_scores.delivery_speed / 5) * 100) + '%' }" />
@@ -42,8 +42,8 @@
 
           <div class="space-y-1 text-xs">
             <div class="flex justify-between font-bold text-white dark:text-[#FBF3E7]">
-              <span>💬 Customer Support &amp; Hospitality</span>
-              <span class="text-amber-300">{{ stats.service_scores.customer_service }} ★</span>
+              <span class="flex items-center gap-1.5"><HeartHandshake class="w-3.5 h-3.5 text-amber-400" /> Customer Support &amp; Hospitality</span>
+              <span class="text-amber-300">{{ stats.service_scores.customer_service }} </span>
             </div>
             <div class="w-full bg-white/20 h-2 rounded-full overflow-hidden">
               <div class="bg-amber-400 h-full rounded-full" :style="{ width: ((stats.service_scores.customer_service / 5) * 100) + '%' }" />
@@ -56,7 +56,7 @@
           <h4 class="font-extrabold text-xl text-white dark:text-[#FBF3E7]">How was your bakery experience?</h4>
           <p class="text-xs text-surface/80 dark:text-[#FBF3E7]/90 max-w-xs ml-auto">Share your feedback on our pastries, delivery, or custom orders to help us serve you better!</p>
           <BaseButton variant="secondary" size="lg" :v-tooltip="showForm ? 'Close store review form' : 'Share your overall bakery & delivery experience'" @click="handleToggleForm">
-            {{ showForm ? 'Close Review Form' : '✍️ Write a Store Review' }}
+            {{ showForm ? 'Close Review Form' : 'Write a Store Review' }}
           </BaseButton>
         </div>
       </div>
@@ -64,11 +64,11 @@
 
     <!-- Banner callout when 0 store reviews exist -->
     <div v-else class="bg-brand-choco dark:bg-[#20150E] text-surface rounded-3xl p-8 text-center space-y-4 shadow-lg border border-brand-caramel/30 dark:border-[#C08E5D]/30">
-      <div class="text-4xl">🧁</div>
+      <div class="w-12 h-12 rounded-2xl bg-[#D9A876]/20 mx-auto flex items-center justify-center text-[#E2C08A] border border-[#C08E5D]/30"><MessageSquare class="w-6 h-6" /></div>
       <h3 class="text-2xl font-extrabold text-white dark:text-[#FBF3E7]">Bakery &amp; Store Service Reviews</h3>
       <p class="text-xs text-surface/80 dark:text-[#FBF3E7]/90 max-w-md mx-auto">Have you ordered from ABCDips &amp; Treats? Share your experience with our bakery service, delivery speed, and customer care!</p>
       <BaseButton variant="secondary" size="lg" :v-tooltip="showForm ? 'Close store review form' : 'Share your overall bakery & delivery experience'" @click="handleToggleForm">
-        {{ showForm ? 'Close Review Form' : '✍️ Write the First Store Review' }}
+        {{ showForm ? 'Close Review Form' : 'Write the First Store Review' }}
       </BaseButton>
     </div>
 
@@ -82,7 +82,7 @@
 
         <!-- Quick Pre-made Store Review Templates -->
         <div class="space-y-1.5 bg-surface/70 dark:bg-[#140D09]/70 p-4 rounded-2xl border border-brand-caramel/20 dark:border-[#C08E5D]/20">
-          <label class="block text-xs font-bold uppercase text-brand-choco dark:text-[#E2C08A]">⚡ Quick Pre-made Store Messages (Click to instant fill)</label>
+          <label class="block text-xs font-bold uppercase text-brand-choco dark:text-[#E2C08A]">Quick Pre-made Store Messages (Click to instant fill)</label>
           <div class="flex flex-wrap gap-2 pt-1">
             <button
               v-for="(tpl, idx) in storeReviewTemplates"
@@ -110,7 +110,7 @@
                 class="text-3xl transition-transform hover:scale-125 focus:outline-none"
                 @click="form.rating = star"
               >
-                {{ star <= form.rating ? '⭐' : '☆' }}
+                <Star class="w-8 h-8 transition-transform hover:scale-110" :class="star <= form.rating ? 'fill-amber-400 text-amber-400' : 'text-stone-300 dark:text-stone-600'" />
               </button>
             </div>
             <span class="text-sm font-extrabold text-brand-choco dark:text-[#E2C08A] bg-surface dark:bg-[#140D09] px-3 py-1 rounded-full border border-brand-caramel/30 dark:border-[#C08E5D]/30">
@@ -134,7 +134,7 @@
         <BaseTextarea v-model="form.comment" label="Service & Bakery Review" placeholder="Tell us about the delivery speed, packaging, customer service, or overall experience..." rows="4" required />
 
         <div v-if="!authStore.isAuthenticated" class="text-xs text-brand-choco/80 dark:text-[#E2C08A]/80 bg-brand-tan/10 p-3 rounded-xl border border-brand-tan/20 flex items-center gap-2 mt-2">
-          💡 Tip: <RouterLink to="/auth/register" class="font-bold underline hover:text-brand-choco dark:hover:text-[#E2C08A] transition-colors">Create a free account</RouterLink> to be recognized as a Verified Buyer!
+          Tip: <RouterLink to="/auth/register" class="font-bold underline hover:text-brand-choco dark:hover:text-[#E2C08A] transition-colors">Create a free account</RouterLink> to be recognized as a Verified Buyer!
         </div>
 
         <div class="flex justify-end gap-3">
@@ -158,7 +158,7 @@
           :class="selectedRating === filter ? 'bg-brand-choco text-white dark:bg-[#C08E5D] dark:text-[#1C1410] shadow-sm' : 'bg-white dark:bg-[#1E1510] text-brand-choco dark:text-[#E2C08A] border border-brand-caramel/20 dark:border-[#C08E5D]/20 hover:bg-surface dark:hover:bg-[#140D09]'"
           @click="selectedRating = filter"
         >
-          {{ filter === 0 ? `All (${reviews.length})` : `${filter} Stars ⭐ (${getStarCount(filter)})` }}
+          {{ filter === 0 ? `All (${reviews.length})` : `${filter} Stars (${getStarCount(filter)})` }}
         </button>
       </div>
     </div>
@@ -194,7 +194,7 @@
           </div>
 
           <div class="flex items-center gap-1 text-sm text-amber-500">
-            <span v-for="s in review.rating" :key="s">⭐</span>
+            <Star v-for="s in review.rating" :key="s" class="w-4 h-4 fill-amber-400 text-amber-400 inline" />
           </div>
 
           <h5 v-if="review.title" class="font-bold text-base text-ink dark:text-[#FBF3E7]">{{ review.title }}</h5>
@@ -202,7 +202,7 @@
           <p class="text-xs text-warm-gray dark:text-[#C5B4A4] leading-relaxed">{{ review.comment }}</p>
 
           <div v-if="review.product_name" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface dark:bg-[#140D09] text-[11px] font-semibold text-brand-choco dark:text-[#E2C08A]">
-            🛍️ Reviewed item: {{ review.product_name }}
+            Reviewed item: {{ review.product_name }}
           </div>
         </div>
 
@@ -213,7 +213,7 @@
             class="px-3 py-1 rounded-lg bg-surface dark:bg-[#140D09] hover:bg-brand-tan/30 text-brand-choco dark:text-[#E2C08A] font-semibold flex items-center gap-1 transition-all"
             @click="voteHelpful(review.id)"
           >
-            👍 Helpful ({{ review.helpful_votes }})
+            Helpful ({{ review.helpful_votes }})
           </button>
         </div>
       </div>
@@ -255,25 +255,25 @@ const form = ref({
 
 const storeReviewTemplates = [
   {
-    chipLabel: '🚚 Fast Delivery & Oven Fresh',
+    chipLabel: 'Fast Delivery & Oven Fresh',
     rating: 5,
     title: 'Lightning fast delivery and fresh pastries!',
     comment: 'Ordered online and received my pastries earlier than expected, still warm and carefully handled by the rider!'
   },
   {
-    chipLabel: '💖 Friendly Bakery Customer Support',
+    chipLabel: 'Friendly Bakery Customer Support',
     rating: 5,
     title: 'Super accommodating & friendly owner and staff!',
     comment: 'The team was so polite and accommodating when I inquired about custom orders and delivery times. Top-tier service!'
   },
   {
-    chipLabel: '✨ Premium Quality & Clean Packaging',
+    chipLabel: 'Premium Quality & Clean Packaging',
     rating: 5,
     title: 'High quality bakery experience!',
     comment: 'The packaging is clean, aesthetic, and sturdy, and every treat is baked with real quality. My go-to local bakery!'
   },
   {
-    chipLabel: '🎂 Perfect Custom Order Execution',
+    chipLabel: 'Perfect Custom Order Execution',
     rating: 5,
     title: 'Custom cake inquiry & order was seamless!',
     comment: 'Submitted a custom bake inquiry online and the team executed the theme description beyond expectations!'

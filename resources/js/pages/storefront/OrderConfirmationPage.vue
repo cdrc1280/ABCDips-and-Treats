@@ -35,7 +35,7 @@
           </RouterLink>
 
           <BaseButton v-if="canShowInvoice(order)" variant="secondary" size="lg" @click="showInvoiceModal = true">
-            📄 View / Download Invoice
+            View / Download Invoice
           </BaseButton>
 
           <RouterLink to="/account/orders">
@@ -47,7 +47,7 @@
       </div>
 
       <!-- Payment Method & Delivery Pooling Notices -->
-      <BaseAlert v-if="order.delivery_mode === 'pooling'" variant="warning" title="🤝 Group Delivery Pooling Request Submitted">
+      <BaseAlert v-if="order.delivery_mode === 'pooling'" variant="warning" title="Group Delivery Pooling Request Submitted">
         Your order has been submitted for Group Delivery Pooling. Our admin will batch your location in <strong>{{ order.city }}</strong> with nearby orders and assign your discounted shared delivery fee. Once settled, you can review and pay your final order total on the <RouterLink :to="`/track/${order.tracking_token}`" class="underline font-bold">Live Order Tracking Page</RouterLink>.
       </BaseAlert>
 
@@ -70,7 +70,7 @@
             class="text-xs text-brand-choco font-bold hover:underline cursor-pointer flex items-center gap-1"
             @click="showInvoiceModal = true"
           >
-            <span>📄 Official Invoice</span>
+            <span class="flex items-center gap-1.5"><FileText class="w-4 h-4" /><span>Official Invoice</span></span>
           </button>
         </h3>
 
@@ -122,6 +122,7 @@
 
 <script setup>
 import { ref, onMounted, inject } from 'vue'
+import { FileText, CheckCircle2, Users, ArrowRight } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseAlert from '@/components/ui/BaseAlert.vue'

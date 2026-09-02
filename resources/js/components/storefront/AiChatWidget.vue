@@ -13,11 +13,11 @@
         <div class="bg-gradient-to-r from-[#4A2D1A] via-[#5C3A22] to-[#362215] px-4 py-3.5 flex items-center justify-between shrink-0 shadow-md">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-full bg-[#D9A876]/30 flex items-center justify-center text-lg shadow-inner">
-              {{ escalationSuccess ? '👤' : '🧁' }}
+              <User v-if="escalationSuccess" class="w-4 h-4 text-[#FBF3E7]" /><Bot v-else class="w-4 h-4 text-[#FBF3E7]" />
             </div>
             <div>
               <p class="text-xs font-bold text-[#FBF3E7] leading-none">
-                {{ escalationSuccess ? 'ABCDips Human Support 👤' : 'ABCDips AI Helper 🧁' }}
+                {{ escalationSuccess ? 'ABCDips Support Team' : 'ABCDips Pastry Assistant' }}
               </p>
               <p class="text-[10px] text-[#E2C08A] leading-none mt-0.5 font-medium">
                 {{ escalationSuccess ? 'Connected to support team' : 'Ask me anything about our pastries!' }}
@@ -36,21 +36,18 @@
         <div ref="messagesEl" class="flex-1 overflow-y-auto px-3.5 sm:px-4 py-3 space-y-3 scroll-smooth relative bg-[#FDFBF7] dark:bg-[#1A120C]">
           <!-- Welcome message -->
           <div v-if="messages.length === 0" class="flex gap-2 items-start">
-            <div class="w-7 h-7 rounded-full bg-[#D9A876]/30 flex items-center justify-center text-sm shrink-0 border border-[#C08E5D]/20">🧁
-            </div>
+            <div class="w-7 h-7 rounded-full bg-[#D9A876]/30 flex items-center justify-center text-[#5C3A22] dark:text-[#E2C08A] shrink-0 border border-[#C08E5D]/20"><Bot class="w-4 h-4" /></div>
             <div class="bg-[#F5E8D0] dark:bg-[#2A1C13] rounded-2xl rounded-tl-sm px-3.5 py-2.5 max-w-[85%] border border-[#C08E5D]/20 shadow-xs">
-              <p class="text-xs text-[#1C1410] dark:text-[#FBF3E7] leading-relaxed break-words">Hi! I'm Dips 🧁 I can help with our pastry menu,
+              <p class="text-xs text-[#1C1410] dark:text-[#FBF3E7] leading-relaxed break-words">Hello! I can help with our pastry menu,
                 allergen badges, custom orders, delivery hours, and more. What can I get for you today?</p>
             </div>
           </div>
 
           <div v-for="(msg, i) in messages" :key="i"
             :class="msg.role === 'user' ? 'flex justify-end' : 'flex gap-2 items-start'">
-            <div v-if="msg.role === 'assistant'"
-              class="w-7 h-7 rounded-full bg-[#D9A876]/30 flex items-center justify-center text-sm shrink-0 border border-[#C08E5D]/20">🧁
-            </div>
+            <div v-if="msg.role === 'assistant'" class="w-7 h-7 rounded-full bg-[#D9A876]/30 flex items-center justify-center text-sm shrink-0 border border-[#C08E5D]/20"><Bot class="w-4 h-4 text-[#5C3A22] dark:text-[#E2C08A]" /></div>
             <div v-else-if="msg.role === 'admin'"
-              class="w-7 h-7 rounded-full bg-[#6B8F5E]/30 flex items-center justify-center text-sm shrink-0 border border-[#6B8F5E]/30">🛡️
+              class="w-7 h-7 rounded-full bg-[#6B8F5E]/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400 shrink-0 border border-[#6B8F5E]/30"><ShieldCheck class="w-4 h-4" />
             </div>
             
             <div :class="[
@@ -62,7 +59,7 @@
                     : 'bg-[#F5E8D0] text-[#1C1410] border-[#C08E5D]/20 rounded-tl-sm dark:bg-[#2A1C13] dark:text-[#FBF3E7]')
             ]">
               <div v-if="msg.role === 'admin'" class="text-[10px] font-bold text-[#6B8F5E] dark:text-[#A4C997] mb-0.5">
-                🛡️ Support Agent
+                Support Agent
               </div>
               <p class="text-xs leading-relaxed whitespace-pre-line break-words">{{ msg.content }}</p>
             </div>
@@ -70,7 +67,7 @@
 
           <!-- Loading dots -->
           <div v-if="loading" class="flex gap-2 items-start">
-            <div class="w-7 h-7 rounded-full bg-[#D9A876]/30 flex items-center justify-center text-sm shrink-0 border border-[#C08E5D]/20">🧁</div>
+            <div class="w-7 h-7 rounded-full bg-[#D9A876]/30 flex items-center justify-center text-[#5C3A22] dark:text-[#E2C08A] shrink-0 border border-[#C08E5D]/20"><Bot class="w-4 h-4" /></div>
             <div class="bg-[#F5E8D0] dark:bg-[#2A1C13] rounded-2xl rounded-tl-sm px-4 py-3 border border-[#C08E5D]/20">
               <div class="flex gap-1">
                 <span class="w-1.5 h-1.5 bg-[#C08E5D] rounded-full animate-bounce" style="animation-delay:0ms" />
@@ -89,18 +86,18 @@
               v-tooltip="'Escalate this conversation to our support team'"
             >
               <span v-if="escalating" class="w-3 h-3 border-2 border-[#5C3A22] dark:border-[#C08E5D] border-t-transparent rounded-full animate-spin"></span>
-              <span>{{ escalating ? 'Escalating...' : 'Talk to a Human 👤' }}</span>
+              <span>{{ escalating ? 'Escalating...' : 'Talk to a Human Agent' }}</span>
             </button>
           </div>
 
           <!-- Escalation Success Banner -->
           <div v-if="escalationSuccess" class="bg-[#6B8F5E]/15 border border-[#6B8F5E]/30 text-[#6B8F5E] dark:text-[#A4C997] text-xs p-3 rounded-xl text-center mt-3 font-semibold">
-            ✅ Chat escalated to human support! Our team has received your conversation history and will respond shortly. 💬
+            Chat escalated to human support! Our team has received your conversation history and will respond shortly.
           </div>
 
           <!-- Guest Limit Reached Banner -->
           <div v-if="isGuestLimitReached" class="bg-[#F5E8D0] dark:bg-[#2A1C13] border border-[#C08E5D]/40 text-[#5C3A22] dark:text-[#E2C08A] text-xs p-3.5 rounded-2xl text-center mt-3 shadow-xs space-y-2">
-            <p class="font-bold">🔒 Free Guest Chat Limit Reached (5/5)</p>
+            <p class="font-bold">Free Guest Chat Limit Reached (5/5)</p>
             <p class="text-[11px] opacity-90 leading-normal">Create a free account or log in to enjoy unlimited AI chat, order tracking, and exclusive discounts!</p>
             <div class="flex items-center justify-center gap-2 pt-1">
               <RouterLink to="/auth/register" @click="isOpen = false">
@@ -151,7 +148,7 @@
         enter-from-class="opacity-0 rotate-90 scale-50" enter-to-class="opacity-100 rotate-0 scale-100"
         leave-active-class="transition-all duration-150" leave-from-class="opacity-100 rotate-0 scale-100"
         leave-to-class="opacity-0 rotate-90 scale-50">
-        <span v-if="!isOpen" class="text-2xl">🧁</span>
+        <Bot v-if="!isOpen" class="w-6 h-6" />
         <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -165,6 +162,7 @@
 
 <script setup>
 import { ref, nextTick, inject, computed, onMounted, onUnmounted, watch } from 'vue'
+import { Bot, User, ShieldCheck, MessageCircle, Lock, CheckCircle2, AlertTriangle, Send } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 
 const axios = inject('axios')
@@ -191,10 +189,10 @@ const userMessageCount = computed(() => messages.value.filter(m => m.role === 'u
 const isGuestLimitReached = computed(() => !authStore.isAuthenticated && userMessageCount.value >= GUEST_MESSAGE_LIMIT)
 
 const quickPrompts = [
-  'What pastries do you recommend? 🧁',
-  'Do you have gluten-free options? 🌾',
-  'How do I order a custom cake? 🎂',
-  'What are your delivery hours? 🚚'
+  'What pastries do you recommend?',
+  'Do you have gluten-free options?',
+  'How do I order a custom cake?',
+  'What are your delivery hours?'
 ]
 
 async function scrollToBottom() {
@@ -245,12 +243,12 @@ async function autoEscalate() {
     
     messages.value.push({ 
       role: 'assistant', 
-      content: '👤 Your request has been escalated to our human support team! We have received your conversation history and will follow up shortly.' 
+      content: 'Your request has been escalated to our human support team! We have received your conversation history and will follow up shortly.' 
     })
     await scrollToBottom()
   } catch (err) {
     const errMsg = err.response?.data?.message || 'Failed to submit escalation. Please try again.'
-    messages.value.push({ role: 'assistant', content: `⚠️ ${errMsg}` })
+    messages.value.push({ role: 'assistant', content: errMsg })
     await scrollToBottom()
   } finally {
     escalating.value = false
