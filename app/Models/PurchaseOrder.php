@@ -19,8 +19,22 @@ class PurchaseOrder extends Model
     protected $fillable = [
         'po_number',
         'supplier_id',
+        'quotation_id',
+        'pdf_path',
+        'po_type',
+        'is_conforme',
+        'is_signature_verified',
+        'conforme_signatory',
+        'conforme_business_name',
+        'conforme_date',
+        'payment_terms',
         'status',
         'expected_delivery_date',
+        'delivery_receipt_no',
+        'sales_invoice_no',
+        'dr_issued_at',
+        'si_issued_at',
+        'delivered_at',
         'subtotal',
         'tax',
         'total',
@@ -30,11 +44,17 @@ class PurchaseOrder extends Model
     ];
 
     protected $casts = [
+        'is_conforme'            => 'boolean',
+        'is_signature_verified'  => 'boolean',
+        'conforme_date'          => 'date',
         'expected_delivery_date' => 'date',
-        'received_at'             => 'datetime',
-        'subtotal'                => 'decimal:2',
-        'tax'                     => 'decimal:2',
-        'total'                   => 'decimal:2',
+        'dr_issued_at'           => 'datetime',
+        'si_issued_at'           => 'datetime',
+        'delivered_at'           => 'datetime',
+        'received_at'            => 'datetime',
+        'subtotal'               => 'decimal:2',
+        'tax'                    => 'decimal:2',
+        'total'                  => 'decimal:2',
     ];
 
     protected static function booted(): void
@@ -49,6 +69,11 @@ class PurchaseOrder extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function quotation(): BelongsTo
+    {
+        return $this->belongsTo(Quotation::class);
     }
 
     public function items(): HasMany
