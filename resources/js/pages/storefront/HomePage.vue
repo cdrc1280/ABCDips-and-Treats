@@ -251,6 +251,13 @@ const categories = ref([])
 const featuredProducts = ref([])
 const bestSellers = ref([])
 const loading = ref(true)
+
+// Client-side Memory Cache to avoid layout shifts on route back/forward
+const catalogCache = {
+    data: null,
+    timestamp: 0,
+    TTL: 180000 // 3 minutes
+}
 const mainHomeRef = ref(null)
 let gsapCtx = null
 
@@ -370,6 +377,17 @@ async function fetchHomeContent() {
 }
 
 async function loadData() {
+    const now = Date.now()
+    if (catalogCache.data && (now - catalogCache.timestamp < catalogCache.TTL)) {
+        categories.value = catalogCache.data.categories
+        featuredProducts.value = catalogCache.data.featuredProducts
+        bestSellers.value = catalogCache.data.bestSellers
+        loading.value = false
+        await nextTick()
+        initScrollAnimations()
+        return
+    }
+
     loading.value = true
     try {
         const [catRes, featRes, bestRes] = await Promise.all([
@@ -380,6 +398,13 @@ async function loadData() {
         categories.value = catRes.data.data
         featuredProducts.value = featRes.data.data
         bestSellers.value = bestRes.data.data
+        
+        catalogCache.data = {
+            categories: catRes.data.data,
+            featuredProducts: featRes.data.data,
+            bestSellers: bestRes.data.data
+        }
+        catalogCache.timestamp = now
     } catch (err) {
         console.warn('Failed to load home catalog data', err)
     } finally {

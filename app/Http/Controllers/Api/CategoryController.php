@@ -11,15 +11,17 @@ class CategoryController extends Controller
 {
     public function index(): JsonResponse
     {
-        $categories = ProductCategory::query()
-            ->withCount('products')
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->get();
+        $categories = Cache::remember('api:catalog:categories', 300, function () {
+            return ProductCategory::query()
+                ->withCount('products')
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->get();
+        });
 
         return response()->json([
             'data' => ProductCategoryResource::collection($categories),
-        ]);
+        ])->header('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
     }
 
     public function show(string $slug): JsonResponse

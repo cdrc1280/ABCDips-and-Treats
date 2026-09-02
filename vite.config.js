@@ -33,11 +33,28 @@ export default defineConfig(({ command }) => ({
       ignored: ['**/storage/framework/views/**'],
     },
   },
-  // Strip all console.* and debugger statements from production bundles.
-  // This prevents API routes, error messages, and app internals from
-  // being visible to anyone inspecting the browser devtools console.
   build: {
-    // Vite 8 uses OXC (rolldown) for minification — use oxcOptions to drop console
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('vue') || id.includes('pinia')) {
+              return 'vendor-vue'
+            }
+            if (id.includes('gsap')) {
+              return 'vendor-gsap'
+            }
+            if (id.includes('lucide-vue-next')) {
+              return 'vendor-icons'
+            }
+            if (id.includes('axios')) {
+              return 'vendor-axios'
+            }
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
     oxcOptions: command === 'build'
       ? { compress: { drop_console: true, drop_debugger: true } }
       : {},

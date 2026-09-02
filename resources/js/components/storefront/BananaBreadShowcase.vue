@@ -307,16 +307,22 @@ function goToStage(idx) {
   activeStage.value = idx
 }
 
+let rafId = null
 function handleMouseMove(e) {
   if (!viewport3dRef.value) return
-  const rect = viewport3dRef.value.getBoundingClientRect()
-  const x = e.clientX - rect.left - rect.width / 2
-  const y = e.clientY - rect.top - rect.height / 2
-  
-  const rotateX = -(y / (rect.height / 2)) * 12
-  const rotateY = (x / (rect.width / 2)) * 12
-  
-  viewport3dRef.value.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`
+  if (rafId) cancelAnimationFrame(rafId)
+
+  rafId = requestAnimationFrame(() => {
+    if (!viewport3dRef.value) return
+    const rect = viewport3dRef.value.getBoundingClientRect()
+    const x = e.clientX - rect.left - rect.width / 2
+    const y = e.clientY - rect.top - rect.height / 2
+    
+    const rotateX = -(y / (rect.height / 2)) * 12
+    const rotateY = (x / (rect.width / 2)) * 12
+    
+    viewport3dRef.value.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`
+  })
 }
 
 function handleMouseLeave() {

@@ -54,7 +54,7 @@ class ProductController extends Controller
         $limit = (int) $request->get('limit', 6);
         $products = $this->productService->getFeaturedProducts($limit);
 
-        return response()->json(['data' => ProductResource::collection($products)]);
+        return response()->json(['data' => ProductResource::collection($products)])->header('Cache-Control', 'public, max-age=180, stale-while-revalidate=300');
     }
 
     public function bestSellers(Request $request): JsonResponse
@@ -62,7 +62,7 @@ class ProductController extends Controller
         $limit = (int) $request->get('limit', 6);
         $products = $this->productService->getBestSellerProducts($limit);
 
-        return response()->json(['data' => ProductResource::collection($products)]);
+        return response()->json(['data' => ProductResource::collection($products)])->header('Cache-Control', 'public, max-age=180, stale-while-revalidate=300');
     }
 
     public function newArrivals(Request $request): JsonResponse

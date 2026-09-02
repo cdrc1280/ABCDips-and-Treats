@@ -91,12 +91,14 @@ class ProductRepository
 
     public function getFeatured(int $limit = 6): Collection
     {
-        return Product::query()
-            ->with(['category', 'tags', 'media'])
-            ->forCustomer()
-            ->where('is_featured', true)
-            ->take($limit)
-            ->get();
+        return Cache::remember("api:catalog:featured:{$limit}", 300, function () use ($limit) {
+            return Product::query()
+                ->with(['category', 'tags', 'allergens', 'nutrition', 'media'])
+                ->forCustomer()
+                ->where('is_featured', true)
+                ->take($limit)
+                ->get();
+        });
     }
 
     public function getBestSellers(int $limit = 6): Collection
