@@ -11,7 +11,7 @@
           <span>Exclusive Member Privileges</span>
         </div>
         <h2 class="text-2xl sm:text-3xl font-extrabold text-[#FBF3E7] mb-2">Join Our Sweet Community</h2>
-        <p class="text-[#E2C08A]/80 text-sm sm:text-base max-w-2xl mx-auto">Create a free account to unlock exclusive perks and elevate your ABCDips &amp; Treats experience.</p>
+        <p class="text-[#E2C08A]/80 text-sm sm:text-base max-w-2xl mx-auto">Create a free account to unlock exclusive discounts, save delivery addresses, and enjoy sweet rewards.</p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

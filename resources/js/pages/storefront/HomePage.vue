@@ -1,7 +1,7 @@
 <template>
     <div ref="mainHomeRef" class="space-y-16 md:space-y-28 pb-20 overflow-hidden">
 
-        <!-- 1. Hero Section (Artisanal Luxury & Kinetic Typography) -->
+        <!-- 1. Hero Section (Fresh Bakery Hero) -->
         <section class="hero-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
             <div class="relative bg-gradient-to-br from-[#2D1B10] via-[#1C1410] to-[#120B07] text-surface rounded-3xl overflow-hidden shadow-2xl p-8 sm:p-12 lg:p-16 border border-[#C08E5D]/30">
                 
@@ -128,7 +128,7 @@
             </div>
         </section>
 
-        <!-- 3. Bespoke Artisanal Banana Bread Interactive Feature (The Showstopper) -->
+        <!-- 3. Signature Banana Bread 3D Showcase -->
         <section class="banana-bread-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <BananaBreadShowcase />
         </section>

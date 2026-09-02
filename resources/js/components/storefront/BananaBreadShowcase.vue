@@ -16,7 +16,7 @@
         <div>
           <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D9A876]/15 border border-[#C08E5D]/30 text-xs font-bold text-[#E2C08A] tracking-wider uppercase backdrop-blur-md mb-2">
             <Sparkles class="w-3.5 h-3.5 text-[#E2C08A] animate-pulse" />
-            <span>3D CGI Product Showcase • Artisanal Cavendish Loaf</span>
+            <span>3D Product Showcase • Fresh Cavendish Loaf</span>
           </div>
           <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#FBF3E7] tracking-tight">
             The Anatomy of Perfection
@@ -110,7 +110,7 @@
             <div v-show="activeStage === 0" class="stage-layer relative w-full h-full flex items-center justify-center transition-all duration-500">
               <div class="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-[#C08E5D]/30">
                 <img src="/images/blog-banana-bread.jpg" 
-                     alt="Artisanal Cavendish Banana Bread Studio" 
+                     alt="Fresh Cavendish Banana Bread" 
                      class="w-full h-full object-cover rounded-2xl transform transition-transform duration-700 ease-out group-hover:scale-105" />
                 <div class="absolute inset-0 bg-gradient-to-t from-[#140D09]/80 via-transparent to-black/20" />
                 
@@ -206,7 +206,7 @@
               </div>
               <h3 class="text-xl sm:text-2xl font-extrabold text-[#FBF3E7] mb-2">The Signature Chocolate Dip Pairing</h3>
               <p class="text-xs sm:text-sm text-[#FBF3E7]/80 max-w-sm mb-6 leading-relaxed">
-                Dip warm banana bread slices into our artisanal dark Belgian ganache or salted caramel dip for the ultimate dessert experience.
+                Dip warm banana bread slices into our homemade dark Belgian ganache or salted caramel dip for the ultimate dessert experience.
               </p>
               
               <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1C1410]/90 border border-[#C08E5D]/40 text-xs font-bold text-[#E2C08A] backdrop-blur-md shadow-lg">
@@ -265,7 +265,7 @@ const stages = [
     description: 'Freshly unmolded from the oven with caramelized dark edges, fragrant cinnamon notes, and crunchy California walnuts toasted to golden perfection.',
     features: [
       { icon: Flame, title: 'Convection Baked', detail: 'Slow 55-minute bake for even caramelization' },
-      { icon: Award, title: 'Artisanal Loaf', detail: 'Hand-mixed in micro batches daily' }
+      { icon: Award, title: 'Small Batch Loaf', detail: 'Hand-mixed in micro batches daily' }
     ]
   },
   {
@@ -295,7 +295,7 @@ const stages = [
     tabLabel: 'Signature Dip',
     subtitle: 'STAGE 04 • VELVET DIP PAIRING',
     title: 'Rich Dark Chocolate Ganache Dip',
-    description: 'Each loaf comes with our signature artisanal dipping sauce. Warm your slice for 15 seconds and dip into liquid chocolate bliss.',
+    description: 'Each loaf comes with our homemade chocolate dipping sauce. Warm your slice for 15 seconds and dip into liquid chocolate bliss.',
     features: [
       { icon: Award, title: 'Belgian Cacao', detail: 'Velvety smooth warm ganache' },
       { icon: ShoppingBag, title: 'Free Dip Included', detail: 'Comes with every single order' }

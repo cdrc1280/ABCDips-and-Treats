@@ -1,7 +1,7 @@
 <template>
   <div class="page-container py-10 md:py-16">
     <PageHeader
-      tagline="bespoke baking"
+      tagline="custom cakes & party bakes"
       title="Custom Cake &amp; Pastry Builder"
       subtitle="Planning a wedding, birthday, or milestone celebration? Customize your cake online, add to basket, or submit an inquiry for a formal quote."
     />
