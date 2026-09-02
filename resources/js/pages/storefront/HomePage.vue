@@ -88,30 +88,42 @@
             </div>
         </section>
 
-        <!-- 2. Categories Pill Bar (Staggered Scroll Entrance) -->
+        <!-- 2. Categories Pill Bar (Balanced Centered Grid) -->
         <section class="category-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between mb-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <span class="font-['Caveat'] text-[#C08E5D] dark:text-[#E2C08A] text-xl">explore by category</span>
-                    <h2 class="text-2xl md:text-3xl font-extrabold text-[#1C1410] dark:text-[#FBF3E7] tracking-tight">Freshly Baked Menu</h2>
+                    <span class="font-['Caveat'] text-[#C08E5D] dark:text-[#E2C08A] text-xl sm:text-2xl">explore by category</span>
+                    <h2 class="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#1C1410] dark:text-[#FBF3E7] tracking-tight">Freshly Baked Menu</h2>
                 </div>
-                <RouterLink to="/shop" class="text-xs font-bold text-[#5C3A22] dark:text-[#E2C08A] hover:underline flex items-center gap-1.5 transition-colors">
+                <RouterLink to="/shop" class="group text-xs sm:text-sm font-bold text-[#5C3A22] dark:text-[#E2C08A] hover:underline flex items-center gap-1.5 transition-all">
                     <span>View All Collections</span>
-                    <ArrowRight class="w-3.5 h-3.5" />
+                    <ArrowRight class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </RouterLink>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <!-- Perfectly Aligned Responsive 4-Column / Multi-Column Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
                 <RouterLink v-for="cat in categories" :key="cat.id" :to="`/shop?category=${cat.slug}`"
-                    class="category-item group bg-white dark:bg-[#1E1510] p-4.5 rounded-2xl border border-[#C08E5D]/20 hover:border-[#C08E5D] dark:hover:border-[#E2C08A] text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div class="w-13 h-13 rounded-2xl bg-[#D9A876]/15 dark:bg-[#2A1C13] mx-auto mb-3 flex items-center justify-center text-[#5C3A22] dark:text-[#E2C08A] group-hover:scale-110 transition-transform duration-300 overflow-hidden border border-[#C08E5D]/15">
+                    class="category-item group relative bg-white dark:bg-[#1E1510] p-5 sm:p-6 rounded-3xl border border-[#C08E5D]/25 dark:border-[#C08E5D]/30 hover:border-[#C08E5D] dark:hover:border-[#E2C08A] text-center shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col items-center justify-between overflow-hidden">
+                    
+                    <!-- Ambient Hover Glow -->
+                    <span class="absolute inset-0 bg-gradient-to-b from-[#D9A876]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+                    <!-- Distinctive Category Vector Icon -->
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#D9A876]/15 dark:bg-[#2A1C13] mb-3.5 flex items-center justify-center text-[#5C3A22] dark:text-[#E2C08A] group-hover:scale-110 group-hover:bg-[#D9A876]/30 dark:group-hover:bg-[#3B281B] transition-all duration-300 overflow-hidden border border-[#C08E5D]/20 shadow-xs shrink-0">
                         <img v-if="cat.image_url" :src="cat.image_url" :alt="cat.name" class="w-full h-full object-cover rounded-xl" />
-                        <Cake v-else class="w-6 h-6 text-[#C08E5D]" />
+                        <component v-else :is="getCategoryIcon(cat.slug)" class="w-7 h-7 sm:w-8 sm:h-8 text-[#C08E5D] dark:text-[#E2C08A] transition-colors" />
                     </div>
-                    <h3 class="font-bold text-xs sm:text-sm text-[#1C1410] dark:text-[#FBF3E7] group-hover:text-[#5C3A22] dark:group-hover:text-[#E2C08A] line-clamp-1 mb-0.5 transition-colors">
+
+                    <!-- Category Title (Full text, no awkward truncation) -->
+                    <h3 class="font-extrabold text-sm sm:text-base text-[#1C1410] dark:text-[#FBF3E7] group-hover:text-[#5C3A22] dark:group-hover:text-[#E2C08A] text-center leading-snug transition-colors line-clamp-2 min-h-[2.5rem] flex items-center justify-center">
                         {{ cat.name }}
                     </h3>
-                    <span class="text-[11px] text-[#8C7A68] dark:text-[#C5B4A4] font-medium">{{ cat.products_count || 0 }} items</span>
+
+                    <!-- Item Count Pill -->
+                    <div class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#F5E8D0] dark:bg-[#2A1C13] border border-[#C08E5D]/20 text-[11px] font-bold text-[#8C7A68] dark:text-[#C5B4A4]">
+                        {{ cat.products_count || 0 }} items
+                    </div>
                 </RouterLink>
             </div>
         </section>
@@ -266,6 +278,15 @@ const homeContent = ref({
     spotlight_image: null,
 })
 
+function getCategoryIcon(slug) {
+    const s = (slug || '').toLowerCase()
+    if (s.includes('banana') || s.includes('bread') || s.includes('loaf')) return Wheat
+    if (s.includes('cookie')) return CircleDot
+    if (s.includes('brownie') || s.includes('dip')) return Layers
+    if (s.includes('cake') || s.includes('cheese')) return Cake
+    return ShoppingBag
+}
+
 function initScrollAnimations() {
     if (gsapCtx) gsapCtx.revert()
     
@@ -283,14 +304,15 @@ function initScrollAnimations() {
         gsap.from('.category-item', {
             scrollTrigger: {
                 trigger: '.category-section',
-                start: 'top 85%',
-                toggleActions: 'play none none reverse'
+                start: 'top 88%',
+                once: true
             },
-            y: 35,
+            y: 30,
             opacity: 0,
             duration: 0.6,
             stagger: 0.08,
-            ease: 'power3.out'
+            ease: 'power3.out',
+            clearProps: 'all'
         })
 
         // Featured Products Stagger
