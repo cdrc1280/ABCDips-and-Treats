@@ -2,10 +2,10 @@
   "version": 2,
   "framework": null,
   "buildCommand": "npm run build",
-  "outputDirectory": "public",
   "functions": {
     "api/index.php": {
-      "runtime": "vercel-php@0.7.4"
+      "runtime": "vercel-php@0.9.0",
+      "maxDuration": 30
     }
   },
   "routes": [
@@ -17,12 +17,16 @@
       "dest": "/build/$1"
     },
     {
-      "src": "/(css|js|fonts|vendor|images|assets|storage|favicon.ico|robots.txt)(.*)",
+      "src": "/(css|js|fonts|vendor|images|assets|storage|favicon\\.ico|robots\\.txt)(.*)",
       "dest": "/$1$2"
     },
     {
       "src": "/(ABCDips_Treats_Test_Case_Suite\\.pdf)",
       "dest": "/$1"
+    },
+    {
+      "src": "/(.*)\\.php$",
+      "dest": "/api/index.php"
     },
     {
       "handle": "filesystem"
@@ -35,7 +39,7 @@
   "env": {
     "APP_ENV": "production",
     "APP_DEBUG": "false",
-    "APP_KEY": "base64:XG88lO2Pfq+eW/bX7jK8/yJ6Y9kQ2Lz5kM3qE8+G9xI=",
+    "APP_URL": "https://abc-dips-and-treats.vercel.app",
     "APP_CONFIG_CACHE": "/tmp/config.php",
     "APP_EVENTS_CACHE": "/tmp/events.php",
     "APP_PACKAGES_CACHE": "/tmp/packages.php",
@@ -45,6 +49,9 @@
     "LARAVEL_STORAGE_PATH": "/tmp/storage",
     "CACHE_STORE": "array",
     "SESSION_DRIVER": "cookie",
-    "LOG_CHANNEL": "stderr"
+    "LOG_CHANNEL": "stderr",
+    "DB_CONNECTION": "sqlite",
+    "TRUST_PROXIES": "*",
+    "VERCEL": "1"
   }
 }
