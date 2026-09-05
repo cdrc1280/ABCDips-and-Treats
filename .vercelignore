@@ -20,3 +20,5 @@ docs/
 README.md
 .phpunit.result.cache
 phpunit.xml
+public/index.php
+public/hot
