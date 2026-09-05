@@ -4,7 +4,14 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// 0. Fast-path: Serve static assets directly if routed to serverless function
+// 0. Mark this as a Vercel serverless environment
+if (empty(getenv('VERCEL'))) {
+    putenv('VERCEL=1');
+    $_ENV['VERCEL'] = '1';
+    $_SERVER['VERCEL'] = '1';
+}
+
+// 1. Fast-path: Serve static assets directly if routed to serverless function
 $publicPath = realpath(__DIR__ . '/../public');
 $requestUri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
 if ($publicPath && !empty($requestUri) && $requestUri !== '/' && $requestUri !== '/index.php') {
@@ -12,6 +19,12 @@ if ($publicPath && !empty($requestUri) && $requestUri !== '/' && $requestUri !==
     // Security check: ensure path is strictly within public/ and is a regular file
     if ($staticFile && str_starts_with($staticFile, $publicPath) && is_file($staticFile)) {
         $ext = strtolower(pathinfo($staticFile, PATHINFO_EXTENSION));
+
+        // Never serve PHP files as static — they must be executed
+        if ($ext === 'php') {
+            goto bootstrap;
+        }
+
         $mimes = [
             'css'   => 'text/css; charset=UTF-8',
             'js'    => 'application/javascript; charset=UTF-8',
@@ -41,16 +54,20 @@ if ($publicPath && !empty($requestUri) && $requestUri !== '/' && $requestUri !==
     }
 }
 
-// 1. Ensure a valid 32-byte APP_KEY exists so Laravel's encrypter never throws 500
+bootstrap:
+
+// 2. Ensure a valid 32-byte APP_KEY exists so Laravel's encrypter never throws 500
 $currentAppKey = getenv('APP_KEY') ?: ($_ENV['APP_KEY'] ?? ($_SERVER['APP_KEY'] ?? null));
 if (empty($currentAppKey) || strlen(trim($currentAppKey)) < 32) {
+    // Fallback key for cold starts where Vercel env vars haven't propagated.
+    // Production APP_KEY MUST be set in Vercel Dashboard → Environment Variables.
     $fallbackKey = 'base64:XG88lO2Pfq+eW/bX7jK8/yJ6Y9kQ2Lz5kM3qE8+G9xI=';
     putenv("APP_KEY={$fallbackKey}");
     $_ENV['APP_KEY'] = $fallbackKey;
     $_SERVER['APP_KEY'] = $fallbackKey;
 }
 
-// 2. Serverless safe defaults (Stateless cookie session & memory cache to prevent unmigrated DB crashes)
+// 3. Serverless safe defaults (Stateless cookie session & memory cache)
 if (empty(getenv('SESSION_DRIVER')) || getenv('SESSION_DRIVER') === 'database') {
     putenv('SESSION_DRIVER=cookie');
     $_ENV['SESSION_DRIVER'] = 'cookie';
@@ -63,7 +80,7 @@ if (empty(getenv('CACHE_STORE')) || getenv('CACHE_STORE') === 'database') {
     $_SERVER['CACHE_STORE'] = 'array';
 }
 
-// 3. Setup writable /tmp paths for serverless execution (Vercel Lambda is read-only)
+// 4. Setup writable /tmp paths for serverless execution (Vercel Lambda is read-only)
 $tmpDirs = [
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache/data',
@@ -79,7 +96,7 @@ foreach ($tmpDirs as $dir) {
     }
 }
 
-// 4. Robust Database Setup for Serverless Environment
+// 5. Robust Database Setup for Serverless Environment
 $dbConn = getenv('DB_CONNECTION') ?: ($_ENV['DB_CONNECTION'] ?? ($_SERVER['DB_CONNECTION'] ?? null));
 $dbHost = getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? ($_SERVER['DB_HOST'] ?? null));
 
@@ -87,6 +104,17 @@ $dbHost = getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? ($_SERVER['DB_HOST'] ?? null
 $hasExternalDb = !empty($dbHost) && $dbHost !== '127.0.0.1' && $dbHost !== 'localhost';
 
 if (!$hasExternalDb && ($dbConn === 'sqlite' || empty($dbConn))) {
+    // Verify pdo_sqlite extension is available
+    if (!extension_loaded('pdo_sqlite')) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'error' => true,
+            'message' => 'pdo_sqlite extension is not loaded. Configure an external database (DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD) or use a runtime with SQLite support.',
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+
     $sqlitePath = '/tmp/database.sqlite';
     $sourceDb = realpath(__DIR__ . '/../database/database.sqlite');
 
@@ -98,6 +126,16 @@ if (!$hasExternalDb && ($dbConn === 'sqlite' || empty($dbConn))) {
             @touch($sqlitePath);
         }
         @chmod($sqlitePath, 0666);
+    }
+
+    // Enable WAL mode for better concurrent read performance
+    try {
+        $pdo = new \PDO("sqlite:{$sqlitePath}");
+        $pdo->exec('PRAGMA journal_mode=WAL');
+        $pdo->exec('PRAGMA synchronous=NORMAL');
+        $pdo = null;
+    } catch (\Throwable $e) {
+        error_log('SQLite WAL init failed: ' . $e->getMessage());
     }
 
     putenv('DB_CONNECTION=sqlite');

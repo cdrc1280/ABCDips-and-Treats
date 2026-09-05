@@ -25,6 +25,7 @@ RUN docker-php-ext-configure gd \
 
 RUN docker-php-ext-install \
     pdo_mysql \
+    pdo_sqlite \
     intl \
     zip \
     exif \
@@ -96,6 +97,7 @@ RUN docker-php-ext-configure gd \
 
 RUN docker-php-ext-install \
     pdo_mysql \
+    pdo_sqlite \
     intl \
     zip \
     exif \
