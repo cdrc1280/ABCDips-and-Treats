@@ -48,7 +48,7 @@
                 </div>
 
                 <!-- Items List -->
-                <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-4">
+                <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-4" data-lenis-prevent>
                     <div v-if="cartStore.items.length === 0" class="py-16 text-center">
                         <EmptyState title="Your Basket is Empty"
                             description="You haven't added any treats yet! Explore our oven-fresh pastries and custom cakes.">

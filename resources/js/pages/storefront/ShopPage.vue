@@ -8,7 +8,7 @@
         <div class="sticky top-20 z-30 mb-8 p-4 md:p-5 rounded-3xl bg-white/90 dark:bg-[#1C1410]/90 backdrop-blur-xl border border-brand-caramel/25 dark:border-[#C08E5D]/25 shadow-lg shadow-brand-choco/5 transition-all">
             <div class="flex flex-col lg:flex-row gap-4 justify-between items-center">
                 <!-- Search Input -->
-                <div class="w-full lg:w-80 relative">
+                <div class="w-full lg:w-72 shrink-0 relative">
                     <BaseInput v-model="searchQuery" placeholder="Search pastries, cookies, cakes..."
                         @input="debounceSearch">
                         <template #icon-left>
@@ -22,32 +22,72 @@
                     </button>
                 </div>
 
-                <!-- Category Pills (Smooth Horizontal Scroll on mobile/tablet) -->
-                <div class="flex items-center gap-2 overflow-x-auto w-full lg:w-auto pb-1 lg:pb-0 no-scrollbar">
+                <!-- Category Carousel (Smooth Left-Right Carousel with Arrows & Drag-to-Scroll) -->
+                <div class="w-full lg:flex-1 min-w-0 relative flex items-center">
+                    <!-- Left Carousel Nav Arrow -->
                     <button
-                        class="px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5"
-                        :class="!selectedCategory
-                            ? 'bg-brand-choco text-surface dark:bg-[#E2C08A] dark:text-[#1C1410] shadow-sm'
-                            : 'bg-surface/80 dark:bg-[#2A1C13] text-brand-choco dark:text-[#FBF3E7] hover:bg-brand-tan/25 dark:hover:bg-[#3D291D] border border-brand-caramel/20 dark:border-[#C08E5D]/25'"
-                        @click="selectCategory('')">
-                        <Sparkles class="w-3.5 h-3.5" />
-                        <span>All Pastries</span>
+                        v-show="canScrollLeft"
+                        type="button"
+                        aria-label="Scroll categories left"
+                        class="w-7 h-7 rounded-xl flex items-center justify-center bg-white/95 dark:bg-[#2A1C13]/95 border border-brand-caramel/30 dark:border-[#C08E5D]/30 text-brand-choco dark:text-[#E2C08A] hover:scale-110 active:scale-95 transition-all shadow-md shrink-0 mr-1.5 z-20 cursor-pointer"
+                        @click="scrollCategories(-1)">
+                        <ChevronLeft class="w-4 h-4" />
                     </button>
 
-                    <button v-for="cat in categories" :key="cat.id"
-                        class="px-3.5 py-2 rounded-2xl text-xs font-semibold transition-all whitespace-nowrap shrink-0 flex items-center gap-2"
-                        :class="selectedCategory === cat.slug
-                            ? 'bg-brand-choco text-surface dark:bg-[#E2C08A] dark:text-[#1C1410] font-bold shadow-sm'
-                            : 'bg-surface/80 dark:bg-[#2A1C13] text-brand-choco dark:text-[#FBF3E7] hover:bg-brand-tan/25 dark:hover:bg-[#3D291D] border border-brand-caramel/20 dark:border-[#C08E5D]/25'"
-                        @click="selectCategory(cat.slug)">
-                        <img v-if="cat.image_url" :src="cat.image_url" :alt="cat.name" class="w-4 h-4 rounded-full object-cover shrink-0" />
-                        <component v-else :is="getCategoryIcon(cat.slug)" class="w-3.5 h-3.5 text-brand-caramel dark:text-[#E2C08A]" />
-                        <span>{{ cat.name }}</span>
+                    <!-- Left Edge Subtle Gradient Mask -->
+                    <div v-show="canScrollLeft"
+                        class="absolute left-8 top-0 bottom-0 w-8 bg-gradient-to-r from-white/90 dark:from-[#1C1410]/90 to-transparent pointer-events-none z-10" />
+
+                    <!-- Scrollable Category Track -->
+                    <div
+                        ref="categoryTrackRef"
+                        class="flex items-center gap-2 overflow-x-auto scroll-smooth no-scrollbar select-none py-1 flex-1 min-w-0"
+                        @scroll.passive="updateScrollButtons"
+                        @wheel.passive="onCategoryWheel"
+                        @mousedown="startCategoryDrag"
+                        @mousemove="onCategoryDrag"
+                        @mouseup="endCategoryDrag"
+                        @mouseleave="endCategoryDrag">
+                        
+                        <button
+                            class="px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer"
+                            :class="[!selectedCategory
+                                ? 'bg-brand-choco text-surface dark:bg-[#E2C08A] dark:text-[#1C1410] shadow-sm is-active-category'
+                                : 'bg-surface/80 dark:bg-[#2A1C13] text-brand-choco dark:text-[#FBF3E7] hover:bg-brand-tan/25 dark:hover:bg-[#3D291D] border border-brand-caramel/20 dark:border-[#C08E5D]/25']"
+                            @click="handleCategoryClick('')">
+                            <Sparkles class="w-3.5 h-3.5" />
+                            <span>All Pastries</span>
+                        </button>
+
+                        <button v-for="cat in categories" :key="cat.id"
+                            class="px-3.5 py-2 rounded-2xl text-xs font-semibold transition-all whitespace-nowrap shrink-0 flex items-center gap-2 cursor-pointer"
+                            :class="[selectedCategory === cat.slug
+                                ? 'bg-brand-choco text-surface dark:bg-[#E2C08A] dark:text-[#1C1410] font-bold shadow-sm is-active-category'
+                                : 'bg-surface/80 dark:bg-[#2A1C13] text-brand-choco dark:text-[#FBF3E7] hover:bg-brand-tan/25 dark:hover:bg-[#3D291D] border border-brand-caramel/20 dark:border-[#C08E5D]/25']"
+                            @click="handleCategoryClick(cat.slug)">
+                            <img v-if="cat.image_url" :src="cat.image_url" :alt="cat.name" class="w-4 h-4 rounded-full object-cover shrink-0" />
+                            <component v-else :is="getCategoryIcon(cat.slug)" class="w-3.5 h-3.5 text-brand-caramel dark:text-[#E2C08A]" />
+                            <span>{{ cat.name }}</span>
+                        </button>
+                    </div>
+
+                    <!-- Right Edge Subtle Gradient Mask -->
+                    <div v-show="canScrollRight"
+                        class="absolute right-8 top-0 bottom-0 w-8 bg-gradient-to-l from-white/90 dark:from-[#1C1410]/90 to-transparent pointer-events-none z-10" />
+
+                    <!-- Right Carousel Nav Arrow -->
+                    <button
+                        v-show="canScrollRight"
+                        type="button"
+                        aria-label="Scroll categories right"
+                        class="w-7 h-7 rounded-xl flex items-center justify-center bg-white/95 dark:bg-[#2A1C13]/95 border border-brand-caramel/30 dark:border-[#C08E5D]/30 text-brand-choco dark:text-[#E2C08A] hover:scale-110 active:scale-95 transition-all shadow-md shrink-0 ml-1.5 z-20 cursor-pointer"
+                        @click="scrollCategories(1)">
+                        <ChevronRight class="w-4 h-4" />
                     </button>
                 </div>
 
                 <!-- Sort Dropdown -->
-                <div class="w-full lg:w-56 shrink-0">
+                <div class="w-full lg:w-52 shrink-0">
                     <BaseSelect v-model="sortBy" :options="sortOptions" @update:model-value="() => fetchProducts(1)" />
                 </div>
             </div>
@@ -93,9 +133,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject, watch } from 'vue'
+import { ref, onMounted, onUnmounted, inject, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Search, X, Sparkles, Wheat, CircleDot, Layers, Cake, ShoppingBag } from 'lucide-vue-next'
+import { Search, X, Sparkles, Wheat, CircleDot, Layers, Cake, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
@@ -115,6 +155,16 @@ const searchQuery = ref('')
 const selectedCategory = ref(route.query.category || '')
 const sortBy = ref('latest')
 const pagination = ref({ current_page: 1, last_page: 1 })
+
+// Category Carousel Navigation & Drag-to-Scroll State
+const categoryTrackRef = ref(null)
+const canScrollLeft = ref(false)
+const canScrollRight = ref(false)
+let isDraggingCategory = false
+let startX = 0
+let initialScrollLeft = 0
+let hasDragged = false
+let resizeObserver = null
 
 // Client-Side In-Memory Cache (keyed by query params)
 const shopCache = new Map()
@@ -143,9 +193,75 @@ async function fetchCategories() {
     try {
         const { data } = await axios.get('/api/categories')
         categories.value = data.data
+        nextTick(() => {
+            updateScrollButtons()
+            scrollToActiveCategory()
+        })
     } catch (err) {
         console.error('Failed to load categories', err)
     }
+}
+
+function updateScrollButtons() {
+    const el = categoryTrackRef.value
+    if (!el) return
+    canScrollLeft.value = el.scrollLeft > 4
+    canScrollRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 4
+}
+
+function scrollCategories(direction) {
+    if (!categoryTrackRef.value) return
+    const scrollAmount = 240 * direction
+    categoryTrackRef.value.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+    setTimeout(updateScrollButtons, 350)
+}
+
+function onCategoryWheel(e) {
+    if (!categoryTrackRef.value) return
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        categoryTrackRef.value.scrollLeft += e.deltaY * 0.85
+        updateScrollButtons()
+    }
+}
+
+function startCategoryDrag(e) {
+    if (e.button !== 0 || !categoryTrackRef.value) return
+    isDraggingCategory = true
+    hasDragged = false
+    startX = e.pageX - categoryTrackRef.value.offsetLeft
+    initialScrollLeft = categoryTrackRef.value.scrollLeft
+}
+
+function onCategoryDrag(e) {
+    if (!isDraggingCategory || !categoryTrackRef.value) return
+    e.preventDefault()
+    const x = e.pageX - categoryTrackRef.value.offsetLeft
+    const walk = (x - startX) * 1.3
+    if (Math.abs(walk) > 5) {
+        hasDragged = true
+    }
+    categoryTrackRef.value.scrollLeft = initialScrollLeft - walk
+    updateScrollButtons()
+}
+
+function endCategoryDrag() {
+    isDraggingCategory = false
+}
+
+function handleCategoryClick(catSlug) {
+    if (hasDragged) return
+    selectCategory(catSlug)
+}
+
+function scrollToActiveCategory() {
+    nextTick(() => {
+        if (!categoryTrackRef.value) return
+        const active = categoryTrackRef.value.querySelector('.is-active-category')
+        if (active) {
+            active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+        }
+        setTimeout(updateScrollButtons, 350)
+    })
 }
 
 function getCacheKey(page) {
@@ -197,6 +313,7 @@ function selectCategory(catSlug) {
         }
     })
     fetchProducts(1)
+    scrollToActiveCategory()
 }
 
 function debounceSearch() {
@@ -222,18 +339,35 @@ function resetFilters() {
     sortBy.value = 'latest'
     router.replace({ query: {} })
     fetchProducts(1)
+    scrollToActiveCategory()
 }
 
 watch(() => route.query.category, (newCat) => {
     if (newCat !== undefined && newCat !== selectedCategory.value) {
         selectedCategory.value = newCat || ''
         fetchProducts(1)
+        scrollToActiveCategory()
     }
 })
 
 onMounted(() => {
     fetchCategories()
     fetchProducts()
+    nextTick(() => {
+        updateScrollButtons()
+        if (categoryTrackRef.value && typeof ResizeObserver !== 'undefined') {
+            resizeObserver = new ResizeObserver(() => updateScrollButtons())
+            resizeObserver.observe(categoryTrackRef.value)
+        }
+    })
+    window.addEventListener('resize', updateScrollButtons)
+})
+
+onUnmounted(() => {
+    if (resizeObserver) {
+        resizeObserver.disconnect()
+    }
+    window.removeEventListener('resize', updateScrollButtons)
 })
 </script>
 
