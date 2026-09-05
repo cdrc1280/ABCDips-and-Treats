@@ -32,13 +32,16 @@
         >
           <div class="md:w-1/2" :class="i % 2 === 0 ? 'md:text-right md:pr-12' : 'md:text-left md:pl-12'">
             <div class="bg-white dark:bg-[#1E1510] rounded-2xl p-6 shadow-sm border border-brand-caramel/20 dark:border-[#C08E5D]/20">
-              <div class="text-3xl mb-3">{{ item.emoji }}</div>
-              <div class="text-xs font-bold text-brand-caramel dark:text-[#E2C08A] uppercase tracking-wider mb-1">{{ item.year }}</div>
+              <div class="w-12 h-12 rounded-2xl bg-brand-tan/15 dark:bg-[#2A1C13] border border-brand-caramel/20 dark:border-[#C08E5D]/30 flex items-center justify-center text-brand-choco dark:text-[#E2C08A] mb-3"
+                :class="i % 2 === 0 ? 'md:ml-auto' : 'md:mr-auto'">
+                <component :is="getIcon(item.iconKey)" class="w-6 h-6" />
+              </div>
+              <div class="text-xs font-bold text-brand-caramel dark:text-[#E2C08A] uppercase tracking-wider mb-1 font-mono tabular-nums">{{ item.year }}</div>
               <h3 class="text-lg font-bold text-ink dark:text-[#FBF3E7] mb-2">{{ item.title }}</h3>
               <p class="text-sm text-warm-gray dark:text-[#C5B4A4] leading-relaxed">{{ item.desc }}</p>
             </div>
           </div>
-          <div class="hidden md:flex absolute left-1/2 -translate-x-1/2 w-10 h-10 bg-brand-choco dark:bg-[#C08E5D] rounded-full items-center justify-center text-white dark:text-[#1C1410] text-sm font-bold top-4 shadow-xs">
+          <div class="hidden md:flex absolute left-1/2 -translate-x-1/2 w-10 h-10 bg-brand-choco dark:bg-[#C08E5D] rounded-full items-center justify-center text-white dark:text-[#1C1410] text-sm font-bold top-4 shadow-xs font-mono tabular-nums">
             {{ i + 1 }}
           </div>
           <div class="md:w-1/2" />
@@ -57,9 +60,11 @@
           <div
             v-for="val in content.values"
             :key="val.title"
-            class="bg-white dark:bg-[#1E1510] rounded-2xl p-8 text-center shadow-sm border border-brand-caramel/20 dark:border-[#C08E5D]/20 hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+            class="bg-white dark:bg-[#1E1510] rounded-2xl p-8 text-center shadow-sm border border-brand-caramel/20 dark:border-[#C08E5D]/20 hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col items-center"
           >
-            <div class="text-4xl mb-4">{{ val.emoji }}</div>
+            <div class="w-14 h-14 rounded-2xl bg-brand-tan/15 dark:bg-[#2A1C13] border border-brand-caramel/20 dark:border-[#C08E5D]/30 flex items-center justify-center text-brand-choco dark:text-[#E2C08A] mb-4 shrink-0">
+              <component :is="getIcon(val.iconKey)" class="w-7 h-7" />
+            </div>
             <h3 class="font-bold text-ink dark:text-[#FBF3E7] text-lg mb-2">{{ val.title }}</h3>
             <p class="text-sm text-warm-gray dark:text-[#C5B4A4] leading-relaxed">{{ val.desc }}</p>
           </div>
@@ -84,7 +89,7 @@
       <p class="text-warm-gray dark:text-[#C5B4A4] mb-8">{{ content.cta_subtitle }}</p>
       <RouterLink
         :to="content.cta_button_url || '/shop'"
-        class="inline-flex items-center gap-2 bg-brand-choco dark:bg-[#C08E5D] text-surface dark:text-[#1C1410] px-8 py-4 rounded-2xl font-bold text-sm hover:bg-choco-600 transition-colors shadow-lg hover:shadow-xl"
+        class="inline-flex items-center gap-2 bg-brand-choco dark:bg-[#C08E5D] text-surface dark:text-[#1C1410] px-8 py-4 rounded-2xl font-bold text-sm hover:bg-choco-600 dark:hover:bg-[#D9A876] transition-colors shadow-lg hover:shadow-xl"
       >
         {{ content.cta_button_text }}
       </RouterLink>
@@ -97,6 +102,19 @@ import { ref, onMounted, inject } from 'vue'
 import { Sparkles, Heart, Coffee, Star, Home, Award } from 'lucide-vue-next'
 
 const axios = inject('axios')
+
+const iconMap = {
+  home: Home,
+  heart: Heart,
+  sparkles: Sparkles,
+  coffee: Coffee,
+  star: Star,
+  award: Award,
+}
+
+function getIcon(key) {
+  return iconMap[key] || Sparkles
+}
 
 const content = ref({
   hero_tagline: 'our story',

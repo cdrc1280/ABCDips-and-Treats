@@ -128,7 +128,8 @@
             </div>
         </section>
 
-        
+        <!-- 3. Signature 3D Showcase (Banana Bread Interactive WebGL Model) -->
+        <BananaBread3DShowcase />
 
         <!-- 4. Featured Pastries Grid (Scroll Stagger) -->
         <section class="featured-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -229,7 +230,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, inject, nextTick } from 'vue'
-import { ArrowRight, Sparkles, CheckCircle2, ShoppingBag, Cake } from 'lucide-vue-next'
+import { ArrowRight, Sparkles, CheckCircle2, ShoppingBag, Cake, Wheat, CircleDot, Layers } from 'lucide-vue-next'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import SectionDivider from '@/components/ui/SectionDivider.vue'
@@ -237,6 +238,7 @@ import SkeletonCard from '@/components/ui/SkeletonCard.vue'
 import ProductCard from '@/components/storefront/ProductCard.vue'
 import StoreReviews from '@/components/storefront/StoreReviews.vue'
 import AccountPerksDrawer from '@/components/storefront/AccountPerksDrawer.vue'
+import BananaBread3DShowcase from '@/components/storefront/BananaBread3DShowcase.vue'
 import { useAuthStore } from '@/stores/auth'
 
 gsap.registerPlugin(ScrollTrigger)

@@ -11,11 +11,21 @@
   "routes": [
     {
       "src": "/build/(.*)",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      },
       "dest": "/build/$1"
     },
     {
-      "src": "/(images|assets|storage|favicon.ico|robots.txt)(.*)",
+      "src": "/(css|js|fonts|vendor|images|assets|storage|favicon.ico|robots.txt)(.*)",
       "dest": "/$1$2"
+    },
+    {
+      "src": "/(ABCDips_Treats_Test_Case_Suite\\.pdf)",
+      "dest": "/$1"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",

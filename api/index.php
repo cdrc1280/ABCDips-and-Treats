@@ -4,6 +4,43 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+// 0. Fast-path: Serve static assets directly if routed to serverless function
+$publicPath = realpath(__DIR__ . '/../public');
+$requestUri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+if ($publicPath && !empty($requestUri) && $requestUri !== '/' && $requestUri !== '/index.php') {
+    $staticFile = realpath($publicPath . $requestUri);
+    // Security check: ensure path is strictly within public/ and is a regular file
+    if ($staticFile && str_starts_with($staticFile, $publicPath) && is_file($staticFile)) {
+        $ext = strtolower(pathinfo($staticFile, PATHINFO_EXTENSION));
+        $mimes = [
+            'css'   => 'text/css; charset=UTF-8',
+            'js'    => 'application/javascript; charset=UTF-8',
+            'mjs'   => 'application/javascript; charset=UTF-8',
+            'json'  => 'application/json',
+            'png'   => 'image/png',
+            'jpg'   => 'image/jpeg',
+            'jpeg'  => 'image/jpeg',
+            'gif'   => 'image/gif',
+            'svg'   => 'image/svg+xml',
+            'webp'  => 'image/webp',
+            'ico'   => 'image/x-icon',
+            'woff'  => 'font/woff',
+            'woff2' => 'font/woff2',
+            'ttf'   => 'font/ttf',
+            'eot'   => 'application/vnd.ms-fontobject',
+            'pdf'   => 'application/pdf',
+            'txt'   => 'text/plain',
+        ];
+
+        header('Content-Type: ' . ($mimes[$ext] ?? 'application/octet-stream'));
+        header('Content-Length: ' . filesize($staticFile));
+        header('Cache-Control: public, max-age=31536000, immutable');
+        header('X-Content-Type-Options: nosniff');
+        readfile($staticFile);
+        exit;
+    }
+}
+
 // 1. Ensure a valid 32-byte APP_KEY exists so Laravel's encrypter never throws 500
 $currentAppKey = getenv('APP_KEY') ?: ($_ENV['APP_KEY'] ?? ($_SERVER['APP_KEY'] ?? null));
 if (empty($currentAppKey) || strlen(trim($currentAppKey)) < 32) {

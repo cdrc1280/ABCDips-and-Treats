@@ -81,9 +81,11 @@
 import { ref, inject, onMounted, watch } from 'vue'
 import { CheckCircle2, Lightbulb, Star, Wrench, MessageSquare } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
+import { useToast } from '@/composables/useToast'
 
 const axios = inject('axios')
 const authStore = useAuthStore()
+const toast = useToast()
 
 const submitting = ref(false)
 const success = ref(false)
@@ -119,9 +121,10 @@ async function submit() {
   try {
     await axios.post('/api/suggestions', form.value)
     success.value = true
+    toast.success('Your suggestion has been submitted! Thank you.', 'Feedback Received')
   } catch (err) {
     console.error('Failed to submit suggestion', err)
-    alert(err.response?.data?.message || 'Failed to submit suggestion. Please try again.')
+    toast.error(err.response?.data?.message || 'Failed to submit suggestion. Please try again.', 'Submission Error')
   } finally {
     submitting.value = false
   }
