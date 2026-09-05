@@ -18,7 +18,7 @@
     </div>
 
     <div v-else-if="posts.length === 0" class="text-center py-20">
-      <div class="text-5xl mb-4">📝</div>
+      <div class="w-14 h-14 rounded-2xl bg-[#D9A876]/20 mx-auto flex items-center justify-center mb-4 text-[#C08E5D] border border-[#C08E5D]/30"><FileText class="w-7 h-7" /></div>
       <h2 class="text-xl font-bold text-ink mb-2">No journal posts yet</h2>
       <p class="text-warm-gray">Our bakers are crafting new recipes and vlogs. Check back soon!</p>
     </div>
@@ -68,6 +68,7 @@
 
 <script setup>
 import { ref, onMounted, inject } from 'vue'
+import { FileText, ArrowRight } from 'lucide-vue-next'
 
 const axios = inject('axios')
 const posts = ref([])

@@ -94,7 +94,7 @@
 
                 <!-- Custom Spec Box -->
                 <div v-if="item.options?.is_custom" class="mt-1 bg-surface dark:bg-[#140D09] p-3 rounded-xl text-xs text-brand-choco dark:text-[#E2C08A] border border-brand-caramel/20 dark:border-[#C08E5D]/20 space-y-1">
-                  <div class="font-extrabold text-brand-choco dark:text-[#E2C08A]">🎂 Custom Cake Configuration:</div>
+                  <div class="font-extrabold text-brand-choco dark:text-[#E2C08A] flex items-center gap-1.5"><Cake class="w-4 h-4" /><span>Custom Cake Configuration:</span></div>
                   <div>Flavor: <strong>{{ item.options.flavor_preference }}</strong></div>
                   <div>Frosting: <strong>{{ item.options.frosting_type }}</strong></div>
                   <div v-if="item.options.budget_range_min" class="text-warm-gray dark:text-[#C5B4A4]">

@@ -31,10 +31,10 @@
                     <div class="flex gap-3">
                         <a href="https://www.facebook.com/abcdipsandtreats" target="_blank" rel="noopener noreferrer"
                             v-tooltip="'Visit our official Facebook page'"
-                            class="w-9 h-9 bg-surface/10 rounded-xl flex items-center justify-center hover:bg-brand-tan/30 transition-colors text-sm">📘</a>
+                            class="w-9 h-9 bg-surface/10 rounded-xl flex items-center justify-center hover:bg-brand-tan/30 transition-colors text-sm"><MessageSquare class="w-4 h-4 text-[#FBF3E7]" /></a>
                         <a href="https://www.instagram.com/abcdips_treats" target="_blank" rel="noopener noreferrer"
                             v-tooltip="'Follow @abcdips_treats on Instagram'"
-                            class="w-9 h-9 bg-surface/10 rounded-xl flex items-center justify-center hover:bg-brand-tan/30 transition-colors text-sm">📸</a>
+                            class="w-9 h-9 bg-surface/10 rounded-xl flex items-center justify-center hover:bg-brand-tan/30 transition-colors text-sm"><Sparkles class="w-4 h-4 text-[#FBF3E7]" /></a>
                     </div>
                 </div>
             </div>
@@ -43,7 +43,7 @@
             <div class="lg:col-span-3">
                 <!-- Success State -->
                 <div v-if="sent" class="bg-white rounded-3xl p-12 text-center border border-brand-caramel/20 shadow-sm">
-                    <div class="text-5xl mb-4">🍞</div>
+                    <div class="w-16 h-16 rounded-3xl bg-[#D9A876]/20 mx-auto flex items-center justify-center mb-4 text-[#E2C08A] border border-[#C08E5D]/30"><Sparkles class="w-8 h-8" /></div>
                     <h2 class="text-2xl font-bold text-ink mb-2">Message Sent!</h2>
                     <p class="text-warm-gray">Thank you for reaching out. We'll get back to you within 24 hours.</p>
                     <button @click="sent = false; form = { name: '', email: '', phone: '', subject: '', message: '' }"
@@ -109,16 +109,17 @@
 
 <script setup>
 import { ref, inject } from 'vue'
+import { MapPin, Mail, MessageSquare, Sparkles } from 'lucide-vue-next'
 const axios = inject('axios')
 const sent = ref(false)
 const submitting = ref(false)
 const errors = ref('')
 const form = ref({ name: '', email: '', phone: '', subject: '', message: '' })
 const contactInfo = [
-    { emoji: '📍', label: 'Location', value: 'Cavite, Philippines', sub: 'Delivery within Cavite' },
+    { icon: MapPin, label: 'Location', value: 'Cavite, Philippines', sub: 'Delivery within Cavite' },
     { emoji: '⏰', label: 'Business Hours', value: 'Mon–Sat: 8:00 AM – 6:00 PM', sub: 'Sunday: 9:00 AM – 4:00 PM' },
-    { emoji: '📧', label: 'Email', value: 'hello@abcdips.com', sub: 'We reply within 24 hours', link: 'mailto:hello@abcdips.com' },
-    { emoji: '📱', label: 'Facebook', value: 'ABCDips & Treats', sub: 'Message us on Facebook', link: 'https://www.facebook.com/abcdipsandtreats' },
+    { icon: Mail, label: 'Email', value: 'hello@abcdips.com', sub: 'We reply within 24 hours', link: 'mailto:hello@abcdips.com' },
+    { icon: MessageSquare, label: 'Facebook', value: 'ABCDips & Treats', sub: 'Message us on Facebook', link: 'https://www.facebook.com/abcdipsandtreats' },
 ]
 async function submit() {
     submitting.value = true

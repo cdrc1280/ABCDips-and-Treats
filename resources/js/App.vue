@@ -1,9 +1,5 @@
 <template>
-  <RouterView v-slot="{ Component, route }">
-    <Transition :name="route.meta.transition || 'fade'" mode="out-in">
-      <component :is="Component" :key="route.path" />
-    </Transition>
-  </RouterView>
+  <RouterView />
 </template>
 
 <script setup>
@@ -13,7 +9,7 @@ import { useAuthStore } from '@/stores/auth'
 const authStore = useAuthStore()
 
 onMounted(async () => {
-  // Hydrate auth state on page load
+  // Hydrate auth state on initial app load only
   await authStore.fetchUser()
 })
 </script>

@@ -2,12 +2,12 @@
   <div class="max-w-4xl mx-auto px-6 py-16">
     <div class="text-center mb-12">
       <span class="font-['Caveat'] text-brand-caramel dark:text-[#E2C08A] text-2xl block mb-2">we're listening</span>
-      <h1 class="text-4xl font-extrabold text-ink dark:text-[#FBF3E7] tracking-tight">Share Your Ideas 💡</h1>
+      <h1 class="text-4xl font-extrabold text-ink dark:text-[#FBF3E7] tracking-tight">Share Your Ideas</h1>
       <p class="text-warm-gray dark:text-[#C5B4A4] mt-3">Help us make ABCDips & Treats even better</p>
     </div>
 
     <div v-if="success" class="bg-white dark:bg-[#1E1510] rounded-3xl p-12 text-center border border-brand-caramel/20 dark:border-[#C08E5D]/20 shadow-lg animate-[pulse_1s_ease-in-out]">
-      <div class="text-6xl mb-6 animate-bounce">🎉</div>
+      <div class="w-16 h-16 rounded-3xl bg-emerald-500/20 text-emerald-500 mx-auto flex items-center justify-center mb-6 border border-emerald-500/30"><CheckCircle2 class="w-10 h-10" /></div>
       <h2 class="text-2xl font-extrabold text-ink dark:text-[#FBF3E7] mb-2">Thank you for your suggestion!</h2>
       <p class="text-warm-gray dark:text-[#C5B4A4] mb-8">We appreciate your feedback and will review your ideas carefully.</p>
       <button @click="resetForm" class="bg-brand-choco dark:bg-[#C08E5D] text-white dark:text-[#1C1410] px-6 py-2.5 rounded-xl font-bold hover:bg-[#3D2515] dark:hover:bg-[#E2C08A] transition-colors">
@@ -26,7 +26,7 @@
                v-tooltip="`Select category: ${cat.label}`"
                class="cursor-pointer rounded-2xl p-4 border-2 transition-all flex items-start gap-4"
                :class="form.category === cat.id ? 'border-brand-choco dark:border-[#E2C08A] bg-brand-tan/10 dark:bg-[#C08E5D]/10 shadow-sm' : 'border-brand-caramel/20 dark:border-[#C08E5D]/20 hover:border-brand-choco dark:hover:border-[#E2C08A] hover:bg-surface/50 dark:hover:bg-[#140D09]/50'">
-            <div class="text-2xl mt-0.5">{{ cat.icon }}</div>
+            <div class="w-10 h-10 rounded-xl bg-[#D9A876]/20 flex items-center justify-center text-[#5C3A22] dark:text-[#E2C08A] shrink-0 border border-[#C08E5D]/30"><component :is="cat.icon" class="w-5 h-5" /></div>
             <div>
               <h3 class="font-bold text-ink dark:text-[#FBF3E7] text-sm">{{ cat.label }}</h3>
               <p class="text-xs text-warm-gray dark:text-[#C5B4A4] mt-1 leading-relaxed">{{ cat.desc }}</p>
@@ -79,6 +79,7 @@
 
 <script setup>
 import { ref, inject, onMounted, watch } from 'vue'
+import { CheckCircle2, Lightbulb, Star, Wrench, MessageSquare } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 
 const axios = inject('axios')
@@ -88,10 +89,10 @@ const submitting = ref(false)
 const success = ref(false)
 
 const categories = [
-  { id: 'product', icon: '💡', label: 'Product Idea', desc: 'Suggest a new product or flavor' },
-  { id: 'service', icon: '⭐', label: 'Service Feedback', desc: 'Tell us about your experience' },
-  { id: 'feature', icon: '🔧', label: 'Feature Request', desc: 'App or website improvements' },
-  { id: 'other', icon: '💬', label: 'Other', desc: 'Anything else on your mind' }
+  { id: 'product', icon: Lightbulb, label: 'Product Idea', desc: 'Suggest a new product or flavor' },
+  { id: 'service', icon: Star, label: 'Service Feedback', desc: 'Tell us about your experience' },
+  { id: 'feature', icon: Wrench, label: 'Feature Request', desc: 'App or website improvements' },
+  { id: 'other', icon: MessageSquare, label: 'Other', desc: 'Anything else on your mind' }
 ]
 
 const form = ref({

@@ -98,7 +98,7 @@
 
                         <div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
                             <BaseBadge v-if="product.is_best_seller" variant="brand">Best Seller</BaseBadge>
-                            <BaseBadge v-else-if="product.is_highly_rated" variant="warning">⭐ Highly Rated</BaseBadge>
+                            <BaseBadge v-else-if="product.is_highly_rated" variant="warning"><span class="flex items-center gap-1"><Star class="w-3 h-3 fill-current" /><span>Highly Rated</span></span></BaseBadge>
                             <BaseBadge v-if="product.is_on_sale" variant="error">Sale</BaseBadge>
                             <BaseBadge v-if="product.is_seasonal" variant="warning">Seasonal</BaseBadge>
                         </div>
@@ -127,7 +127,7 @@
                             <a v-if="product.reviews_count && product.reviews_count > 0" href="#reviews"
                                 v-tooltip="`Read all ${product.reviews_count} verified customer reviews`"
                                 class="inline-flex items-center gap-1 bg-surface border border-brand-caramel/30 px-2.5 py-0.5 rounded-full text-xs font-extrabold text-brand-choco hover:bg-brand-tan/30 transition-colors">
-                                <span>⭐ {{ product.avg_rating }}</span>
+                                <span class="flex items-center gap-1"><Star class="w-3.5 h-3.5 fill-amber-400 text-amber-500" /><span>{{ product.avg_rating }}</span></span>
                                 <span class="text-warm-gray font-normal">({{ product.reviews_count }} reviews)</span>
                             </a>
                         </div>
@@ -154,7 +154,7 @@
                                  :class="isNearExpiry ? 'animate-[pulse_1s_ease-in-out_infinite] border-red-300 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : ''">
                                 <div class="text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1"
                                      :class="isNearExpiry ? 'text-red-600' : 'text-brand-choco'">
-                                    <span>🔥</span> Sale ends in:
+                                    Sale ends in:
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <div class="flex flex-col items-center bg-[#2A1C13] text-white rounded-lg px-3 py-1.5 min-w-[50px]">
@@ -228,7 +228,7 @@
                             <span v-for="(alg, idx) in product.allergens" :key="idx"
                                 v-tooltip="`May contain ${alg.name} allergen — ${alg.type}. Please inform us of any dietary restrictions before ordering.`"
                                 class="px-2.5 py-1 rounded-lg bg-warning/10 text-warning text-xs font-semibold border border-warning/20 cursor-help">
-                                ⚠️ {{ alg.name }} ({{ alg.type }})
+                                {{ alg.name }} ({{ alg.type }})
                             </span>
                         </div>
                     </div>

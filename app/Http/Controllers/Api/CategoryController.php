@@ -19,18 +19,18 @@ class CategoryController extends Controller
 
         return response()->json([
             'data' => ProductCategoryResource::collection($categories),
-        ]);
+        ])->header('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
     }
 
     public function show(string $slug): JsonResponse
     {
         $category = ProductCategory::query()
             ->withCount('products')
-            ->where('slug', $slug)
             ->where('is_active', true)
+            ->where('slug', $slug)
             ->first();
 
-        if (! $category) {
+        if (!$category) {
             return response()->json(['message' => 'Category not found.'], 404);
         }
 

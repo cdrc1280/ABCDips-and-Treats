@@ -71,10 +71,10 @@
                         <button type="submit" :disabled="subscribed || subscribing"
                             v-tooltip="'Subscribe to updates & exclusive promos'"
                             class="bg-[#C08E5D] text-[#1C1410] rounded-xl px-3.5 py-2.5 text-xs font-bold hover:bg-[#E2C08A] disabled:opacity-50 transition-colors shrink-0">
-                            {{ subscribed ? '✓' : 'Join' }}
+                            <Check v-if="subscribed" class="w-4 h-4" /><span v-else>Join</span>
                         </button>
                     </form>
-                    <p v-if="subscribed" class="text-xs text-[#6B8F5E] font-bold mt-2">✓ You're subscribed!</p>
+                    <p v-if="subscribed" class="text-xs text-[#6B8F5E] font-bold mt-2">You're successfully subscribed to our newsletter!</p>
                 </div>
             </div>
         </div>
@@ -98,6 +98,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { Check } from 'lucide-vue-next'
 const email = ref('')
 const subscribed = ref(false)
 const subscribing = ref(false)
@@ -115,7 +116,7 @@ const companyLinks = [
     { to: '/faq', label: 'FAQ' },
     { to: '/privacy', label: 'Privacy Policy' },
     { to: '/terms', label: 'Terms of Service' },
-    { to: '/suggestions', label: '💡 Suggest a Feature' },
+    { to: '/suggestions', label: 'Suggest a Feature' },
 ]
 async function subscribe() {
     if (!email.value) return

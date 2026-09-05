@@ -27,7 +27,7 @@
 <body>
 <div class="wrapper">
     <div class="header">
-        <h1>🍫 ABCDips & Treats</h1>
+        <h1>ABCDips &amp; Treats</h1>
         <p>Email Verification</p>
     </div>
     <div class="body">
@@ -44,7 +44,7 @@
         </div>
 
         <div class="warning-box">
-            ⚠️ <strong>Did not request this?</strong> You can safely ignore this email. Your account remains secure.
+            <strong>Did not request this?</strong> You can safely ignore this email. Your account remains secure.
         </div>
 
         <p class="message" style="font-size: 13px;">
@@ -52,7 +52,7 @@
         </p>
     </div>
     <div class="footer">
-        <p>Sent with ❤️ by <strong>ABCDips & Treats</strong></p>
+        <p>Sent with care by <strong>ABCDips &amp; Treats</strong></p>
         <p style="margin-top: 4px;">© {{ date('Y') }} ABCDips & Treats. All rights reserved.</p>
     </div>
 </div>

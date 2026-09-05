@@ -10,7 +10,7 @@
               <div class="text-xs font-bold uppercase tracking-wider text-brand-caramel dark:text-[#E2C08A]">Bulk Basket Editor</div>
               <h3 class="text-xl font-extrabold text-ink dark:text-[#FBF3E7]">Edit {{ editItems.length }} Selected Pastry Item{{ editItems.length > 1 ? 's' : '' }}</h3>
             </div>
-            <button @click="closeModal" class="w-8 h-8 rounded-full bg-surface dark:bg-[#140D09] text-warm-gray hover:text-ink dark:hover:text-[#FBF3E7] font-bold flex items-center justify-center transition-colors">✕</button>
+            <button @click="closeModal" class="w-8 h-8 rounded-full bg-surface dark:bg-[#140D09] text-warm-gray hover:text-ink dark:hover:text-[#FBF3E7] font-bold flex items-center justify-center transition-colors"><X class="w-4 h-4" /></button>
           </div>
 
           <!-- Items List -->
@@ -92,6 +92,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { X } from 'lucide-vue-next'
 import { useCartStore } from '@/stores/cart'
 import { useToast } from '@/composables/useToast'
 import BaseButton from '@/components/ui/BaseButton.vue'

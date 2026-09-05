@@ -1,7 +1,7 @@
 <template>
   <div class="page-container py-10 md:py-16">
     <PageHeader
-      tagline="bespoke baking"
+      tagline="custom cakes & party bakes"
       title="Custom Cake &amp; Pastry Builder"
       subtitle="Planning a wedding, birthday, or milestone celebration? Customize your cake online, add to basket, or submit an inquiry for a formal quote."
     />
@@ -191,7 +191,7 @@
               :loading="addingToCart"
               @click="addToCart"
             >
-              🎂 Add Custom Cake to Basket
+              Add Custom Cake to Basket
             </BaseButton>
 
             <BaseButton
@@ -201,7 +201,7 @@
               :loading="submitting"
               @click="submitInquiry"
             >
-              📨 Submit Custom Quote Inquiry
+              Submit Custom Quote Inquiry
             </BaseButton>
           </div>
         </div>
@@ -329,7 +329,7 @@ async function addToCart() {
 
     const res = await cartStore.addItem(defaultCakeProductId.value, 1, customOptions)
     if (res.success) {
-      toast.success(`Custom ${form.value.tiers_count}-Tier ${form.value.flavor_preference} Cake added to your basket!`, 'Custom Bake Added 🎂')
+      toast.success(`Custom ${form.value.tiers_count}-Tier ${form.value.flavor_preference} Cake added to your basket!`, 'Custom Bake Added')
       cartStore.openDrawer = true
     }
   } catch (err) {

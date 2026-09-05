@@ -53,19 +53,19 @@
         <p class="font-semibold text-brand-choco mb-1">Password Requirements:</p>
         <div class="grid grid-cols-2 gap-1">
           <div :class="rules.minLength ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
-            <span>{{ rules.minLength ? '✓' : '○' }}</span> At least 8 characters
+            <CheckCircle2 v-if="rules.minLength" class="w-3.5 h-3.5 text-emerald-500 inline mr-1" /><Circle v-else class="w-3.5 h-3.5 text-stone-400 inline mr-1" /> At least 8 characters
           </div>
           <div :class="rules.hasUpper ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
-            <span>{{ rules.hasUpper ? '✓' : '○' }}</span> Uppercase letter (A-Z)
+            <CheckCircle2 v-if="rules.hasUpper" class="w-3.5 h-3.5 text-emerald-500 inline mr-1" /><Circle v-else class="w-3.5 h-3.5 text-stone-400 inline mr-1" /> Uppercase letter (A-Z)
           </div>
           <div :class="rules.hasLower ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
-            <span>{{ rules.hasLower ? '✓' : '○' }}</span> Lowercase letter (a-z)
+            <CheckCircle2 v-if="rules.hasLower" class="w-3.5 h-3.5 text-emerald-500 inline mr-1" /><Circle v-else class="w-3.5 h-3.5 text-stone-400 inline mr-1" /> Lowercase letter (a-z)
           </div>
           <div :class="rules.hasNumber ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5">
-            <span>{{ rules.hasNumber ? '✓' : '○' }}</span> Number (0-9)
+            <CheckCircle2 v-if="rules.hasNumber" class="w-3.5 h-3.5 text-emerald-500 inline mr-1" /><Circle v-else class="w-3.5 h-3.5 text-stone-400 inline mr-1" /> Number (0-9)
           </div>
           <div :class="rules.hasSpecial ? 'text-success font-semibold' : 'text-warm-gray'" class="flex items-center gap-1.5 col-span-2">
-            <span>{{ rules.hasSpecial ? '✓' : '○' }}</span> Special character (!@#$%^&* etc.)
+            <CheckCircle2 v-if="rules.hasSpecial" class="w-3.5 h-3.5 text-emerald-500 inline mr-1" /><Circle v-else class="w-3.5 h-3.5 text-stone-400 inline mr-1" /> Special character (!@#$%^&* etc.)
           </div>
         </div>
       </div>
@@ -99,6 +99,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { CheckCircle2, Circle } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'

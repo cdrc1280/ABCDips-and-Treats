@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class ProductRepository
 {
@@ -92,7 +93,7 @@ class ProductRepository
     public function getFeatured(int $limit = 6): Collection
     {
         return Product::query()
-            ->with(['category', 'tags', 'media'])
+            ->with(['category', 'tags', 'allergens', 'nutrition', 'media'])
             ->forCustomer()
             ->where('is_featured', true)
             ->take($limit)

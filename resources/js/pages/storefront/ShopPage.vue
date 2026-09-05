@@ -109,7 +109,7 @@ let debounceTimer = null
 
 const sortOptions = [
     { value: 'latest', label: 'Latest Additions' },
-    { value: 'rating_high', label: '⭐ Customer Rating (High to Low)' },
+    { value: 'rating_high', label: 'Customer Rating (High to Low)' },
     { value: 'price_low', label: 'Price: Low to High' },
     { value: 'price_high', label: 'Price: High to Low' },
     { value: 'name_asc', label: 'Alphabetical (A-Z)' }

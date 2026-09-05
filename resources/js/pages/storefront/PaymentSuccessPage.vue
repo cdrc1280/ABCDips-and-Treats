@@ -8,7 +8,7 @@
 
     <div v-else-if="success" class="bg-white rounded-3xl p-8 border border-brand-caramel/20 shadow-xl space-y-6">
       <div class="w-20 h-20 bg-success/15 rounded-full flex items-center justify-center mx-auto text-4xl">
-        🎉
+        
       </div>
       <div>
         <span class="script-accent text-lg text-brand-caramel">payment received</span>
@@ -45,7 +45,7 @@
 
     <div v-else class="bg-white rounded-3xl p-8 border border-error/20 shadow-xl space-y-6">
       <div class="w-20 h-20 bg-error/15 rounded-full flex items-center justify-center mx-auto text-4xl">
-        ⚠️
+        
       </div>
       <div>
         <h1 class="text-2xl font-extrabold text-ink">Payment Verification Issue</h1>
@@ -62,6 +62,7 @@
 
 <script setup>
 import { ref, onMounted, inject } from 'vue'
+import { CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import BaseButton from '@/components/ui/BaseButton.vue'

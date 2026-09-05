@@ -4,6 +4,7 @@ import router from '@/router'
 import App from '@/App.vue'
 import axios from 'axios'
 import { vTooltip } from '@/directives/vTooltip'
+import { initSmoothScroll } from '@/plugins/smoothScroll'
 
 // ─── Axios global config ─────────────────────────────────────
 axios.defaults.withCredentials = true
@@ -85,3 +86,6 @@ app.config.globalProperties.$axios = axios
 app.provide('axios', axios)
 
 app.mount('#app')
+
+// Initialize Lenis non-generic smooth scroll physics
+initSmoothScroll()

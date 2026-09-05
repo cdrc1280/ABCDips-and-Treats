@@ -68,7 +68,7 @@
 <body>
     @unless ($isPdf)
         <div class="actions-bar">
-            <button class="btn" onclick="window.print()">🖨️ Print Thermal Receipt</button>
+            <button class="btn" onclick="window.print()">Print Thermal Receipt</button>
         </div>
     @endunless
 

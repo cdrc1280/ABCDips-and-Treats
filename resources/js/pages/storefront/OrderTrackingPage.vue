@@ -40,7 +40,7 @@
         <div class="flex items-start gap-4">
           <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-xs"
             :class="order.pooling_status === 'settled' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800'">
-            {{ order.pooling_status === 'settled' ? '🎉' : '🤝' }}
+            
           </div>
           <div class="flex-1 space-y-2">
             <div class="flex items-center justify-between flex-wrap gap-2">
@@ -49,7 +49,7 @@
               </h3>
               <span class="px-3 py-1 rounded-full text-xs font-bold uppercase shadow-2xs"
                 :class="order.pooling_status === 'settled' ? 'bg-emerald-700 text-white' : 'bg-amber-700 text-white'">
-                {{ order.pooling_status === 'settled' ? '✓ Settled' : '⏳ Pending Admin Rate' }}
+                {{ order.pooling_status === 'settled' ? 'Settled' : 'Pending Admin Rate' }}
               </span>
             </div>
 
@@ -66,10 +66,10 @@
             <div class="pt-2">
               <template v-if="order.pooling_status === 'settled'">
                 <div v-if="order.payment_status === 'paid'" class="flex items-center gap-2 text-xs font-extrabold text-emerald-800 dark:text-emerald-300">
-                  <span>✓ Payment Settled &amp; Confirmed!</span>
+                  <span class="flex items-center gap-1.5"><CheckCircle2 class="w-4 h-4 text-emerald-500" /><span>Payment Settled &amp; Confirmed!</span></span>
                 </div>
                 <BaseButton v-else variant="primary" size="sm" @click="showPaymentModal = true">
-                  💳 Settle Payment Now (₱{{ (order.total || 0).toFixed(2) }}) →
+                  Settle Payment Now (₱{{ (order.total || 0).toFixed(2) }}) →
                 </BaseButton>
               </template>
               <template v-else>
@@ -129,11 +129,11 @@
             <div class="flex justify-between"><span class="text-warm-gray">Delivery Mode:</span>
               <span class="font-bold text-ink flex items-center gap-1">
                 <template v-if="order.delivery_mode === 'pooling'">
-                  <span>🤝 Delivery Pooling</span>
+                  <span class="flex items-center gap-1"><Users class="w-3.5 h-3.5" /><span>Delivery Pooling</span></span>
                   <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold uppercase">{{ order.pooling_status }}</span>
                 </template>
                 <template v-else>
-                  <span>⚡ Priority Express</span>
+                  <span class="flex items-center gap-1"><Zap class="w-3.5 h-3.5" /><span>Priority Express</span></span>
                 </template>
               </span>
             </div>

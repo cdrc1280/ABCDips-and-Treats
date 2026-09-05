@@ -2,7 +2,7 @@
   <div class="space-y-4 bg-surface/60 dark:bg-[#1A120C]/60 p-4 rounded-2xl border border-brand-caramel/30">
     <div class="flex items-center justify-between">
       <h4 class="text-xs font-bold uppercase tracking-wider text-brand-choco dark:text-[#E2C08A] flex items-center gap-1.5">
-        <span>🇵🇭</span> Philippine Standard Geographic Address (PSGC)
+        Philippine Standard Geographic Address (PSGC)
       </h4>
       <span v-if="loadingRegions || loadingProvinces || loadingCities || loadingBarangays" class="text-[11px] text-brand-caramel flex items-center gap-1">
         <span class="w-3 h-3 border-2 border-brand-choco border-t-transparent rounded-full animate-spin"></span>
@@ -27,7 +27,7 @@
             class="w-full bg-white dark:bg-[#120B07] border border-brand-caramel/30 rounded-xl px-3.5 py-2 text-xs text-ink dark:text-[#FBF3E7] placeholder-warm-gray focus:outline-none focus:border-brand-choco focus:ring-1 focus:ring-brand-choco/30 transition-all"
           />
           <button type="button" @click="openRegion = !openRegion" class="absolute right-3 top-2.5 text-warm-gray text-xs">
-            ▼
+            
           </button>
         </div>
 
@@ -72,7 +72,7 @@
             class="w-full bg-white dark:bg-[#120B07] border border-brand-caramel/30 rounded-xl px-3.5 py-2 text-xs text-ink dark:text-[#FBF3E7] placeholder-warm-gray focus:outline-none focus:border-brand-choco focus:ring-1 focus:ring-brand-choco/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <button type="button" @click="handleProvinceToggle" class="absolute right-3 top-2.5 text-warm-gray text-xs">
-            ▼
+            
           </button>
         </div>
 
@@ -116,7 +116,7 @@
             class="w-full bg-white dark:bg-[#120B07] border border-brand-caramel/30 rounded-xl px-3.5 py-2 text-xs text-ink dark:text-[#FBF3E7] placeholder-warm-gray focus:outline-none focus:border-brand-choco focus:ring-1 focus:ring-brand-choco/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <button type="button" @click="handleCityToggle" class="absolute right-3 top-2.5 text-warm-gray text-xs">
-            ▼
+            
           </button>
         </div>
 
@@ -160,7 +160,7 @@
             class="w-full bg-white dark:bg-[#120B07] border border-brand-caramel/30 rounded-xl px-3.5 py-2 text-xs text-ink dark:text-[#FBF3E7] placeholder-warm-gray focus:outline-none focus:border-brand-choco focus:ring-1 focus:ring-brand-choco/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <button type="button" @click="handleBarangayToggle" class="absolute right-3 top-2.5 text-warm-gray text-xs">
-            ▼
+            
           </button>
         </div>
 
@@ -205,7 +205,7 @@
 
     <!-- Assembled Address Preview Bar -->
     <div v-if="compiledAddress" class="bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-xl text-[11px] text-brand-choco dark:text-[#E2C08A] flex items-start gap-2">
-      <span class="text-sm shrink-0">📍</span>
+      <MapPin class="w-4 h-4 text-[#C08E5D] shrink-0" />
       <div>
         <strong class="font-bold">Full Structured Delivery Address:</strong>
         <p class="text-ink dark:text-[#FBF3E7] mt-0.5">{{ compiledAddress }}</p>

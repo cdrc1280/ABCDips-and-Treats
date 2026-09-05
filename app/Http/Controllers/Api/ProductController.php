@@ -54,7 +54,7 @@ class ProductController extends Controller
         $limit = (int) $request->get('limit', 6);
         $products = $this->productService->getFeaturedProducts($limit);
 
-        return response()->json(['data' => ProductResource::collection($products)]);
+        return response()->json(['data' => ProductResource::collection($products)])->header('Cache-Control', 'public, max-age=180, stale-while-revalidate=300');
     }
 
     public function bestSellers(Request $request): JsonResponse
@@ -62,7 +62,7 @@ class ProductController extends Controller
         $limit = (int) $request->get('limit', 6);
         $products = $this->productService->getBestSellerProducts($limit);
 
-        return response()->json(['data' => ProductResource::collection($products)]);
+        return response()->json(['data' => ProductResource::collection($products)])->header('Cache-Control', 'public, max-age=180, stale-while-revalidate=300');
     }
 
     public function newArrivals(Request $request): JsonResponse
@@ -95,15 +95,15 @@ class ProductController extends Controller
     public function aboutContent(): JsonResponse
     {
         $defaultTimeline = [
-            ['year' => '2020', 'emoji' => '🏠', 'title' => 'Home Kitchen Beginnings', 'desc' => 'ABCDips & Treats started in a small home kitchen, baking banana bread and cookies for friends and family.'],
-            ['year' => '2021', 'emoji' => '❤️', 'title' => 'First Online Orders', 'desc' => 'Word spread and we started taking online orders through social media, quickly selling out every weekend.'],
-            ['year' => '2023', 'emoji' => '🥰', 'title' => 'Full Menu & Delivery', 'desc' => 'Expanded to our full pastry menu including custom cakes, cheesecakes, and cinnamon rolls with city-wide delivery.'],
+            ['year' => '2020', 'icon' => 'home', 'title' => 'Home Kitchen Beginnings', 'desc' => 'ABCDips & Treats started in a small home kitchen, baking banana bread and cookies for friends and family.'],
+            ['year' => '2021', 'icon' => 'heart', 'title' => 'First Online Orders', 'desc' => 'Word spread and we started taking online orders through social media, quickly selling out every weekend.'],
+            ['year' => '2023', 'icon' => 'sparkles', 'title' => 'Full Menu & Delivery', 'desc' => 'Expanded to our full pastry menu including custom cakes, cheesecakes, and cinnamon rolls with city-wide delivery.'],
         ];
 
         $defaultValues = [
-            ['emoji' => '🫖', 'title' => 'Quality Ingredients', 'desc' => 'We use only real creamery butter, imported Belgian chocolate, and fresh farm eggs. No shortcuts, ever.'],
-            ['emoji' => '❤️', 'title' => 'Made with Love', 'desc' => 'Every pastry is handcrafted in small batches by our dedicated bakers who pour passion into every bite.'],
-            ['emoji' => '🌟', 'title' => 'Community First', 'desc' => 'We believe in building relationships, supporting local suppliers, and making people smile one pastry at a time.'],
+            ['icon' => 'coffee', 'title' => 'Quality Ingredients', 'desc' => 'We use only real creamery butter, imported Belgian chocolate, and fresh farm eggs. No shortcuts, ever.'],
+            ['icon' => 'heart', 'title' => 'Made with Love', 'desc' => 'Every pastry is handcrafted in small batches by our dedicated bakers who pour passion into every bite.'],
+            ['icon' => 'star', 'title' => 'Community First', 'desc' => 'We believe in building relationships, supporting local suppliers, and making people smile one pastry at a time.'],
         ];
 
         return response()->json([

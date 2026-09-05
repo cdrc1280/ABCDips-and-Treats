@@ -41,7 +41,7 @@
                 class="w-8 h-8 rounded-full bg-surface dark:bg-[#140D09] hover:bg-brand-tan/30 text-brand-choco dark:text-[#E2C08A] flex items-center justify-center transition-colors"
                 @click="close"
               >
-                ✕
+                
               </button>
             </div>
 

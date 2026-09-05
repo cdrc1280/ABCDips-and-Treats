@@ -22,7 +22,7 @@
         <div class="flex items-start gap-4">
           <div
             class="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-2xl shrink-0">
-            🔐
+            
           </div>
           <div>
             <h3 class="text-xl font-extrabold text-amber-950">Account Verification Required Before Checkout</h3>
@@ -40,14 +40,14 @@
             verificationTab === 'email'
               ? 'bg-brand-choco text-surface shadow-xs'
               : 'bg-white/80 dark:bg-[#1E1510]/80 text-amber-900 hover:bg-white dark:bg-[#1E1510] border border-amber-200'
-          ]">✉️ Verify via Email</button>
+          ]">Verify via Email</button>
 
           <button type="button" @click="verificationTab = 'phone'" :class="[
             'px-4 py-2 rounded-xl text-xs font-bold transition-all',
             verificationTab === 'phone'
               ? 'bg-brand-choco text-surface shadow-xs'
               : 'bg-white/80 dark:bg-[#1E1510]/80 text-amber-900 hover:bg-white dark:bg-[#1E1510] border border-amber-200'
-          ]">📱 Verify via Mobile Number (SMS Code)</button>
+          ]">Verify via Mobile Number (SMS Code)</button>
         </div>
 
         <!-- Tab 1: Email OTP Verification (6-Digit Code) -->
@@ -60,14 +60,14 @@
           <!-- Step 1: Send Code -->
           <div v-if="!emailOtpSent" class="flex items-center gap-3 flex-wrap">
             <BaseButton type="button" variant="primary" :loading="sendingEmailOtp" @click="sendEmailOtp">
-              ✉️ Send 6-Digit Code to Email
+              Send 6-Digit Code to Email
             </BaseButton>
           </div>
 
           <!-- Step 2: Enter Code -->
           <div v-else class="space-y-3">
             <p class="text-xs font-semibold text-success flex items-center gap-1.5">
-              ✓ Verification code sent to <strong>{{ authStore.user.email }}</strong>! Check your inbox.
+              Verification code sent to <strong>{{ authStore.user.email }}</strong>! Check your inbox.
             </p>
             <div class="flex items-center gap-3 flex-wrap">
               <div>
@@ -85,7 +85,7 @@
               <div class="flex flex-col gap-2">
                 <button type="button" @click="verifyEmailOtp" :disabled="verifyingEmailOtp || emailOtpCode.length !== 6"
                   class="px-4 py-2 bg-success text-white text-xs font-bold rounded-xl hover:bg-green-700 disabled:opacity-50 transition-all">
-                  {{ verifyingEmailOtp ? 'Verifying...' : '✓ Verify & Unlock Checkout' }}
+                  {{ verifyingEmailOtp ? 'Verifying...' : 'Verify & Unlock Checkout' }}
                 </button>
                 <button type="button" @click="sendEmailOtp" :disabled="sendingEmailOtp"
                   class="px-3 py-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300 hover:underline disabled:opacity-50">
@@ -93,7 +93,7 @@
                 </button>
               </div>
             </div>
-            <p v-if="emailOtpError" class="text-xs font-semibold text-error">⚠️ {{ emailOtpError }}</p>
+            <p v-if="emailOtpError" class="text-xs font-semibold text-error">{{ emailOtpError }}</p>
           </div>
         </div>
 
@@ -113,7 +113,7 @@
                   {{ sendingOtp ? 'Sending...' : 'Send SMS Code' }}
                 </button>
               </div>
-              <p v-if="otpSent" class="text-[11px] text-success font-semibold mt-1">✓ SMS Code sent! Please check your
+              <p v-if="otpSent" class="text-[11px] text-success font-semibold mt-1">SMS Code sent! Please check your
                 mobile device for the verification code.</p>
             </div>
 
@@ -147,7 +147,7 @@
             class="font-extrabold text-xl text-ink dark:text-[#FBF3E7] border-b border-brand-caramel/20 pb-3 flex items-center justify-between">
             <span>1. Fulfillment Method</span>
             <span v-if="storeInfo.store_address" class="text-xs font-normal text-warm-gray">
-              📍 Store: {{ storeInfo.store_address }}
+              Store: {{ storeInfo.store_address }}
             </span>
           </h3>
 
@@ -157,9 +157,7 @@
               class="border-2 rounded-2xl p-4 cursor-pointer flex flex-col items-center justify-center text-center transition-all"
               :class="form.fulfillment_type === 'delivery' ? 'border-brand-choco bg-surface dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
               <input type="radio" v-model="form.fulfillment_type" value="delivery" class="sr-only" />
-              <div class="w-10 h-10 rounded-full bg-brand-tan/30 flex items-center justify-center text-brand-choco mb-2">
-                🛵
-              </div>
+              <div class="w-10 h-10 rounded-2xl bg-[#D9A876]/20 flex items-center justify-center text-[#5C3A22] dark:text-[#E2C08A] mb-2 border border-[#C08E5D]/20"><Truck class="w-5 h-5" /></div>
               <div class="font-bold text-sm text-ink dark:text-[#FBF3E7]">Doorstep Delivery</div>
               <div class="text-xs text-warm-gray mt-0.5">
                 <span v-if="quotingDelivery" class="animate-pulse text-brand-caramel">Quoting...</span>
@@ -173,14 +171,12 @@
               class="border-2 rounded-2xl p-4 cursor-pointer flex flex-col items-center justify-center text-center transition-all"
               :class="form.fulfillment_type === 'pickup' ? 'border-brand-choco bg-surface dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-70 hover:opacity-100'">
               <input type="radio" v-model="form.fulfillment_type" value="pickup" class="sr-only" />
-              <div class="w-10 h-10 rounded-full bg-brand-tan/30 flex items-center justify-center text-brand-choco mb-2">
-                🏪
-              </div>
+              <div class="w-10 h-10 rounded-2xl bg-[#D9A876]/20 flex items-center justify-center text-[#5C3A22] dark:text-[#E2C08A] mb-2 border border-[#C08E5D]/20"><Store class="w-5 h-5" /></div>
               <div class="font-bold text-sm text-ink dark:text-[#FBF3E7]">Store Pickup</div>
               <div class="text-xs text-success font-semibold mt-0.5">FREE</div>
               <div class="text-[11px] text-warm-gray mt-1 max-w-[200px] truncate"
                 :title="storeInfo.store_address || 'Bacoor, Cavite, Philippines'">
-                📍 Store: {{ storeInfo.store_address || 'Bacoor, Cavite, Philippines' }}
+                Store: {{ storeInfo.store_address || 'Bacoor, Cavite, Philippines' }}
               </div>
             </label>
           </div>
@@ -196,9 +192,7 @@
               <label class="border-2 rounded-2xl p-3.5 cursor-pointer flex items-start gap-3 transition-all"
                 :class="form.delivery_mode === 'priority' ? 'border-brand-choco bg-surface/80 dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-75 hover:opacity-100'">
                 <input type="radio" v-model="form.delivery_mode" value="priority" class="sr-only" />
-                <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 flex items-center justify-center text-lg shrink-0 mt-0.5">
-                  ⚡
-                </div>
+                <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 flex items-center justify-center shrink-0 mt-0.5"><Zap class="w-4 h-4" /></div>
                 <div>
                   <div class="font-bold text-xs text-ink dark:text-[#FBF3E7] flex items-center gap-1.5">
                     <span>Priority Express</span>
@@ -219,9 +213,7 @@
               <label class="border-2 rounded-2xl p-3.5 cursor-pointer flex items-start gap-3 transition-all"
                 :class="form.delivery_mode === 'pooling' ? 'border-emerald-600 bg-emerald-50/60 dark:bg-[#1A2E1A]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510] opacity-75 hover:opacity-100'">
                 <input type="radio" v-model="form.delivery_mode" value="pooling" class="sr-only" />
-                <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-lg shrink-0 mt-0.5">
-                  🤝
-                </div>
+                <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5"><Users class="w-4 h-4" /></div>
                 <div>
                   <div class="font-bold text-xs text-ink dark:text-[#FBF3E7] flex items-center gap-1.5">
                     <span>Group Delivery Pooling</span>
@@ -287,7 +279,7 @@
               </div>
               <div v-else-if="quotedFee !== null" class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <span class="text-base">🛵</span>
+                  <Truck class="w-4 h-4 inline" />
                   <div>
                     <span class="font-bold text-sm">{{ quoteProvider }} Motorcycle Rate: ₱{{ quotedFee.toFixed(2)
                       }}</span>
@@ -297,11 +289,11 @@
                 <span class="bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold text-[10px]">Calculated</span>
               </div>
               <div v-else-if="quoteError" class="flex items-center gap-2">
-                <span>⚠️</span>
+                <span></span>
                 <span>{{ quoteError }}</span>
               </div>
               <div v-else class="text-warm-gray">
-                💡 Type your complete street and barangay address above to auto-calculate your Lalamove delivery rate.
+                Type your complete street and barangay address above to auto-calculate your Lalamove delivery rate.
               </div>
             </div>
           </div>
@@ -381,7 +373,7 @@
           <div v-if="form.payment_method === 'bank_transfer'"
             class="p-4 bg-surface border border-brand-caramel/30 rounded-2xl text-xs space-y-1 text-ink dark:text-[#FBF3E7]">
             <p class="font-bold text-sm text-brand-choco flex items-center gap-1.5">
-              <span>🏦 BDO Unibank Account Details</span>
+              <span class="flex items-center gap-1.5"><Building2 class="w-4 h-4 text-[#C08E5D]" /><span>BDO Unibank Account Details</span></span>
             </p>
             <p><strong>Bank Name:</strong> BDO Unibank (Banco de Oro)</p>
             <p><strong>Account Name:</strong> {{ storeInfo.bdo_account_name || 'ABCDips & Treats' }}</p>
@@ -439,7 +431,7 @@
             <div v-if="cartStore.couponCode"
               class="flex items-center justify-between bg-success/15 border border-success/30 p-2.5 rounded-xl text-xs">
               <div class="flex items-center gap-1.5">
-                <span>🎟️</span>
+                <Ticket class="w-4 h-4 inline" />
                 <span class="font-bold text-[#2D4525]">{{ cartStore.couponCode }}</span>
                 <span class="text-[10px] text-success">(Applied)</span>
               </div>
@@ -484,14 +476,14 @@
             <div v-if="form.fulfillment_type === 'delivery' && form.delivery_mode === 'pooling'"
               class="p-4 rounded-2xl bg-amber-50/90 dark:bg-[#2A1C13] border border-amber-300 dark:border-amber-800 space-y-2 text-xs">
               <div class="flex items-center gap-2 text-amber-950 dark:text-amber-200 font-extrabold text-xs">
-                <span class="text-base">🤝</span>
+                <Users class="w-4 h-4 inline" />
                 <span>Group Delivery Pooling Pre-Order Notice</span>
               </div>
               <p class="text-amber-900 dark:text-amber-300 text-[11px] leading-relaxed">
                 Payment cannot be settled yet. Submitting this request notifies our admin to batch your address with nearby orders in <strong>{{ form.city || 'your area' }}</strong> to assign your discounted shared shipping fee.
               </p>
               <p class="text-amber-800 dark:text-amber-400 font-bold text-[11px]">
-                📋 Once the rate is assigned by admin, you will be able to review and settle your final order total on the Order Tracking page.
+                Once the rate is assigned by admin, you will be able to review and settle your final order total on the Order Tracking page.
               </p>
             </div>
 
@@ -505,7 +497,7 @@
             <BaseButton type="submit" variant="primary" full-width size="lg" :loading="submitting"
               class="!bg-emerald-700 hover:!bg-emerald-800"
               v-tooltip="'Submit delivery pooling request for admin rate assignment'">
-              🤝 Submit Delivery Pooling Request (Rate Pending)
+              Submit Delivery Pooling Request (Rate Pending)
             </BaseButton>
           </template>
           <template v-else>
@@ -568,7 +560,7 @@
             </div>
 
             <div class="text-[11px] text-warm-gray space-y-1">
-              <p>📌 <strong>Important Instructions:</strong></p>
+              <p><strong>Important Instructions:</strong></p>
               <ul class="list-disc pl-4 space-y-0.5">
                 <li>Transfer exact amount ₱{{ grandTotal.toFixed(2) }} via {{ storeInfo.bank_name || 'Bank' }} Online or
                   OTC.</li>
@@ -630,7 +622,7 @@ async function handleApplyCoupon() {
   const res = await cartStore.applyCoupon(couponCode.value)
   applyingCoupon.value = false
   if (res.success) {
-    toast.success('Discount coupon applied successfully!', 'Voucher Applied 🎟️')
+    toast.success('Discount coupon applied successfully!', 'Voucher Applied')
     couponCode.value = ''
   } else {
     toast.error(res.error || 'Invalid or expired coupon code.', 'Coupon Error')
@@ -653,7 +645,7 @@ async function sendEmailOtp() {
   try {
     const { data } = await axios.post('/api/otp/email/send')
     emailOtpSent.value = true
-    toast.success(data.message || '6-digit verification code sent to your email!', 'Code Sent ✉️')
+    toast.success(data.message || '6-digit verification code sent to your email!', 'Code Sent')
   } catch (err) {
     emailOtpError.value = err.response?.data?.message || 'Failed to send verification code.'
     toast.error(emailOtpError.value, 'Error')
@@ -672,7 +664,7 @@ async function verifyEmailOtp() {
       if (authStore.user) {
         authStore.user.email_verified_at = new Date().toISOString()
       }
-      toast.success(data.message || 'Email verified successfully!', 'Verified! 🎉')
+      toast.success(data.message || 'Email verified successfully!', 'Verified!')
     }
   } catch (err) {
     emailOtpError.value = err.response?.data?.message || 'Invalid or expired verification code.'
@@ -691,7 +683,7 @@ async function sendPhoneOtp() {
   try {
     const { data } = await axios.post('/api/customer/send-phone-otp', { phone: otpPhone.value })
     otpSent.value = true
-    toast.success(data.message || 'Verification code sent! Please check your mobile device.', 'SMS Code Sent 📱')
+    toast.success(data.message || 'Verification code sent! Please check your mobile device.', 'SMS Code Sent')
   } catch (err) {
     toast.error(err.response?.data?.message || 'Failed to send SMS code.', 'Error')
   } finally {
@@ -708,7 +700,7 @@ async function verifyPhoneOtp() {
   try {
     const { data } = await axios.post('/api/customer/verify-phone-otp', { otp: otpCode.value })
     authStore.user = data.data
-    toast.success('Your account has been verified successfully via mobile number!', 'Account Verified 🎉')
+    toast.success('Your account has been verified successfully via mobile number!', 'Account Verified')
   } catch (err) {
     toast.error(err.response?.data?.message || 'Invalid verification code. Please try again.', 'Verification Error')
   } finally {
@@ -1009,7 +1001,7 @@ async function handleCheckout() {
 
     // 2. Handle Group Delivery Pooling Deferred Payment
     if (form.value.delivery_mode === 'pooling') {
-      toast.success('Order placed! Your Group Delivery Pooling is awaiting admin rate assignment.', 'Order Created 🤝')
+      toast.success('Order placed! Your Group Delivery Pooling is awaiting admin rate assignment.', 'Order Created')
       router.push({ name: 'order-confirmation', params: { token: createdOrderToken.value || createdOrderNumber.value } })
       return
     }
