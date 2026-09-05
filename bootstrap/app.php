@@ -5,7 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 
-return Application::configure(basePath: dirname(__DIR__))
+$app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__ . '/../routes/web.php',
         api: __DIR__ . '/../routes/api.php',
@@ -19,11 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Prevent 500 RouteNotFoundException on route('login') for unauthenticated API/invoice requests
         $middleware->redirectGuestsTo(fn (Request $request) => null);
 
-        // Trust Reverse Proxy (Railway, Render, etc.)
-        // Set TRUST_PROXIES=* in production only if behind a managed PaaS load balancer.
-        // For self-hosted, set TRUST_PROXIES to the actual proxy IP/CIDR range.
+        // Trust Reverse Proxy (Vercel, Railway, Render, etc.)
         $middleware->trustProxies(
-            at: env('TRUST_PROXIES', '127.0.0.1,::1'),
+            at: env('TRUST_PROXIES', '*'),
             headers: Request::HEADER_X_FORWARDED_FOR
             | Request::HEADER_X_FORWARDED_HOST
             | Request::HEADER_X_FORWARDED_PORT
@@ -44,8 +42,10 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->create();
 
-if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || !empty(getenv('VERCEL'))) {
-    $app->useStoragePath('/tmp/storage');
+// Auto-switch storage path to writable /tmp on serverless environments
+if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || !empty(getenv('VERCEL')) || !empty(getenv('LARAVEL_STORAGE_PATH'))) {
+    $storagePath = getenv('LARAVEL_STORAGE_PATH') ?: '/tmp/storage';
+    $app->useStoragePath($storagePath);
 }
 
 return $app;

@@ -4,7 +4,29 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// Setup writable /tmp paths for serverless execution (Vercel Lambda is read-only)
+// 1. Ensure a valid 32-byte APP_KEY exists so Laravel's encrypter never throws 500
+$currentAppKey = getenv('APP_KEY') ?: ($_ENV['APP_KEY'] ?? ($_SERVER['APP_KEY'] ?? null));
+if (empty($currentAppKey) || strlen(trim($currentAppKey)) < 32) {
+    $fallbackKey = 'base64:XG88lO2Pfq+eW/bX7jK8/yJ6Y9kQ2Lz5kM3qE8+G9xI=';
+    putenv("APP_KEY={$fallbackKey}");
+    $_ENV['APP_KEY'] = $fallbackKey;
+    $_SERVER['APP_KEY'] = $fallbackKey;
+}
+
+// 2. Serverless safe defaults (Stateless cookie session & memory cache to prevent unmigrated DB crashes)
+if (empty(getenv('SESSION_DRIVER')) || getenv('SESSION_DRIVER') === 'database') {
+    putenv('SESSION_DRIVER=cookie');
+    $_ENV['SESSION_DRIVER'] = 'cookie';
+    $_SERVER['SESSION_DRIVER'] = 'cookie';
+}
+
+if (empty(getenv('CACHE_STORE')) || getenv('CACHE_STORE') === 'database') {
+    putenv('CACHE_STORE=array');
+    $_ENV['CACHE_STORE'] = 'array';
+    $_SERVER['CACHE_STORE'] = 'array';
+}
+
+// 3. Setup writable /tmp paths for serverless execution (Vercel Lambda is read-only)
 $tmpDirs = [
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache/data',
@@ -25,6 +47,7 @@ if (getenv('DB_CONNECTION') === 'sqlite' || empty(getenv('DB_CONNECTION'))) {
     $sqlitePath = '/tmp/database.sqlite';
     if (!file_exists($sqlitePath)) {
         @touch($sqlitePath);
+        @chmod($sqlitePath, 0666);
     }
     if (empty(getenv('DB_DATABASE'))) {
         putenv("DB_DATABASE={$sqlitePath}");
@@ -50,25 +73,38 @@ try {
     /** @var \Illuminate\Foundation\Application $app */
     $app = require_once __DIR__ . '/../bootstrap/app.php';
 
-    // Override view compiled path and storage path for serverless environment
+    // Set storage path to writable /tmp
     $app->useStoragePath('/tmp/storage');
 
-    $app->handleRequest(Request::capture());
-} catch (\Throwable $e) {
-    // Output diagnostic error to stderr and HTTP response if debugging
-    error_log('Vercel Serverless Exception: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+    $request = Request::capture();
+    $kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
+    $response = $kernel->handle($request);
 
-    if (getenv('APP_DEBUG') === 'true' || getenv('APP_DEBUG') === '1' || (isset($_ENV['APP_DEBUG']) && $_ENV['APP_DEBUG'] === 'true')) {
-        http_response_code(500);
-        header('Content-Type: text/html; charset=utf-8');
-        echo "<h1>500 Internal Server Error (Vercel Serverless)</h1>";
-        echo "<p><strong>Message:</strong> " . htmlspecialchars($e->getMessage()) . "</p>";
-        echo "<p><strong>File:</strong> " . htmlspecialchars($e->getFile()) . ":" . $e->getLine() . "</p>";
-        echo "<pre style='background:#f4f4f5;padding:16px;border-radius:8px;font-size:12px;overflow-x:auto;'>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
-        exit;
+    // Diagnostics mode for debugging on Vercel
+    if ($response->getStatusCode() === 500 && ($request->has('debug') || getenv('APP_DEBUG') === 'true')) {
+        if (isset($response->exception) && $response->exception) {
+            $e = $response->exception;
+            header('Content-Type: text/html; charset=utf-8');
+            http_response_code(500);
+            echo "<h1>500 Serverless Exception Diagnostic</h1>";
+            echo "<p><strong>Message:</strong> " . htmlspecialchars($e->getMessage()) . "</p>";
+            echo "<p><strong>Class:</strong> " . get_class($e) . "</p>";
+            echo "<p><strong>Location:</strong> " . htmlspecialchars($e->getFile()) . ":" . $e->getLine() . "</p>";
+            echo "<pre style='background:#18181b;color:#f4f4f5;padding:16px;border-radius:8px;font-size:12px;overflow-x:auto;'>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
+            exit;
+        }
     }
 
+    $response->send();
+    $kernel->terminate($request, $response);
+} catch (\Throwable $e) {
+    error_log('Vercel Fatal Serverless Exception: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+
     http_response_code(500);
-    echo "<h1>500 Internal Server Error</h1><p>The server encountered an error. Check Vercel Function logs or set APP_DEBUG=true in Vercel Environment Variables to view detailed diagnostics.</p>";
+    header('Content-Type: text/html; charset=utf-8');
+    echo "<h1>500 Internal Server Error (Vercel Serverless)</h1>";
+    echo "<p><strong>Message:</strong> " . htmlspecialchars($e->getMessage()) . "</p>";
+    echo "<p><strong>File:</strong> " . htmlspecialchars($e->getFile()) . ":" . $e->getLine() . "</p>";
+    echo "<pre style='background:#18181b;color:#f4f4f5;padding:16px;border-radius:8px;font-size:12px;overflow-x:auto;'>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
     exit;
 }

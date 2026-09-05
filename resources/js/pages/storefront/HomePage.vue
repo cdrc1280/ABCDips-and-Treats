@@ -128,10 +128,7 @@
             </div>
         </section>
 
-        <!-- 3. Signature Banana Bread 3D Showcase -->
-        <section class="banana-bread-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <BananaBreadShowcase />
-        </section>
+        
 
         <!-- 4. Featured Pastries Grid (Scroll Stagger) -->
         <section class="featured-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -240,7 +237,6 @@ import SkeletonCard from '@/components/ui/SkeletonCard.vue'
 import ProductCard from '@/components/storefront/ProductCard.vue'
 import StoreReviews from '@/components/storefront/StoreReviews.vue'
 import AccountPerksDrawer from '@/components/storefront/AccountPerksDrawer.vue'
-import BananaBreadShowcase from '@/components/storefront/BananaBreadShowcase.vue'
 import { useAuthStore } from '@/stores/auth'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -299,69 +295,79 @@ function initScrollAnimations() {
     
     gsapCtx = gsap.context(() => {
         // Hero Kinetic Reveal
-        const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-        heroTl.from('.hero-badge', { y: 20, opacity: 0, duration: 0.6, delay: 0.1 })
-              .from('.hero-title', { y: 30, opacity: 0, duration: 0.8 }, '-=0.4')
-              .from('.hero-desc', { y: 20, opacity: 0, duration: 0.6 }, '-=0.5')
-              .from('.hero-cta', { y: 20, opacity: 0, duration: 0.6 }, '-=0.4')
-              .from('.hero-bullets', { opacity: 0, duration: 0.5 }, '-=0.3')
-              .from('.hero-card-col', { scale: 0.92, opacity: 0, duration: 0.9, ease: 'back.out(1.2)' }, '-=0.7')
+        if (document.querySelector('.hero-badge')) {
+            const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+            heroTl.from('.hero-badge', { y: 20, opacity: 0, duration: 0.6, delay: 0.1 })
+                  .from('.hero-title', { y: 30, opacity: 0, duration: 0.8 }, '-=0.4')
+                  .from('.hero-desc', { y: 20, opacity: 0, duration: 0.6 }, '-=0.5')
+                  .from('.hero-cta', { y: 20, opacity: 0, duration: 0.6 }, '-=0.4')
+                  .from('.hero-bullets', { opacity: 0, duration: 0.5 }, '-=0.3')
+                  .from('.hero-card-col', { scale: 0.92, opacity: 0, duration: 0.9, ease: 'back.out(1.2)' }, '-=0.7')
+        }
 
         // Category Cards Stagger
-        gsap.from('.category-item', {
-            scrollTrigger: {
-                trigger: '.category-section',
-                start: 'top 88%',
-                once: true
-            },
-            y: 30,
-            opacity: 0,
-            duration: 0.6,
-            stagger: 0.08,
-            ease: 'power3.out',
-            clearProps: 'all'
-        })
+        if (document.querySelector('.category-item')) {
+            gsap.from('.category-item', {
+                scrollTrigger: {
+                    trigger: '.category-section',
+                    start: 'top 88%',
+                    once: true
+                },
+                y: 30,
+                opacity: 0,
+                duration: 0.6,
+                stagger: 0.08,
+                ease: 'power3.out',
+                clearProps: 'all'
+            })
+        }
 
         // Featured Products Stagger
-        gsap.from('.featured-product-card', {
-            scrollTrigger: {
-                trigger: '.featured-section',
-                start: 'top 80%',
-                toggleActions: 'play none none reverse'
-            },
-            y: 40,
-            opacity: 0,
-            duration: 0.7,
-            stagger: 0.12,
-            ease: 'power3.out'
-        })
+        if (document.querySelector('.featured-product-card')) {
+            gsap.from('.featured-product-card', {
+                scrollTrigger: {
+                    trigger: '.featured-section',
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                },
+                y: 40,
+                opacity: 0,
+                duration: 0.7,
+                stagger: 0.12,
+                ease: 'power3.out'
+            })
+        }
 
         // Spotlight Section Reveal
-        gsap.from('.spotlight-section', {
-            scrollTrigger: {
-                trigger: '.spotlight-section',
-                start: 'top 80%',
-                toggleActions: 'play none none reverse'
-            },
-            y: 40,
-            opacity: 0,
-            duration: 0.8,
-            ease: 'power3.out'
-        })
+        if (document.querySelector('.spotlight-section')) {
+            gsap.from('.spotlight-section', {
+                scrollTrigger: {
+                    trigger: '.spotlight-section',
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                },
+                y: 40,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power3.out'
+            })
+        }
 
         // Best Sellers Stagger
-        gsap.from('.bestseller-product-card', {
-            scrollTrigger: {
-                trigger: '.bestsellers-section',
-                start: 'top 80%',
-                toggleActions: 'play none none reverse'
-            },
-            y: 40,
-            opacity: 0,
-            duration: 0.7,
-            stagger: 0.12,
-            ease: 'power3.out'
-        })
+        if (document.querySelector('.bestseller-product-card')) {
+            gsap.from('.bestseller-product-card', {
+                scrollTrigger: {
+                    trigger: '.bestsellers-section',
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                },
+                y: 40,
+                opacity: 0,
+                duration: 0.7,
+                stagger: 0.12,
+                ease: 'power3.out'
+            })
+        }
     }, mainHomeRef.value)
 }
 

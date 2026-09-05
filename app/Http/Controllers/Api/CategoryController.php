@@ -6,19 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductCategoryResource;
 use App\Models\ProductCategory;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Cache;
 
 class CategoryController extends Controller
 {
     public function index(): JsonResponse
     {
-        $categories = Cache::remember('api:catalog:categories', 300, function () {
-            return ProductCategory::query()
-                ->withCount('products')
-                ->where('is_active', true)
-                ->orderBy('sort_order')
-                ->get();
-        });
+        $categories = ProductCategory::query()
+            ->withCount('products')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
 
         return response()->json([
             'data' => ProductCategoryResource::collection($categories),
@@ -29,11 +26,11 @@ class CategoryController extends Controller
     {
         $category = ProductCategory::query()
             ->withCount('products')
-            ->where('slug', $slug)
             ->where('is_active', true)
+            ->where('slug', $slug)
             ->first();
 
-        if (! $category) {
+        if (!$category) {
             return response()->json(['message' => 'Category not found.'], 404);
         }
 
