@@ -1,6 +1,9 @@
 <template>
     <div ref="mainHomeRef" class="space-y-16 md:space-y-28 pb-20 overflow-hidden">
 
+        <!-- 0. Signature 3D Interactive Craft Showcase (Premier Top of Homepage) -->
+        <BananaBread3DShowcase />
+
         <!-- 1. Hero Section (Fresh Bakery Hero) -->
         <section class="hero-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
             <div class="relative bg-gradient-to-br from-[#2D1B10] via-[#1C1410] to-[#120B07] text-surface rounded-3xl overflow-hidden shadow-2xl p-8 sm:p-12 lg:p-16 border border-[#C08E5D]/30">
@@ -128,8 +131,6 @@
             </div>
         </section>
 
-        
-
         <!-- 4. Featured Pastries Grid (Scroll Stagger) -->
         <section class="featured-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between mb-8">
@@ -229,7 +230,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, inject, nextTick } from 'vue'
-import { ArrowRight, Sparkles, CheckCircle2, ShoppingBag, Cake } from 'lucide-vue-next'
+import { ArrowRight, Sparkles, CheckCircle2, ShoppingBag, Cake, Wheat, CircleDot, Layers } from 'lucide-vue-next'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import SectionDivider from '@/components/ui/SectionDivider.vue'
@@ -237,6 +238,7 @@ import SkeletonCard from '@/components/ui/SkeletonCard.vue'
 import ProductCard from '@/components/storefront/ProductCard.vue'
 import StoreReviews from '@/components/storefront/StoreReviews.vue'
 import AccountPerksDrawer from '@/components/storefront/AccountPerksDrawer.vue'
+import BananaBread3DShowcase from '@/components/storefront/BananaBread3DShowcase.vue'
 import { useAuthStore } from '@/stores/auth'
 
 gsap.registerPlugin(ScrollTrigger)

@@ -33,5 +33,5 @@ Route::get('/{any?}', function () {
         ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
         ->header('Pragma', 'no-cache')
         ->header('Expires', '0');
-})->where('any', '^(?!api|admin|sanctum|download-test-cases-pdf|order-invoice|admin-report-download|email).*$');
+})->where('any', '^(?!api|admin|livewire|sanctum|css|js|fonts|vendor|build|images|assets|storage|download-test-cases-pdf|order-invoice|admin-report-download|email).*$');
 

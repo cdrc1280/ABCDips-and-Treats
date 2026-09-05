@@ -6,6 +6,7 @@
       leave-active-class="transition-all duration-200 ease-in" leave-from-class="opacity-100 scale-100 translate-y-0"
       leave-to-class="opacity-0 scale-95 translate-y-4">
       <div v-if="isOpen"
+        data-lenis-prevent
         class="w-[calc(100vw-24px)] sm:w-88 md:w-96 max-w-sm bg-[#FDFBF7] dark:bg-[#1E1510] backdrop-blur-xl rounded-3xl shadow-2xl border border-[#C08E5D]/30 overflow-hidden flex flex-col"
         style="height: min(520px, calc(100vh - 90px));">
         
@@ -33,7 +34,12 @@
         </div>
 
         <!-- Messages -->
-        <div ref="messagesEl" class="flex-1 overflow-y-auto px-3.5 sm:px-4 py-3 space-y-3 scroll-smooth relative bg-[#FDFBF7] dark:bg-[#1A120C]">
+        <div 
+          ref="messagesEl" 
+          data-lenis-prevent
+          @wheel.stop
+          class="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3.5 sm:px-4 py-3 space-y-3 relative bg-[#FDFBF7] dark:bg-[#1A120C] chat-messages-scroll"
+        >
           <!-- Welcome message -->
           <div v-if="messages.length === 0" class="flex gap-2 items-start">
             <div class="w-7 h-7 rounded-full bg-[#D9A876]/30 flex items-center justify-center text-[#5C3A22] dark:text-[#E2C08A] shrink-0 border border-[#C08E5D]/20"><Bot class="w-4 h-4" /></div>
@@ -195,9 +201,18 @@ const quickPrompts = [
   'What are your delivery hours?'
 ]
 
-async function scrollToBottom() {
+async function scrollToBottom(smooth = true) {
   await nextTick()
-  if (messagesEl.value) messagesEl.value.scrollTop = messagesEl.value.scrollHeight
+  if (messagesEl.value) {
+    if (smooth && typeof messagesEl.value.scrollTo === 'function') {
+      messagesEl.value.scrollTo({
+        top: messagesEl.value.scrollHeight,
+        behavior: 'smooth'
+      })
+    } else {
+      messagesEl.value.scrollTop = messagesEl.value.scrollHeight
+    }
+  }
 }
 
 async function pollClientMessages() {
@@ -208,8 +223,16 @@ async function pollClientMessages() {
     if (data && data.conversation && data.conversation.length > 0) {
       // Check if conversation has new messages or admin replies
       if (data.conversation.length > messages.value.length) {
+        // Detect if user is already near bottom (within 120px) before auto-scrolling
+        const isNearBottom = messagesEl.value 
+          ? (messagesEl.value.scrollHeight - messagesEl.value.scrollTop - messagesEl.value.clientHeight < 120)
+          : true
+
         messages.value = data.conversation.map(m => ({ role: m.role, content: m.content }))
-        await scrollToBottom()
+        
+        if (isNearBottom) {
+          await scrollToBottom(true)
+        }
       }
       if (data.status && data.status !== 'resolved') {
         escalationSuccess.value = true
@@ -306,9 +329,11 @@ async function sendMessage(text) {
   }
 }
 
-watch(isOpen, (newVal) => {
+watch(isOpen, async (newVal) => {
   if (newVal) {
     pollClientMessages()
+    await nextTick()
+    scrollToBottom(false)
   }
 })
 
@@ -325,3 +350,36 @@ onUnmounted(() => {
   if (pollTimer) clearInterval(pollTimer)
 })
 </script>
+
+<style scoped>
+/* Sleek, responsive caramel scrollbar matching the bakery aesthetic */
+.chat-messages-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(192, 142, 93, 0.45) transparent;
+}
+
+.chat-messages-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.chat-messages-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(192, 142, 93, 0.45);
+  border-radius: 9999px;
+}
+
+.chat-messages-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(192, 142, 93, 0.75);
+}
+
+.dark .chat-messages-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(226, 192, 138, 0.35);
+}
+
+.dark .chat-messages-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(226, 192, 138, 0.65);
+}
+</style>

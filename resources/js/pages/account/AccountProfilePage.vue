@@ -6,7 +6,7 @@
         to="/account/orders"
         class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-brand-choco dark:text-[#E2C08A] bg-white dark:bg-[#1E1510] border border-brand-caramel/25 dark:border-[#C08E5D]/25 hover:bg-brand-tan/20 transition-all shadow-sm"
       >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+        <ArrowLeft class="w-4 h-4" />
         Back to My Account
       </RouterLink>
 
@@ -59,7 +59,7 @@
             v-model="profileForm.email"
             type="email"
             disabled
-            class="w-full bg-gray-100 border border-brand-caramel/20 rounded-xl px-3.5 py-2.5 text-sm text-warm-gray cursor-not-allowed opacity-80"
+            class="w-full bg-surface/50 dark:bg-[#140D09]/60 border border-brand-caramel/20 dark:border-[#C08E5D]/20 rounded-xl px-3.5 py-2.5 text-sm text-warm-gray dark:text-[#C5B4A4] cursor-not-allowed opacity-80"
           />
 
           <div v-if="!authStore.user?.email_verified_at" class="pt-1.5">
@@ -175,7 +175,7 @@
 
 <script setup>
 import { ref, computed, onMounted, inject } from 'vue'
-import { CheckCircle2, Circle, Mail, AlertTriangle, ShieldCheck } from 'lucide-vue-next'
+import { CheckCircle2, Circle, Mail, AlertTriangle, ShieldCheck, ArrowLeft } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 import PageHeader from '@/components/ui/PageHeader.vue'

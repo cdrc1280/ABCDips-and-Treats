@@ -19,7 +19,7 @@
             : 'bg-white dark:bg-[#1E1510] text-ink dark:text-[#FBF3E7] border border-brand-caramel/20 dark:border-[#C08E5D]/20 hover:bg-surface dark:hover:bg-[#140D09]'
         ]"
       >
-        <span>{{ tab.icon }}</span>
+        <component :is="tab.icon" class="w-3.5 h-3.5 shrink-0" />
         <span>{{ tab.label }}</span>
         <span
           :class="[
@@ -244,8 +244,8 @@
       subtitle="Are you sure you want to cancel this pending bakery order?"
     >
       <template #icon>
-        <div class="w-8 h-8 rounded-full bg-red-100 text-error flex items-center justify-center text-base font-bold">
-          
+        <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-950/60 text-error flex items-center justify-center text-base font-bold">
+          <XCircle class="w-5 h-5 text-error" />
         </div>
       </template>
 
@@ -353,11 +353,11 @@ async function fetchStoreSettings() {
 }
 
 const filterTabs = [
-  { id: 'all', label: 'All Orders', icon: '' },
-  { id: 'active', label: 'Active', icon: '' },
-  { id: 'completed', label: 'Completed', icon: '' },
-  { id: 'cancelled', label: 'Cancelled', icon: '' },
-  { id: 'refunded', label: 'Refunded', icon: '' },
+  { id: 'all', label: 'All Orders', icon: Package },
+  { id: 'active', label: 'Active', icon: Clock },
+  { id: 'completed', label: 'Completed', icon: CheckCircle2 },
+  { id: 'cancelled', label: 'Cancelled', icon: XCircle },
+  { id: 'refunded', label: 'Refunded', icon: RotateCcw },
 ]
 
 const pipelineSteps = [

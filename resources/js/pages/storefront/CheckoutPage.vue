@@ -21,8 +21,8 @@
       <div class="bg-amber-50/90 border-2 border-amber-300 rounded-3xl p-6 md:p-8 shadow-md space-y-6">
         <div class="flex items-start gap-4">
           <div
-            class="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-2xl shrink-0">
-            
+            class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 flex items-center justify-center shrink-0">
+            <ShieldAlert class="w-6 h-6 text-amber-800 dark:text-amber-300" />
           </div>
           <div>
             <h3 class="text-xl font-extrabold text-amber-950">Account Verification Required Before Checkout</h3>
@@ -289,7 +289,7 @@
                 <span class="bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold text-[10px]">Calculated</span>
               </div>
               <div v-else-if="quoteError" class="flex items-center gap-2">
-                <span></span>
+                <AlertCircle class="w-4 h-4 text-error shrink-0" />
                 <span>{{ quoteError }}</span>
               </div>
               <div v-else class="text-warm-gray">
@@ -588,6 +588,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
+import { Truck, Store, Zap, Users, Building2, Ticket, ShieldAlert, CheckCircle2, AlertCircle } from 'lucide-vue-next'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
