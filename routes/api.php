@@ -75,6 +75,7 @@ Route::post('custom-orders', [CustomOrderController::class, 'store'])->middlewar
 // ─── Public AI Chat (Customer-Facing) ────────────────────────
 Route::post('ai/query', [PublicAiController::class, 'query'])->middleware('throttle:20,1');
 Route::post('chat/escalate', [ChatEscalationController::class, 'store'])->middleware('throttle:15,1');
+Route::get('chat/escalate/messages', [ChatEscalationController::class, 'fetchClientConversation'])->middleware('throttle:30,1');
 
 // ─── POS, Analytics & AI Admin API ───────────────────────────
 Route::middleware(['auth:sanctum', 'role:super_admin|admin'])->group(function () {

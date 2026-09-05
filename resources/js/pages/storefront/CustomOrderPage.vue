@@ -7,14 +7,14 @@
     />
 
     <!-- Inquiry Success Card -->
-    <div v-if="submittedOrder" class="max-w-2xl mx-auto bg-white rounded-3xl p-8 border border-brand-caramel/20 shadow-md text-center space-y-4">
-      <div class="w-16 h-16 rounded-full bg-success/20 text-success flex items-center justify-center mx-auto">
-        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+    <div v-if="submittedOrder" class="max-w-2xl mx-auto bg-white dark:bg-[#1E1510] rounded-3xl p-8 border border-brand-caramel/20 dark:border-[#C08E5D]/20 shadow-md text-center space-y-4">
+      <div class="w-16 h-16 rounded-3xl bg-success/20 text-success flex items-center justify-center mx-auto">
+        <CheckCircle2 class="w-8 h-8 text-emerald-500" />
       </div>
 
-      <span class="script-accent text-brand-caramel text-xl block">inquiry received</span>
-      <h2 class="text-3xl font-extrabold text-ink">Custom Order Reference #{{ submittedOrder.reference_number }}</h2>
-      <p class="text-warm-gray text-sm leading-relaxed">
+      <span class="script-accent text-brand-caramel dark:text-[#E2C08A] text-xl block">inquiry received</span>
+      <h2 class="text-3xl font-extrabold text-ink dark:text-[#FBF3E7]">Custom Order Reference #{{ submittedOrder.reference_number }}</h2>
+      <p class="text-warm-gray dark:text-[#C5B4A4] text-sm leading-relaxed">
         Thank you, <strong>{{ submittedOrder.customer_name }}</strong>! Our head pastry chef will review your theme description and reference details, and contact you via <strong>{{ submittedOrder.customer_phone }}</strong> with a formal quote within 24 hours.
       </p>
 
@@ -28,11 +28,11 @@
     <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-5xl mx-auto">
 
       <!-- Builder Form Left Column -->
-      <form @submit.prevent="submitInquiry" class="lg:col-span-8 bg-white rounded-3xl p-6 md:p-10 border border-brand-caramel/20 shadow-sm space-y-8">
+      <form @submit.prevent="submitInquiry" class="lg:col-span-8 bg-white dark:bg-[#1E1510] rounded-3xl p-6 md:p-10 border border-brand-caramel/20 dark:border-[#C08E5D]/20 shadow-sm space-y-8">
 
         <!-- Section 1: Customer Details -->
         <div class="space-y-4">
-          <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-3 flex items-center gap-2">
+          <h3 class="font-extrabold text-xl text-ink dark:text-[#FBF3E7] border-b border-brand-caramel/20 dark:border-[#C08E5D]/20 pb-3 flex items-center gap-2">
             <span>1. Contact Details</span>
           </h3>
 
@@ -46,7 +46,7 @@
 
         <!-- Section 2: Cake Specs -->
         <div class="space-y-4">
-          <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-3 flex items-center gap-2">
+          <h3 class="font-extrabold text-xl text-ink dark:text-[#FBF3E7] border-b border-brand-caramel/20 dark:border-[#C08E5D]/20 pb-3 flex items-center gap-2">
             <span>2. Custom Cake Specifications</span>
           </h3>
 
@@ -99,7 +99,7 @@
 
         <!-- Section 3: Theme Description -->
         <div class="space-y-4">
-          <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-3 flex items-center gap-2">
+          <h3 class="font-extrabold text-xl text-ink dark:text-[#FBF3E7] border-b border-brand-caramel/20 dark:border-[#C08E5D]/20 pb-3 flex items-center gap-2">
             <span>3. Theme &amp; Design Vision</span>
           </h3>
 
@@ -115,7 +115,7 @@
 
         <!-- Section 4: Preferred Budget Range -->
         <div class="space-y-4">
-          <h3 class="font-extrabold text-xl text-ink border-b border-brand-caramel/20 pb-3 flex items-center gap-2">
+          <h3 class="font-extrabold text-xl text-ink dark:text-[#FBF3E7] border-b border-brand-caramel/20 dark:border-[#C08E5D]/20 pb-3 flex items-center gap-2">
             <span>4. Preferred Budget Range (₱)</span>
           </h3>
 
@@ -147,10 +147,10 @@
 
       <!-- Live Summary & Action Box Right Column -->
       <div class="lg:col-span-4 space-y-6">
-        <div class="bg-white rounded-3xl p-6 border border-brand-caramel/20 shadow-md space-y-6 sticky top-24">
+        <div class="bg-white dark:bg-[#1E1510] rounded-3xl p-6 border border-brand-caramel/20 dark:border-[#C08E5D]/20 shadow-md space-y-6 sticky top-24">
           <div>
-            <span class="script-accent text-brand-caramel text-lg">live quote estimate</span>
-            <h3 class="font-extrabold text-2xl text-ink">Custom Cake Summary</h3>
+            <span class="script-accent text-brand-caramel dark:text-[#E2C08A] text-lg">live quote estimate</span>
+            <h3 class="font-extrabold text-2xl text-ink dark:text-[#FBF3E7]">Custom Cake Summary</h3>
           </div>
 
           <!-- Specs List -->
@@ -214,6 +214,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
+import { CheckCircle2, Cake, Sparkles } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import { useToast } from '@/composables/useToast'
