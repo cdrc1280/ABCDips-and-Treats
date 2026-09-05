@@ -149,7 +149,7 @@ if (!$hasExternalDb && ($dbConn === 'sqlite' || empty($dbConn))) {
 
 // Adjust script name and paths so Laravel routing matches root paths correctly
 $_SERVER['SCRIPT_NAME'] = '/index.php';
-$_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/../public/index.php';
+$_SERVER['SCRIPT_FILENAME'] = __FILE__;
 
 // Determine if the application is in maintenance mode...
 if (file_exists($maintenance = __DIR__ . '/../storage/framework/maintenance.php')) {

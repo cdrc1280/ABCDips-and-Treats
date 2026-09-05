@@ -17,19 +17,12 @@
       "dest": "/build/$1"
     },
     {
-      "src": "/(css|js|fonts|vendor|images|assets|storage|favicon\\.ico|robots\\.txt)(.*)",
+      "src": "/(css|js|fonts|vendor|images|models|assets|storage|favicon\\.ico|robots\\.txt)(.*)",
       "dest": "/$1$2"
     },
     {
       "src": "/(ABCDips_Treats_Test_Case_Suite\\.pdf)",
       "dest": "/$1"
-    },
-    {
-      "src": "/(.*)\\.php$",
-      "dest": "/api/index.php"
-    },
-    {
-      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
