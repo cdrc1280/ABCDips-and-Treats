@@ -16,7 +16,7 @@
       <!-- Badges -->
       <div class="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 flex flex-col gap-1 sm:gap-1.5 items-start z-10">
         <BaseBadge v-if="product.is_best_seller" variant="brand">Best Seller</BaseBadge>
-        <BaseBadge v-else-if="product.is_highly_rated" variant="warning">⭐ Highly Rated</BaseBadge>
+        <BaseBadge v-else-if="product.is_highly_rated" variant="warning"><span class="flex items-center gap-1"><Star class="w-3 h-3 fill-current" /><span>Highly Rated</span></span></BaseBadge>
         <BaseBadge v-else-if="product.is_featured" variant="neutral">Featured</BaseBadge>
         <BaseBadge v-else-if="product.is_new_arrival" variant="success">New</BaseBadge>
         <BaseBadge v-if="product.is_on_sale && !isExpired" variant="error">Sale</BaseBadge>
@@ -64,7 +64,7 @@
             class="text-[10px] sm:text-[11px] font-extrabold text-brand-choco dark:text-[#E2C08A] flex items-center gap-1 bg-surface dark:bg-[#140D09] px-2 py-0.5 rounded-full border border-brand-caramel/20 dark:border-[#C08E5D]/30 cursor-pointer"
             @click.stop="openModal"
           >
-            <span class="text-amber-500">⭐</span>
+            <Star class="w-3.5 h-3.5 fill-amber-400 text-amber-500 inline shrink-0" />
             <span>{{ product.avg_rating }}</span>
             <span class="text-warm-gray dark:text-[#A89686] font-normal">({{ product.reviews_count }})</span>
           </div>
@@ -122,6 +122,7 @@ import { useSaleCountdown } from '@/composables/useSaleCountdown'
 import BaseBadge from '@/components/ui/BaseBadge.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { computed } from 'vue'
+import { Star } from 'lucide-vue-next'
 
 const props = defineProps({
   product: { type: Object, required: true }

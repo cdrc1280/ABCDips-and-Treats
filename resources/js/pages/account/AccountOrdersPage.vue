@@ -44,7 +44,7 @@
         description="We couldn't find any orders matching the selected filter option."
       >
         <template #action>
-          <RouterLink to="/shop"><BaseButton variant="primary">Explore Pastry Menu 🥐</BaseButton></RouterLink>
+          <RouterLink to="/shop"><BaseButton variant="primary">Explore Pastry Menu</BaseButton></RouterLink>
         </template>
       </EmptyState>
     </div>
@@ -66,7 +66,7 @@
               </BaseBadge>
             </div>
             <span class="text-xs text-warm-gray dark:text-[#C5B4A4] block mt-1">
-              📅 Placed on {{ formatDate(order.created_at) }} • {{ order.fulfillment_type === 'pickup' ? '🏪 Store Pickup' : '🛵 Doorstep Delivery' }}
+               Placed on {{ formatDate(order.created_at) }} • {{ order.fulfillment_type === 'pickup' ? 'Store Pickup' : 'Doorstep Delivery' }}
             </span>
           </div>
 
@@ -79,7 +79,7 @@
               v-tooltip="'View & download printable official bakery invoice'"
               @click="openInvoiceModal(order)"
             >
-              📄 Invoice
+              Invoice
             </BaseButton>
 
             <!-- Re-order button -->
@@ -89,7 +89,7 @@
               v-tooltip="'Add all items from this order directly back into your shopping cart'"
               @click="reorderItems(order)"
             >
-              🔄 Re-order Treats
+              Re-order Treats
             </BaseButton>
 
             <!-- Cancel Button (Only available when status is Pending) -->
@@ -101,18 +101,18 @@
               class="!text-error !border-error/40 hover:!bg-red-50"
               @click="openCancelModal(order)"
             >
-              🚫 Cancel Order
+              Cancel Order
             </BaseButton>
 
             <!-- Settle Payment Button if Pooling Settled or Pending Payment -->
             <template v-if="order.delivery_mode === 'pooling' && order.pooling_status !== 'settled'">
               <button type="button" disabled class="px-3 py-1 rounded-full text-[11px] font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800 cursor-not-allowed">
-                ⏳ Pending Admin Pool
+                Pending Admin Pool
               </button>
             </template>
             <template v-else-if="order.payment_status !== 'paid' && !['cancelled', 'Cancelled'].includes(order.status)">
               <BaseButton size="sm" variant="primary" @click="openPaymentModal(order)">
-                💳 Settle Payment
+                Settle Payment
               </BaseButton>
             </template>
 
@@ -168,7 +168,7 @@
                     v-tooltip="'Share your review &amp; rating for this treat'"
                     class="inline-flex items-center gap-1 text-[11px] font-bold text-brand-caramel hover:text-brand-choco transition-colors"
                   >
-                    ⭐ Write Review
+                    Write Review
                   </RouterLink>
                 </div>
               </div>
@@ -184,7 +184,7 @@
             @click="toggleDetails(order.id)"
             class="text-xs font-bold text-brand-caramel hover:text-brand-choco flex items-center gap-1 transition-colors"
           >
-            <span>{{ expandedOrders.includes(order.id) ? 'Hide Order Details ▲' : 'View Full Details & Address ▼' }}</span>
+            <span>{{ expandedOrders.includes(order.id) ? 'Hide Order Details ' : 'View Full Details & Address ' }}</span>
           </button>
 
           <div class="text-right">
@@ -245,7 +245,7 @@
     >
       <template #icon>
         <div class="w-8 h-8 rounded-full bg-red-100 text-error flex items-center justify-center text-base font-bold">
-          ⚠️
+          
         </div>
       </template>
 
@@ -298,6 +298,7 @@
 
 <script setup>
 import { ref, computed, onMounted, inject } from 'vue'
+import { Package, RotateCcw, FileText, CreditCard, Star, XCircle, Clock, Truck, Store, CheckCircle2 } from 'lucide-vue-next'
 import { useCartStore } from '@/stores/cart'
 import { useToast } from '@/composables/useToast'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -352,11 +353,11 @@ async function fetchStoreSettings() {
 }
 
 const filterTabs = [
-  { id: 'all', label: 'All Orders', icon: '📋' },
-  { id: 'active', label: 'Active', icon: '🧁' },
-  { id: 'completed', label: 'Completed', icon: '✅' },
-  { id: 'cancelled', label: 'Cancelled', icon: '🚫' },
-  { id: 'refunded', label: 'Refunded', icon: '💸' },
+  { id: 'all', label: 'All Orders', icon: '' },
+  { id: 'active', label: 'Active', icon: '' },
+  { id: 'completed', label: 'Completed', icon: '' },
+  { id: 'cancelled', label: 'Cancelled', icon: '' },
+  { id: 'refunded', label: 'Refunded', icon: '' },
 ]
 
 const pipelineSteps = [
@@ -428,13 +429,13 @@ function getProgressStepText(status) {
   switch (status?.toLowerCase()) {
     case 'pending': return 'Order placed & awaiting confirmation'
     case 'confirmed': return 'Payment verified & order queued in kitchen'
-    case 'preparing': return 'Freshly baking in our oven 🧁'
-    case 'packaging': return 'Pastries packaged & sealed 🎁'
-    case 'out_for_delivery': return 'On its way to your doorstep 🛵'
-    case 'ready_for_pickup': return 'Ready for store pickup 🏪'
-    case 'completed': return 'Delivered & completed 🎉'
-    case 'refunded': return 'Order payment refunded 💸'
-    case 'cancelled': return 'Order cancelled 🚫'
+    case 'preparing': return 'Freshly baking in our oven'
+    case 'packaging': return 'Pastries packaged & sealed'
+    case 'out_for_delivery': return 'On its way to your doorstep'
+    case 'ready_for_pickup': return 'Ready for store pickup'
+    case 'completed': return 'Delivered & completed'
+    case 'refunded': return 'Order payment refunded'
+    case 'cancelled': return 'Order cancelled'
     default: return 'Processing'
   }
 }
@@ -478,7 +479,7 @@ function reorderItems(order) {
     }
   })
 
-  toast.success(`Re-added ${order.items.length} pastry treats to your shopping basket!`, 'Basket Updated 🧺')
+  toast.success(`Re-added ${order.items.length} pastry treats to your shopping basket!`, 'Basket Updated')
   cartStore.openDrawer = true
 }
 

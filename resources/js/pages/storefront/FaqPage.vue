@@ -42,7 +42,7 @@
 
         <!-- Contact CTA -->
         <div class="mt-14 bg-brand-choco rounded-3xl p-8 text-center text-surface">
-            <div class="text-3xl mb-3">🧁</div>
+            <div class="w-12 h-12 rounded-2xl bg-[#D9A876]/20 mx-auto flex items-center justify-center mb-3 text-[#C08E5D] border border-[#C08E5D]/30"><HelpCircle class="w-6 h-6" /></div>
             <h2 class="text-xl font-bold mb-2">Still have questions?</h2>
             <p class="text-surface/70 text-sm mb-6">Our team is happy to help. Send us a message and we'll get back to
                 you shortly.</p>
@@ -55,6 +55,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { HelpCircle, ChevronDown } from 'lucide-vue-next'
 
 const openIndex = ref(null)
 const activeCategory = ref('All')

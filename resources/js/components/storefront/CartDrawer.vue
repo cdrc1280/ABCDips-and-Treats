@@ -46,7 +46,7 @@
                 <!-- Items List -->
                 <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
                     <div v-if="cartStore.items.length === 0" class="py-12 text-center">
-                        <EmptyState title="Your Basket is Empty 🧁"
+                        <EmptyState title="Your Basket is Empty"
                             description="You haven't added any treats yet! Explore our oven-fresh pastries and custom cakes.">
                             <template #action>
                                 <RouterLink to="/shop" @click="cartStore.openDrawer = false">
@@ -85,7 +85,7 @@
                             <div v-if="item.options?.is_custom"
                                 class="mt-1 bg-surface p-2.5 rounded-xl text-[11px] text-brand-choco border border-brand-caramel/20 space-y-0.5">
                                 <div class="font-extrabold flex items-center gap-1 text-brand-choco">
-                                    🎂 Custom Cake Spec:
+                                    Custom Cake Spec:
                                 </div>
                                 <div>Flavor: <strong>{{ item.options.flavor_preference }}</strong></div>
                                 <div>Frosting: <strong>{{ item.options.frosting_type }}</strong></div>
@@ -143,7 +143,7 @@
                         <div v-if="cartStore.couponCode"
                             class="flex items-center justify-between bg-success/15 border border-success/30 p-2 rounded-xl text-xs">
                             <div class="flex items-center gap-1">
-                                <span>🎟️</span>
+                                <Ticket class="w-4 h-4 inline text-[#C08E5D]" />
                                 <span class="font-bold text-[#2D4525] dark:text-surface-400">{{ cartStore.couponCode
                                     }}</span>
                             </div>
@@ -218,6 +218,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { Ticket, ShoppingBag, X, Trash2, ArrowRight, Cake } from 'lucide-vue-next'
 import { useCartStore } from '@/stores/cart'
 import { useProductModalStore } from '@/stores/productModal'
 import { useToast } from '@/composables/useToast'
@@ -309,7 +310,7 @@ async function applyDrawerCoupon() {
     const res = await cartStore.applyCoupon(drawerCouponCode.value)
     applyingDrawerCoupon.value = false
     if (res.success) {
-        toast.success('Discount coupon applied!', 'Voucher Applied 🎟️')
+        toast.success('Discount coupon applied!', 'Voucher Applied')
         drawerCouponCode.value = ''
     } else {
         toast.error(res.error || 'Invalid or expired coupon code.', 'Coupon Error')

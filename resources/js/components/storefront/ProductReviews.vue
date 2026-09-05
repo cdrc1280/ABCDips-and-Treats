@@ -11,7 +11,7 @@
       </div>
 
       <BaseButton variant="primary" size="lg" :v-tooltip="showForm ? 'Close review form' : 'Share your rating & feedback for this pastry'" @click="handleToggleForm">
-        {{ showForm ? 'Cancel Review' : '✍️ Write a Review' }}
+        {{ showForm ? 'Cancel Review' : 'Write a Review' }}
       </BaseButton>
     </div>
 
@@ -21,7 +21,7 @@
       <div class="text-center border-b md:border-b-0 md:border-r border-brand-caramel/20 pb-4 md:pb-0 md:pr-6 space-y-1">
         <div class="text-5xl font-black text-brand-choco">{{ averageRating }}</div>
         <div class="flex justify-center text-amber-500 text-lg">
-          <span v-for="s in 5" :key="s">{{ s <= Math.round(averageRating) ? '⭐' : '☆' }}</span>
+          <Star v-for="s in 5" :key="s" class="w-5 h-5" :class="s <= Math.round(averageRating) ? 'fill-amber-400 text-amber-400' : 'text-stone-300 dark:text-stone-700'" />
         </div>
         <div class="text-xs font-semibold text-warm-gray">Based on {{ reviews.length }} reviews</div>
       </div>
@@ -51,7 +51,7 @@
 
         <!-- Quick Pre-made Review Templates -->
         <div class="space-y-1.5 bg-white/70 dark:bg-[#1A120C]/70 p-4 rounded-2xl border border-brand-caramel/20 dark:border-[#C08E5D]/20">
-          <label class="block text-xs font-bold uppercase text-brand-choco dark:text-[#E2C08A]">⚡ Quick Pre-made Review Messages (Click to instant fill)</label>
+          <label class="block text-xs font-bold uppercase text-brand-choco dark:text-[#E2C08A]">Quick Pre-made Review Messages (Click to instant fill)</label>
           <div class="flex flex-wrap gap-2 pt-1">
             <button
               v-for="(tpl, idx) in productReviewTemplates"
@@ -79,7 +79,7 @@
                 class="text-3xl transition-transform hover:scale-125 focus:outline-none"
                 @click="form.rating = star"
               >
-                {{ star <= form.rating ? '⭐' : '☆' }}
+                <Star class="w-8 h-8 transition-transform hover:scale-110" :class="star <= form.rating ? 'fill-amber-400 text-amber-400' : 'text-stone-300 dark:text-stone-600'" />
               </button>
             </div>
             <span class="text-xs font-extrabold text-brand-choco dark:text-[#E2C08A] bg-white dark:bg-[#1E1510] px-3 py-1 rounded-full border border-brand-caramel/30 dark:border-[#C08E5D]/30">
@@ -103,7 +103,7 @@
         <BaseTextarea v-model="form.comment" label="Detailed Review" placeholder="Tell us what you loved about the pastry flavor, freshness, and packaging..." rows="4" required />
 
         <div v-if="!authStore.isAuthenticated" class="text-xs text-brand-choco/80 dark:text-[#E2C08A]/80 bg-brand-tan/10 p-3 rounded-xl border border-brand-tan/20 flex items-center gap-2 mt-2">
-          💡 Tip: <RouterLink to="/auth/register" class="font-bold underline hover:text-brand-choco dark:hover:text-[#E2C08A] transition-colors">Create a free account</RouterLink> to be recognized as a Verified Buyer!
+          Tip: <RouterLink to="/auth/register" class="font-bold underline hover:text-brand-choco dark:hover:text-[#E2C08A] transition-colors">Create a free account</RouterLink> to be recognized as a Verified Buyer!
         </div>
 
         <div class="flex justify-end gap-3 pt-2">
@@ -126,7 +126,7 @@
           :class="selectedFilter === filter ? 'bg-brand-choco text-white dark:bg-[#C08E5D] dark:text-[#1C1410] shadow-xs' : 'bg-white dark:bg-[#1E1510] text-brand-choco dark:text-[#E2C08A] border border-brand-caramel/20 dark:border-[#C08E5D]/20 hover:bg-surface dark:hover:bg-[#140D09]'"
           @click="selectedFilter = filter"
         >
-          {{ filter === 0 ? `All (${reviews.length})` : `${filter}★ (${getRatingCount(filter)})` }}
+          {{ filter === 0 ? `All (${reviews.length})` : `${filter} Stars (${getRatingCount(filter)})` }}
         </button>
       </div>
     </div>
@@ -139,7 +139,7 @@
     <div v-else-if="filteredReviews.length === 0" class="text-center py-12 bg-surface/40 dark:bg-[#140D09]/40 rounded-3xl border border-dashed border-brand-caramel/30 dark:border-[#C08E5D]/30 p-8">
       <p class="text-base font-bold text-ink dark:text-[#FBF3E7] mb-1">No reviews for this filter yet.</p>
       <p class="text-xs text-warm-gray dark:text-[#C5B4A4] mb-4">Be the first to share your review for this pastry!</p>
-      <BaseButton size="sm" variant="outline" v-tooltip="'Share your rating & feedback'" @click="handleToggleForm">✍️ Write a Review</BaseButton>
+      <BaseButton size="sm" variant="outline" v-tooltip="'Share your rating & feedback'" @click="handleToggleForm">Write a Review</BaseButton>
     </div>
 
     <div v-else class="space-y-4">
@@ -164,7 +164,7 @@
 
           <!-- Rating Stars -->
           <div class="flex items-center gap-1 text-sm text-amber-500">
-            <span v-for="s in review.rating" :key="s">⭐</span>
+            <Star v-for="s in review.rating" :key="s" class="w-4 h-4 fill-amber-400 text-amber-400 inline" />
           </div>
         </div>
 
@@ -180,7 +180,7 @@
             class="px-3.5 py-1.5 rounded-xl bg-surface hover:bg-brand-tan/30 text-brand-choco font-semibold flex items-center gap-1.5 transition-all"
             @click="voteHelpful(review.id)"
           >
-            👍 Helpful ({{ review.helpful_votes }})
+            Helpful ({{ review.helpful_votes }})
           </button>
         </div>
       </div>
@@ -190,6 +190,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, inject } from 'vue'
+import { Star, Sparkles, MessageSquare, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-vue-next'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
@@ -226,25 +227,25 @@ const form = ref({
 
 const productReviewTemplates = [
   {
-    chipLabel: '😋 Moist & Perfectly Sweetened',
+    chipLabel: 'Moist & Perfectly Sweetened',
     rating: 5,
     title: 'Incredibly moist & perfectly sweetened!',
     comment: 'Super fresh and soft! The texture and balance of flavor are top-notch. Pairs amazingly with morning coffee!'
   },
   {
-    chipLabel: '📦 Warm Delivery & Great Packaging',
+    chipLabel: 'Warm Delivery & Great Packaging',
     rating: 5,
     title: 'Arrived oven-fresh and beautifully packaged!',
     comment: 'The delivery was fast, and the pastry was sealed tight and fresh. Everyone in our family loved it!'
   },
   {
-    chipLabel: '⭐ Best Pastry Quality',
+    chipLabel: 'Best Pastry Quality',
     rating: 5,
     title: '10/10 Quality — Highly Recommended!',
     comment: 'Easily one of the best pastries I have tasted in town. Premium ingredients and rich butter aroma. Will order again!'
   },
   {
-    chipLabel: '🎉 Family Gathering Favorite',
+    chipLabel: 'Family Gathering Favorite',
     rating: 5,
     title: 'Huge hit at our family gathering!',
     comment: 'Served this treat for dessert during our weekend family dinner and it was finished in minutes. 100% reordering!'

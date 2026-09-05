@@ -18,7 +18,7 @@
             class="px-3.5 py-1.5 rounded-xl bg-surface dark:bg-[#140D09] hover:bg-brand-tan/30 text-brand-choco dark:text-[#E2C08A] text-xs font-semibold border border-brand-caramel/30 dark:border-[#C08E5D]/30 transition-all text-left"
             @click="promptInput = chip; askAi()"
           >
-            💬 {{ chip }}
+            {{ chip }}
           </button>
         </div>
       </div>
@@ -56,7 +56,7 @@
         </div>
 
         <div v-if="thinking" class="flex items-center gap-2 text-xs text-warm-gray dark:text-[#C5B4A4] italic">
-          <span class="animate-pulse">🤖 Antigravity AI is analyzing bakery inventory &amp; recipe metrics...</span>
+          <span class="flex items-center gap-2"><Sparkles class="w-4 h-4 animate-spin text-[#C08E5D]" /><span>Antigravity AI is analyzing bakery inventory &amp; recipe metrics...</span></span>
         </div>
       </div>
 
@@ -80,6 +80,7 @@
 
 <script setup>
 import { ref, inject } from 'vue'
+import { Sparkles, MessageSquare } from 'lucide-vue-next'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 

@@ -164,4 +164,10 @@ if (typeof window !== 'undefined') {
   })
 }
 
+router.afterEach(() => {
+  if (window.__lenis) {
+    window.__lenis.scrollTo(0, { immediate: true })
+  }
+})
+
 export default router

@@ -8,14 +8,14 @@
         v-tooltip="'Click to open interactive map and drag pin to your exact delivery location'"
         class="inline-flex items-center gap-2 text-xs font-bold text-brand-choco bg-surface hover:bg-brand-tan/30 px-3.5 py-2 rounded-xl border border-brand-caramel/30 transition-all shadow-xs"
       >
-        <span>📍 {{ showMap ? 'Hide Map Picker' : 'Pinpoint Location on Map' }}</span>
+        <span>{{ showMap ? 'Hide Map Picker' : 'Pinpoint Location on Map' }}</span>
         <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="showMap ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       <span v-if="selectedCoords" class="text-[11px] text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-500/20">
-        ✓ GPS: {{ selectedCoords.lat.toFixed(4) }}, {{ selectedCoords.lng.toFixed(4) }}
+        GPS: {{ selectedCoords.lat.toFixed(4) }}, {{ selectedCoords.lng.toFixed(4) }}
       </span>
     </div>
 
@@ -67,7 +67,7 @@
               @click="selectSuggestion(sug)"
               class="w-full text-left px-3.5 py-2 text-xs text-ink dark:text-[#FBF3E7] hover:bg-brand-tan/20 dark:hover:bg-[#2A1D16] hover:text-brand-choco border-b border-brand-caramel/10 last:border-0 truncate"
             >
-              📍 {{ sug.name }} <span class="text-[10px] text-warm-gray">({{ sug.subtitle }})</span>
+              {{ sug.name }} <span class="text-[10px] text-warm-gray">({{ sug.subtitle }})</span>
             </button>
           </div>
         </div>
@@ -78,7 +78,7 @@
 
           <!-- Instruction Badge Overlay -->
           <div class="absolute bottom-2 left-2 right-2 bg-white/95 dark:bg-[#1A120C]/95 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-brand-caramel/20 text-[11px] text-brand-choco dark:text-[#E2C08A] flex items-center justify-between z-[400] shadow-sm">
-            <span>💡 <strong>Tip:</strong> Drag the 📍 pin or tap anywhere on the map to set your exact delivery dropoff location.</span>
+            <span><strong>Tip:</strong> Drag the map marker or tap anywhere on the map to set your exact delivery dropoff location.</span>
             <button type="button" @click="centerOnStore" class="text-[10px] font-bold text-brand-caramel hover:underline">Recenter</button>
           </div>
         </div>
@@ -188,7 +188,7 @@ async function initMap() {
 
   // Custom Bakery Store Icon
   const storeIcon = L.divIcon({
-    html: `<div style="background:#5C3A22; color:#FBF3E7; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; border:2px solid #D9A876; box-shadow:0 4px 8px rgba(0,0,0,0.35);">🏪</div>`,
+    html: `<div style="background:#5C3A22; color:#FBF3E7; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; border:2px solid #D9A876; box-shadow:0 4px 8px rgba(0,0,0,0.35);">Store</div>`,
     className: '',
     iconSize: [34, 34],
     iconAnchor: [17, 17],
@@ -196,7 +196,7 @@ async function initMap() {
 
   // Customer Dropoff Delivery Pin Icon
   const deliveryIcon = L.divIcon({
-    html: `<div style="background:#C08E5D; color:white; width:36px; height:36px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); display:flex; align-items:center; justify-content:center; font-size:18px; border:2px solid #5C3A22; box-shadow:0 4px 10px rgba(0,0,0,0.4);"><span style="transform:rotate(45deg); display:block;">📍</span></div>`,
+    html: `<div style="background:#C08E5D; color:white; width:36px; height:36px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); display:flex; align-items:center; justify-content:center; font-size:18px; border:2px solid #5C3A22; box-shadow:0 4px 10px rgba(0,0,0,0.4);"><span style="transform:rotate(45deg); display:block;">Pin</span></div>`,
     className: '',
     iconSize: [36, 36],
     iconAnchor: [18, 36],

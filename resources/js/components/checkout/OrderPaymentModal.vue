@@ -20,7 +20,7 @@
               <h3 class="text-xl font-extrabold text-ink dark:text-white">Order #{{ order?.order_number }}</h3>
             </div>
             <button type="button" @click="$emit('close')" class="w-8 h-8 rounded-full bg-surface dark:bg-[#2A1C13] flex items-center justify-center text-warm-gray hover:text-ink transition-colors">
-              ✕
+              
             </button>
           </div>
 
@@ -34,9 +34,9 @@
             <!-- Pooling Specific Details Badge -->
             <div v-if="order?.delivery_mode === 'pooling'" class="p-3 rounded-xl bg-emerald-100/80 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-800 space-y-1.5 text-[11px]">
               <div class="flex items-center justify-between text-emerald-950 dark:text-emerald-200 font-extrabold pb-1 border-b border-emerald-300/50">
-                <span class="flex items-center gap-1">🤝 Group Delivery Pooling Details</span>
+                <span class="flex items-center gap-1"><Users class="w-4 h-4" /><span>Group Delivery Pooling Details</span></span>
                 <span class="bg-emerald-700 text-white px-2 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wide">
-                  {{ order?.pooling_status === 'settled' ? '✓ Rate Settled' : '⏳ Pending Rate' }}
+                  {{ order?.pooling_status === 'settled' ? 'Rate Settled' : 'Pending Rate' }}
                 </span>
               </div>
               <div v-if="order?.delivery_pool?.pool_code" class="text-emerald-900 dark:text-emerald-300 flex justify-between">
@@ -77,7 +77,7 @@
             <label class="border-2 rounded-2xl p-3.5 cursor-pointer flex items-center gap-3 transition-all"
               :class="selectedMethod === 'gcash' ? 'border-brand-choco bg-surface dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510]'">
               <input type="radio" v-model="selectedMethod" value="gcash" class="sr-only" />
-              <span class="text-xl">💙</span>
+              <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-lg">GCash</span>
               <div class="flex-1">
                 <span class="font-extrabold text-xs block">GCash E-Wallet</span>
                 <span class="text-[11px] text-warm-gray block">Instant online payment via GCash app</span>
@@ -88,7 +88,7 @@
             <label class="border-2 rounded-2xl p-3.5 cursor-pointer flex items-center gap-3 transition-all"
               :class="selectedMethod === 'maya' ? 'border-brand-choco bg-surface dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510]'">
               <input type="radio" v-model="selectedMethod" value="maya" class="sr-only" />
-              <span class="text-xl">💚</span>
+              <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg">Maya</span>
               <div class="flex-1">
                 <span class="font-extrabold text-xs block">Maya E-Wallet</span>
                 <span class="text-[11px] text-warm-gray block">Pay instantly using Maya wallet</span>
@@ -99,7 +99,7 @@
             <label v-if="enableQrph" class="border-2 rounded-2xl p-3.5 cursor-pointer flex items-center gap-3 transition-all"
               :class="selectedMethod === 'qrph' ? 'border-brand-choco bg-surface dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510]'">
               <input type="radio" v-model="selectedMethod" value="qrph" class="sr-only" />
-              <span class="text-xl">📲</span>
+              <span class="text-xs font-bold text-violet-600 bg-violet-100 px-2 py-1 rounded-lg">QR</span>
               <div class="flex-1">
                 <span class="font-extrabold text-xs block">QR Ph (Scan & Pay)</span>
                 <span class="text-[11px] text-warm-gray block">Scan QR code using GCash, Maya, ShopeePay, BDO, BPI, UnionBank</span>
@@ -110,7 +110,7 @@
             <label class="border-2 rounded-2xl p-3.5 cursor-pointer flex items-center gap-3 transition-all"
               :class="selectedMethod === 'bank_transfer' ? 'border-brand-choco bg-surface dark:bg-[#2A1C13]' : 'border-brand-caramel/20 bg-white dark:bg-[#1E1510]'">
               <input type="radio" v-model="selectedMethod" value="bank_transfer" class="sr-only" />
-              <span class="text-xl">🏦</span>
+              <span class="text-xs font-bold text-amber-800 bg-amber-100 px-2 py-1 rounded-lg">Bank</span>
               <div class="flex-1">
                 <span class="font-extrabold text-xs block">BDO Bank Transfer / OTC</span>
                 <span class="text-[11px] text-warm-gray block">Manual online bank transfer or Over-the-Counter deposit</span>
@@ -120,7 +120,7 @@
 
           <!-- BDO Instructions Box if Bank Transfer Selected -->
           <div v-if="selectedMethod === 'bank_transfer'" class="p-4 rounded-2xl bg-amber-50/90 dark:bg-[#2A1C13] border border-amber-300 dark:border-amber-800 space-y-2 text-xs">
-            <h4 class="font-bold text-amber-950 dark:text-amber-200">🏦 BDO Deposit Details</h4>
+            <h4 class="font-bold text-amber-950 dark:text-amber-200">BDO Deposit Details</h4>
             <div class="space-y-1 text-amber-900 dark:text-amber-300 font-mono">
               <p>Account Name: <strong>{{ storeInfo.bank_account_name || 'ABCDips & Treats' }}</strong></p>
               <p>Account Number: <strong>{{ storeInfo.bank_account_number || '0012-3456-7890' }}</strong></p>
@@ -148,6 +148,7 @@
 
 <script setup>
 import { ref, inject } from 'vue'
+import { Users, X, CreditCard, Building2, CheckCircle2 } from 'lucide-vue-next'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import { useToast } from '@/composables/useToast'
 
