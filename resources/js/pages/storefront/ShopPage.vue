@@ -2,10 +2,11 @@
     <div class="page-container py-10 md:py-16">
         <!-- Header -->
         <PageHeader tagline="baked fresh daily" title="Explore Our Bakery Collection"
-            subtitle="From classic banana bread loaves to artisanal cheesecakes and chewy handcrafted cookies." />
+            subtitle="From classic banana bread loaves to cheesecakes and chewy handcrafted cookies." />
 
         <!-- Sticky Filter & Search Controls Bar -->
-        <div class="sticky top-20 z-30 mb-8 p-4 md:p-5 rounded-3xl bg-white/90 dark:bg-[#1C1410]/90 backdrop-blur-xl border border-brand-caramel/25 dark:border-[#C08E5D]/25 shadow-lg shadow-brand-choco/5 transition-all">
+        <div
+            class="sticky top-20 z-30 mb-8 p-4 md:p-5 rounded-3xl bg-white/90 dark:bg-[#1C1410]/90 backdrop-blur-xl border border-brand-caramel/25 dark:border-[#C08E5D]/25 shadow-lg shadow-brand-choco/5 transition-all">
             <div class="flex flex-col lg:flex-row gap-4 justify-between items-center">
                 <!-- Search Input -->
                 <div class="w-full lg:w-72 shrink-0 relative">
@@ -25,10 +26,7 @@
                 <!-- Category Carousel (Smooth Left-Right Carousel with Arrows & Drag-to-Scroll) -->
                 <div class="w-full lg:flex-1 min-w-0 relative flex items-center">
                     <!-- Left Carousel Nav Arrow -->
-                    <button
-                        v-show="canScrollLeft"
-                        type="button"
-                        aria-label="Scroll categories left"
+                    <button v-show="canScrollLeft" type="button" aria-label="Scroll categories left"
                         class="w-7 h-7 rounded-xl flex items-center justify-center bg-white/95 dark:bg-[#2A1C13]/95 border border-brand-caramel/30 dark:border-[#C08E5D]/30 text-brand-choco dark:text-[#E2C08A] hover:scale-110 active:scale-95 transition-all shadow-md shrink-0 mr-1.5 z-20 cursor-pointer"
                         @click="scrollCategories(-1)">
                         <ChevronLeft class="w-4 h-4" />
@@ -39,16 +37,12 @@
                         class="absolute left-8 top-0 bottom-0 w-8 bg-gradient-to-r from-white/90 dark:from-[#1C1410]/90 to-transparent pointer-events-none z-10" />
 
                     <!-- Scrollable Category Track -->
-                    <div
-                        ref="categoryTrackRef"
+                    <div ref="categoryTrackRef"
                         class="flex items-center gap-2 overflow-x-auto scroll-smooth no-scrollbar select-none py-1 flex-1 min-w-0"
-                        @scroll.passive="updateScrollButtons"
-                        @wheel.passive="onCategoryWheel"
-                        @mousedown="startCategoryDrag"
-                        @mousemove="onCategoryDrag"
-                        @mouseup="endCategoryDrag"
+                        @scroll.passive="updateScrollButtons" @wheel.passive="onCategoryWheel"
+                        @mousedown="startCategoryDrag" @mousemove="onCategoryDrag" @mouseup="endCategoryDrag"
                         @mouseleave="endCategoryDrag">
-                        
+
                         <button
                             class="px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer"
                             :class="[!selectedCategory
@@ -65,8 +59,10 @@
                                 ? 'bg-brand-choco text-surface dark:bg-[#E2C08A] dark:text-[#1C1410] font-bold shadow-sm is-active-category'
                                 : 'bg-surface/80 dark:bg-[#2A1C13] text-brand-choco dark:text-[#FBF3E7] hover:bg-brand-tan/25 dark:hover:bg-[#3D291D] border border-brand-caramel/20 dark:border-[#C08E5D]/25']"
                             @click="handleCategoryClick(cat.slug)">
-                            <img v-if="cat.image_url" :src="cat.image_url" :alt="cat.name" class="w-4 h-4 rounded-full object-cover shrink-0" />
-                            <component v-else :is="getCategoryIcon(cat.slug)" class="w-3.5 h-3.5 text-brand-caramel dark:text-[#E2C08A]" />
+                            <img v-if="cat.image_url" :src="cat.image_url" :alt="cat.name"
+                                class="w-4 h-4 rounded-full object-cover shrink-0" />
+                            <component v-else :is="getCategoryIcon(cat.slug)"
+                                class="w-3.5 h-3.5 text-brand-caramel dark:text-[#E2C08A]" />
                             <span>{{ cat.name }}</span>
                         </button>
                     </div>
@@ -76,10 +72,7 @@
                         class="absolute right-8 top-0 bottom-0 w-8 bg-gradient-to-l from-white/90 dark:from-[#1C1410]/90 to-transparent pointer-events-none z-10" />
 
                     <!-- Right Carousel Nav Arrow -->
-                    <button
-                        v-show="canScrollRight"
-                        type="button"
-                        aria-label="Scroll categories right"
+                    <button v-show="canScrollRight" type="button" aria-label="Scroll categories right"
                         class="w-7 h-7 rounded-xl flex items-center justify-center bg-white/95 dark:bg-[#2A1C13]/95 border border-brand-caramel/30 dark:border-[#C08E5D]/30 text-brand-choco dark:text-[#E2C08A] hover:scale-110 active:scale-95 transition-all shadow-md shrink-0 ml-1.5 z-20 cursor-pointer"
                         @click="scrollCategories(1)">
                         <ChevronRight class="w-4 h-4" />
@@ -95,7 +88,8 @@
 
         <!-- Product Grid or Skeleton Loading with Smooth Crossfade -->
         <Transition name="fade" mode="out-in">
-            <div v-if="loading" key="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div v-if="loading" key="loading"
+                class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <SkeletonCard v-for="n in 8" :key="n" />
             </div>
 
@@ -120,7 +114,8 @@
                 ← Previous
             </BaseButton>
 
-            <span class="text-xs font-bold text-brand-choco dark:text-[#FBF3E7] px-4 py-2 rounded-xl bg-surface/60 dark:bg-[#1E1510] border border-brand-caramel/20 font-mono tabular-nums">
+            <span
+                class="text-xs font-bold text-brand-choco dark:text-[#FBF3E7] px-4 py-2 rounded-xl bg-surface/60 dark:bg-[#1E1510] border border-brand-caramel/20 font-mono tabular-nums">
                 Page {{ pagination.current_page }} of {{ pagination.last_page }}
             </span>
 
