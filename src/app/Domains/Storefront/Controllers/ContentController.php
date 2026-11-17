@@ -19,11 +19,11 @@ use App\Domains\Storefront\Support\SafeHtml;
 use App\Domains\User\Models\User;
 use App\Http\Controllers\Controller;
 use App\Services\CustomOrderService;
+use App\Shared\Services\PublicUploads;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -182,7 +182,7 @@ final class ContentController extends Controller
             'slug' => $post->slug,
             'excerpt' => $post->excerpt,
             'category' => $post->category,
-            'cover_url' => $cover ? (str_starts_with($cover, 'http') || str_starts_with($cover, '/') ? $cover : Storage::disk('public')->url($cover)) : null,
+            'cover_url' => PublicUploads::url($cover),
             'author' => $post->author?->name,
             'published_at' => $post->published_at?->toIso8601String(),
             'reading_minutes' => max(1, (int) ceil(str_word_count(strip_tags((string) $post->body)) / 200)),

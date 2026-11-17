@@ -3,6 +3,7 @@
 namespace App\Domains\Storefront\Queries;
 
 use App\Domains\Setting\Models\Setting;
+use App\Shared\Services\PublicUploads;
 
 /** Editable marketing copy (Store settings) with the original defaults. */
 final class StorefrontContent
@@ -72,13 +73,6 @@ final class StorefrontContent
 
     private static function image(?string $path): ?string
     {
-        if (! $path) {
-            return null;
-        }
-        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-            return $path;
-        }
-
-        return str_starts_with($path, '/') ? asset($path) : asset('storage/'.ltrim($path, '/'));
+        return PublicUploads::url($path);
     }
 }

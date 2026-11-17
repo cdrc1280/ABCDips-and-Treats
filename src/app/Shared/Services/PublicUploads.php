@@ -6,14 +6,41 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Files stored on the `public` disk (served from /storage). Paths are stored relative,
- * matching how the existing image_path columns work.
+ * Admin uploads (product/category/blog/setting images). Paths are stored relative, matching how
+ * the image_path columns work. The disk is `filesystems.uploads_disk`: `public` (local /storage,
+ * Docker and dev) or `r2` (Cloudflare R2; required on Vercel, whose disk is temporary).
  */
 final class PublicUploads
 {
+    public static function disk(): string
+    {
+        return (string) config('filesystems.uploads_disk', 'public');
+    }
+
+    /**
+     * Public URL for a stored value: full URLs as-is, files bundled in public/ (`/…` or
+     * `images/…`) from the app, anything else from the uploads disk.
+     */
+    public static function url(?string $path): ?string
+    {
+        if ($path === null || $path === '') {
+            return null;
+        }
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+        if (str_starts_with($path, '/') || str_starts_with($path, 'images/')) {
+            return asset(ltrim($path, '/'));
+        }
+
+        return self::disk() === 'public'
+            ? asset('storage/'.$path)
+            : Storage::disk(self::disk())->url($path);
+    }
+
     public function store(UploadedFile $file, string $directory): string
     {
-        return $file->store($directory, 'public') ?: throw new \RuntimeException("Could not store the upload in {$directory}.");
+        return $file->store($directory, self::disk()) ?: throw new \RuntimeException("Could not store the upload in {$directory}.");
     }
 
     /**
@@ -63,7 +90,7 @@ final class PublicUploads
     public function delete(?string $path): void
     {
         if ($path && ! str_starts_with($path, 'http')) {
-            Storage::disk('public')->delete($path);
+            Storage::disk(self::disk())->delete($path);
         }
     }
 }

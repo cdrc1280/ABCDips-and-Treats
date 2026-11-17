@@ -3,6 +3,7 @@
 namespace App\Domains\Content\Resources;
 
 use App\Domains\Content\Models\BlogPost;
+use App\Shared\Services\PublicUploads;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
@@ -66,11 +67,7 @@ final class BlogPostResource extends Resource
 
     private static function url(?string $path): ?string
     {
-        if (! $path) {
-            return null;
-        }
-
-        return str_starts_with($path, 'http') ? $path : asset('storage/'.ltrim($path, '/'));
+        return PublicUploads::url($path);
     }
 
     /**
