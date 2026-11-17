@@ -52,13 +52,18 @@ use App\Domains\Setting\Models\Setting;
 use App\Domains\Storefront\Listeners\MergeGuestCart;
 use App\Domains\User\Models\User;
 use App\Http\Middleware\SecurityHeaders;
+use App\Shared\Filesystem\PublicBucketAdapter;
+use AsyncAws\S3\S3Client;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
+use League\Flysystem\Filesystem;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -70,6 +75,21 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Event::listen(Login::class, MergeGuestCart::class);
+
+        // `r2` disk (Cloudflare R2) through the light AsyncAws client: the full AWS SDK is ~70 MB,
+        // which pushed the Vercel PHP function past its size limit and crashed it on start.
+        Storage::extend('async-s3', function ($app, array $config) {
+            $client = new S3Client([
+                'endpoint' => (string) ($config['endpoint'] ?? ''),
+                'accessKeyId' => (string) ($config['key'] ?? ''),
+                'accessKeySecret' => (string) ($config['secret'] ?? ''),
+                'region' => (string) ($config['region'] ?? 'auto'),
+                'pathStyleEndpoint' => 'true',
+            ]);
+            $adapter = new AsyncAwsS3Adapter($client, (string) $config['bucket'], $config['prefix'] ?? '');
+
+            return new PublicBucketAdapter(new Filesystem($adapter, $config), $adapter, $config);
+        });
 
         // Force https only when the app is actually served over https — a local
         // `docker compose` run on http://localhost:8000 must keep plain http links.
