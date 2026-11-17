@@ -6,7 +6,8 @@ name: abcdips
 # Every deployment rebuilds the app image — but persistent data lives in
 # named Docker volumes that SURVIVE rebuilds and container restarts:
 #
-#   db_data      → MySQL database (all orders, products, users, settings, etc.)
+#   pg_data      → PostgreSQL database (all orders, products, users, settings, etc.)
+#   db_data      → the OLD MySQL data, kept untouched (no longer used)
 #   app_storage  → Uploaded files (product images, avatars, invoices, media)
 #   app_logs     → Laravel application logs (for debugging production issues)
 #
@@ -18,7 +19,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/app.Dockerfile
       args:
         APP_ENV: production
     container_name: abcdips_app
@@ -30,9 +31,9 @@ services:
       APP_ENV: production
       APP_DEBUG: "false"
       APP_URL: "http://localhost:8000"
-      DB_CONNECTION: mysql
+      DB_CONNECTION: pgsql
       DB_HOST: db
-      DB_PORT: 3306
+      DB_PORT: 5432
       DB_DATABASE: abcdips
       DB_USERNAME: abcdips_user
       DB_PASSWORD: abcdips_password
@@ -52,20 +53,74 @@ services:
       redis:
         condition: service_healthy
 
+  # ─── Live development (hot reload) ──────────────────────────────────────────
+  # Starts with `docker compose up -d` next to the production-like `app`:
+  #   http://localhost:8001  → Laravel from your working tree (code changes apply on refresh)
+  #   http://localhost:5174  → Vite HMR (React/CSS changes show instantly)
+  # Same PostgreSQL database as `app`. Logs: `docker compose logs -f dev`.
+  # Port 5173 belongs to another project; never use it here.
+  dev:
+    build:
+      context: docker
+      dockerfile: tools.Dockerfile
+    image: abcdips-tools
+    container_name: abcdips_dev
+    restart: unless-stopped
+    # Files Vite/Laravel write (public/hot, storage, Wayfinder output) stay owned by you.
+    user: "${DEV_UID:-1000}:${DEV_GID:-1000}"
+    working_dir: /app
+    ports:
+      - "8001:8000"
+      - "5174:5174"
+    environment:
+      HOME: /tmp
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: "http://localhost:8001"
+      APP_KEY: "base64:ZGV2a2V5ZGV2a2V5ZGV2a2V5ZGV2a2V5ZGV2a2V5MTI="
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: abcdips
+      DB_USERNAME: abcdips_user
+      DB_PASSWORD: abcdips_password
+      CACHE_STORE: database
+      SESSION_DRIVER: database
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: log
+      VITE_IN_DOCKER: "1"
+    volumes:
+      # The Laravel + React app lives in src/.
+      - ./src:/app
+    command:
+      - sh
+      - -c
+      - |
+        [ -d vendor ] || composer install --no-interaction
+        [ -d node_modules ] || npm ci
+        rm -f public/hot
+        php artisan serve --host=0.0.0.0 --port=8000 &
+        exec npx vite
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
-    image: mysql:8.0
+    image: postgres:17-alpine
     container_name: abcdips_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root_password_change_me
-      MYSQL_DATABASE: abcdips
-      MYSQL_USER: abcdips_user
-      MYSQL_PASSWORD: abcdips_password
+      POSTGRES_DB: abcdips
+      POSTGRES_USER: abcdips_user
+      POSTGRES_PASSWORD: abcdips_password
+    ports:
+      # Local GUI access (TablePlus/DBeaver): localhost:5433. 5432 is left free for other projects.
+      - "5433:5432"
     volumes:
       # ALL database data — orders, products, users, settings, etc.
-      - db_data:/var/lib/mysql
+      - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "pg_isready -U abcdips_user -d abcdips"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -84,7 +139,8 @@ services:
       retries: 5
 
 volumes:
-  db_data:      # MySQL — all business data
+  pg_data:      # PostgreSQL — all business data
+  db_data:      # old MySQL data — kept, unused (safe to inspect; never auto-deleted)
   app_storage:  # Uploaded files — product images, media, invoices
   app_logs:     # Laravel logs — for post-deploy debugging
   redis_data:   # Redis — queue jobs and session/cache data

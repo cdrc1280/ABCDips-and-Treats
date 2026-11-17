@@ -1,0 +1,87 @@
+/* ─────────────────────────────────────────────────────────────
+   ABCDips & Treats: storefront + auth entry stylesheet.
+   All colours, type and radii come from tokens.css (shared with
+   the back office). Add no colour values here.
+   ───────────────────────────────────────────────────────────── */
+
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import './tokens.css';
+
+@source '../views';
+@source '../js';
+
+@theme inline {
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+@layer base {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        line-height: 1.2;
+        letter-spacing: -0.015em;
+    }
+}
+
+/* Sticky bars over content (nav, catalogue toolbar) */
+.glass-surface {
+    background: color-mix(in oklab, var(--background) 85%, transparent);
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    border-color: var(--border);
+}
+
+/* Cart badge pop */
+.spring-bounce {
+    animation: spring-pop 0.4s var(--ease-spring);
+}
+
+@keyframes spring-pop {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Receipt: torn zig-zag bottom edge (cart summary). */
+.receipt-edge {
+    --tooth: 10px;
+    padding-bottom: calc(var(--tooth) + 1.25rem);
+    mask:
+        conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / var(--tooth) var(--tooth) repeat-x,
+        linear-gradient(#000 0 0) top / 100% calc(100% - var(--tooth) + 1px) no-repeat;
+}
+
+/* Ticket: punched half-circle notches on both sides at --notch-y (track order). */
+.ticket-notch {
+    --notch: 11px;
+    mask:
+        radial-gradient(circle var(--notch) at 0 var(--notch-y, 50%), #0000 98%, #000) left / 51% 100% no-repeat,
+        radial-gradient(circle var(--notch) at 100% var(--notch-y, 50%), #0000 98%, #000) right / 51% 100% no-repeat;
+}

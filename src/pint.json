@@ -1,0 +1,4 @@
+{
+    "preset": "laravel",
+    "exclude": ["scratch", "graphify-out", "storage", "bootstrap/cache"]
+}

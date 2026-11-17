@@ -20,10 +20,10 @@
 
 ## 3. Zero AI-Slop Iconography Standards
 - Zero raw unicode emojis as primary buttons, navigation icons, badges, or watermarks.
-- Production vector icons only via `lucide-vue-next` with standard stroke widths.
+- Production vector icons only via `lucide-react` with standard stroke widths (menu icons from the database go through the static map in `components/custom/menu-icon.tsx`).
 
 ## 4. High Performance & Lightweight Architecture
-- **Chunk Splitting**: Keep vendor chunks separated (`vendor-vue`, `vendor-gsap`, `vendor-axios`, `vendor-icons`).
+- **Chunk Splitting**: Keep vendor chunks separated (`vendor-react`, `vendor-gsap`, `vendor-ui`; three.js stays a lazy-loaded chunk) — see `vite.config.ts`.
 - **Server Caching**: Wrap heavy catalog queries in `Cache::remember(..., 300, ...)`.
 - **Client SWR**: Avoid layout shifts with in-memory route caching.
 - **RAF Scheduling**: Always throttle continuous mouse/scroll animations with `requestAnimationFrame`.

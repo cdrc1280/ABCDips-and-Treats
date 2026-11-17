@@ -1,0 +1,248 @@
+<?php
+
+use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
+
+define('LARAVEL_START', microtime(true));
+
+// 0. Mark this as a Vercel serverless environment
+if (empty(getenv('VERCEL'))) {
+    putenv('VERCEL=1');
+    $_ENV['VERCEL'] = '1';
+    $_SERVER['VERCEL'] = '1';
+}
+
+// 1. Fast-path: Serve static assets directly if routed to serverless function
+$publicPath = realpath(__DIR__.'/../public');
+$requestUri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+if ($publicPath && ! empty($requestUri) && $requestUri !== '/' && $requestUri !== '/index.php') {
+    $staticFile = realpath($publicPath.$requestUri);
+    // Security check: ensure path is strictly within public/ and is a regular file
+    if ($staticFile && str_starts_with($staticFile, $publicPath) && is_file($staticFile)) {
+        $ext = strtolower(pathinfo($staticFile, PATHINFO_EXTENSION));
+
+        // Never serve PHP files as static — they must be executed
+        if ($ext === 'php') {
+            goto bootstrap;
+        }
+
+        $mimes = [
+            'css' => 'text/css; charset=UTF-8',
+            'js' => 'application/javascript; charset=UTF-8',
+            'mjs' => 'application/javascript; charset=UTF-8',
+            'json' => 'application/json',
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'svg' => 'image/svg+xml',
+            'webp' => 'image/webp',
+            'ico' => 'image/x-icon',
+            'woff' => 'font/woff',
+            'woff2' => 'font/woff2',
+            'ttf' => 'font/ttf',
+            'eot' => 'application/vnd.ms-fontobject',
+            'pdf' => 'application/pdf',
+            'txt' => 'text/plain',
+        ];
+
+        header('Content-Type: '.($mimes[$ext] ?? 'application/octet-stream'));
+        header('Content-Length: '.filesize($staticFile));
+        header('Cache-Control: public, max-age=31536000, immutable');
+        header('X-Content-Type-Options: nosniff');
+        readfile($staticFile);
+        exit;
+    }
+}
+
+bootstrap:
+
+// 2. APP_KEY must come from Vercel → Settings → Environment Variables. Never fall back to a key
+//    stored in the repo: sessions live in encrypted cookies, so a public key lets anyone forge a login.
+$currentAppKey = getenv('APP_KEY') ?: ($_ENV['APP_KEY'] ?? ($_SERVER['APP_KEY'] ?? null));
+if (empty($currentAppKey) || strlen(trim($currentAppKey)) < 32) {
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo 'APP_KEY is not configured. Add it in Vercel → Settings → Environment Variables, then redeploy.';
+    exit;
+}
+
+// 3. Serverless safe defaults (Stateless cookie session & memory cache)
+if (empty(getenv('SESSION_DRIVER')) || getenv('SESSION_DRIVER') === 'database') {
+    putenv('SESSION_DRIVER=cookie');
+    $_ENV['SESSION_DRIVER'] = 'cookie';
+    $_SERVER['SESSION_DRIVER'] = 'cookie';
+}
+
+if (empty(getenv('CACHE_STORE')) || getenv('CACHE_STORE') === 'database') {
+    putenv('CACHE_STORE=array');
+    $_ENV['CACHE_STORE'] = 'array';
+    $_SERVER['CACHE_STORE'] = 'array';
+}
+
+// 4. Setup writable /tmp paths for serverless execution (Vercel Lambda is read-only)
+$tmpDirs = [
+    '/tmp/storage/framework/views',
+    '/tmp/storage/framework/cache/data',
+    '/tmp/storage/framework/sessions',
+    '/tmp/storage/logs',
+    '/tmp/storage/app/public',
+    '/tmp/bootstrap/cache',
+];
+
+foreach ($tmpDirs as $dir) {
+    if (! is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
+}
+
+// 5. Robust Database Setup for Serverless Environment
+$dbConn = getenv('DB_CONNECTION') ?: ($_ENV['DB_CONNECTION'] ?? ($_SERVER['DB_CONNECTION'] ?? null));
+$dbHost = getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? ($_SERVER['DB_HOST'] ?? null));
+
+// Determine if an external cloud database (Supabase, Neon, PlanetScale, RDS, etc.) is configured
+$hasExternalDb = ! empty($dbHost) && $dbHost !== '127.0.0.1' && $dbHost !== 'localhost';
+
+if (! $hasExternalDb && ($dbConn === 'sqlite' || empty($dbConn))) {
+    // Verify pdo_sqlite extension is available
+    if (! extension_loaded('pdo_sqlite')) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'error' => true,
+            'message' => 'pdo_sqlite extension is not loaded. Configure an external database (DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD) or use a runtime with SQLite support.',
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+
+    $sqlitePath = '/tmp/database.sqlite';
+    $sourceDb = realpath(__DIR__.'/../database/database.sqlite');
+
+    // Copy bundled pre-seeded database if /tmp/database.sqlite doesn't exist or is empty
+    if (! file_exists($sqlitePath) || filesize($sqlitePath) === 0) {
+        if ($sourceDb && file_exists($sourceDb) && filesize($sourceDb) > 0) {
+            @copy($sourceDb, $sqlitePath);
+        } else {
+            @touch($sqlitePath);
+        }
+        @chmod($sqlitePath, 0666);
+    }
+
+    // Enable WAL mode for better concurrent read performance
+    try {
+        $pdo = new PDO("sqlite:{$sqlitePath}");
+        $pdo->exec('PRAGMA journal_mode=WAL');
+        $pdo->exec('PRAGMA synchronous=NORMAL');
+        $pdo = null;
+    } catch (Throwable $e) {
+        error_log('SQLite WAL init failed: '.$e->getMessage());
+    }
+
+    putenv('DB_CONNECTION=sqlite');
+    $_ENV['DB_CONNECTION'] = 'sqlite';
+    $_SERVER['DB_CONNECTION'] = 'sqlite';
+
+    putenv("DB_DATABASE={$sqlitePath}");
+    $_ENV['DB_DATABASE'] = $sqlitePath;
+    $_SERVER['DB_DATABASE'] = $sqlitePath;
+}
+
+// Adjust script name and paths so Laravel routing matches root paths correctly
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+$_SERVER['SCRIPT_FILENAME'] = __FILE__;
+
+// Determine if the application is in maintenance mode...
+if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
+    require $maintenance;
+}
+
+// Register the Composer autoloader...
+require __DIR__.'/../vendor/autoload.php';
+
+// Bootstrap Laravel and handle the request
+try {
+    /** @var Application $app */
+    $app = require_once __DIR__.'/../bootstrap/app.php';
+
+    // Set storage path to writable /tmp
+    $app->useStoragePath('/tmp/storage');
+
+    $request = Request::capture();
+    $kernel = $app->make(Kernel::class);
+    $response = $kernel->handle($request);
+
+    // Diagnostics mode for debugging on Vercel
+    if ($response->getStatusCode() === 500) {
+        $isApi = str_starts_with($request->path(), 'api') || $request->wantsJson();
+        if (isset($response->exception) && $response->exception) {
+            $e = $response->exception;
+            error_log('Vercel 500 Exception on '.$request->path().': '.$e->getMessage().' in '.$e->getFile().':'.$e->getLine());
+
+            // Details only with APP_DEBUG=true (never via a query string: that leaked traces to anyone).
+            if (getenv('APP_DEBUG') === 'true') {
+                if ($isApi) {
+                    header('Content-Type: application/json; charset=utf-8');
+                    http_response_code(500);
+                    echo json_encode([
+                        'error' => true,
+                        'message' => $e->getMessage(),
+                        'exception' => get_class($e),
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine(),
+                        'trace' => explode("\n", $e->getTraceAsString()),
+                    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+                    exit;
+                }
+
+                header('Content-Type: text/html; charset=utf-8');
+                http_response_code(500);
+                echo '<h1>500 Serverless Exception Diagnostic</h1>';
+                echo '<p><strong>Path:</strong> '.htmlspecialchars($request->path()).'</p>';
+                echo '<p><strong>Message:</strong> '.htmlspecialchars($e->getMessage()).'</p>';
+                echo '<p><strong>Class:</strong> '.get_class($e).'</p>';
+                echo '<p><strong>Location:</strong> '.htmlspecialchars($e->getFile()).':'.$e->getLine().'</p>';
+                echo "<pre style='background:#18181b;color:#f4f4f5;padding:16px;border-radius:8px;font-size:12px;overflow-x:auto;'>".htmlspecialchars($e->getTraceAsString()).'</pre>';
+                exit;
+            }
+        }
+    }
+
+    $response->send();
+    $kernel->terminate($request, $response);
+} catch (Throwable $e) {
+    // Trace first, message LAST: Vercel's log viewers keep only the tail of a long entry.
+    error_log('Vercel fatal trace: '.$e->getTraceAsString());
+    $previous = $e->getPrevious();
+    if ($previous) {
+        error_log('Vercel fatal (previous): '.get_class($previous).': '.mb_substr($previous->getMessage(), 0, 600));
+    }
+    error_log('Vercel fatal: '.get_class($e).': '.mb_substr($e->getMessage(), 0, 600));
+
+    http_response_code(500);
+    $isApiRequest = isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], '/api/');
+    $debug = getenv('APP_DEBUG') === 'true';
+
+    if ($isApiRequest) {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($debug
+            ? ['error' => true, 'message' => $e->getMessage(), 'file' => $e->getFile().':'.$e->getLine()]
+            : ['error' => true, 'message' => 'Server error.'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+
+    header('Content-Type: text/html; charset=utf-8');
+
+    if (! $debug) {
+        // The full error is in the Vercel runtime logs (error_log above), never in the page.
+        echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ABCDips &amp; Treats</title>'
+            .'<body style="font-family:system-ui,sans-serif;background:#faf5ee;color:#3b2417;display:grid;place-items:center;min-height:100vh;margin:0;padding:16px;text-align:center">'
+            .'<div><h1 style="font-size:1.5rem">The oven needs a moment</h1><p>Something went wrong on our side. Please try again in a minute.</p></div>';
+        exit;
+    }
+    echo '<h1>500 Internal Server Error (Vercel Serverless)</h1>';
+    echo '<p><strong>Message:</strong> '.htmlspecialchars($e->getMessage()).'</p>';
+    echo '<p><strong>File:</strong> '.htmlspecialchars($e->getFile()).':'.$e->getLine().'</p>';
+    echo "<pre style='background:#18181b;color:#f4f4f5;padding:16px;border-radius:8px;font-size:12px;overflow-x:auto;'>".htmlspecialchars($e->getTraceAsString()).'</pre>';
+    exit;
+}
