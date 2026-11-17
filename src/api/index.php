@@ -232,6 +232,19 @@ try {
     }
 
     header('Content-Type: text/html; charset=utf-8');
+
+    // TEMPORARY diagnostic: only on Vercel preview hosts (behind Vercel Authentication), never on
+    // the production domain or custom domains, and only when ?__diag=1 is passed. Message only.
+    $host = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
+    if (isset($_GET['__diag']) && str_ends_with($host, '-ced16.vercel.app')) {
+        $chain = [];
+        for ($x = $e; $x; $x = $x->getPrevious()) {
+            $chain[] = get_class($x).': '.$x->getMessage();
+        }
+        echo '<pre>'.htmlspecialchars(implode("\n\ncaused by ", $chain)).'</pre>';
+        exit;
+    }
+
     if (! $debug) {
         // The full error is in the Vercel runtime logs (error_log above), never in the page.
         echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ABCDips &amp; Treats</title>'
