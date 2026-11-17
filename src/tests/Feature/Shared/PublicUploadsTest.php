@@ -36,4 +36,14 @@ class PublicUploadsTest extends TestCase
         $uploads->delete($path);
         Storage::disk('r2')->assertMissing($path);
     }
+
+    public function test_r2_disk_builds_without_the_aws_sdk_and_uses_the_public_url(): void
+    {
+        config(['filesystems.disks.r2' => array_merge(config('filesystems.disks.r2'), [
+            'key' => 'k', 'secret' => 's', 'bucket' => 'abcdips-uploads',
+            'endpoint' => 'https://acc.r2.cloudflarestorage.com', 'url' => 'https://pub-test.r2.dev',
+        ])]);
+
+        $this->assertSame('https://pub-test.r2.dev/products/a.jpg', Storage::disk('r2')->url('products/a.jpg'));
+    }
 }
