@@ -179,7 +179,8 @@ try {
             $e = $response->exception;
             error_log('Vercel 500 Exception on '.$request->path().': '.$e->getMessage().' in '.$e->getFile().':'.$e->getLine());
 
-            if ($request->has('debug') || getenv('APP_DEBUG') === 'true') {
+            // Details only with APP_DEBUG=true (never via a query string: that leaked traces to anyone).
+            if (getenv('APP_DEBUG') === 'true') {
                 if ($isApi) {
                     header('Content-Type: application/json; charset=utf-8');
                     http_response_code(500);
@@ -214,18 +215,24 @@ try {
 
     http_response_code(500);
     $isApiRequest = isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], '/api/');
+    $debug = getenv('APP_DEBUG') === 'true';
 
     if ($isApiRequest) {
         header('Content-Type: application/json; charset=utf-8');
-        echo json_encode([
-            'error' => true,
-            'message' => $e->getMessage(),
-            'file' => $e->getFile().':'.$e->getLine(),
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        echo json_encode($debug
+            ? ['error' => true, 'message' => $e->getMessage(), 'file' => $e->getFile().':'.$e->getLine()]
+            : ['error' => true, 'message' => 'Server error.'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         exit;
     }
 
     header('Content-Type: text/html; charset=utf-8');
+    if (! $debug) {
+        // The full error is in the Vercel runtime logs (error_log above), never in the page.
+        echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ABCDips &amp; Treats</title>'
+            .'<body style="font-family:system-ui,sans-serif;background:#faf5ee;color:#3b2417;display:grid;place-items:center;min-height:100vh;margin:0;padding:16px;text-align:center">'
+            .'<div><h1 style="font-size:1.5rem">The oven needs a moment</h1><p>Something went wrong on our side. Please try again in a minute.</p></div>';
+        exit;
+    }
     echo '<h1>500 Internal Server Error (Vercel Serverless)</h1>';
     echo '<p><strong>Message:</strong> '.htmlspecialchars($e->getMessage()).'</p>';
     echo '<p><strong>File:</strong> '.htmlspecialchars($e->getFile()).':'.$e->getLine().'</p>';
