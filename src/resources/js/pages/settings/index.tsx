@@ -2,6 +2,7 @@ import { Head, useForm } from '@inertiajs/react';
 import { Banknote, Home, Image as ImageIcon, KeyRound, Loader2, Sparkles, Store, Truck, Users, type LucideIcon } from 'lucide-react';
 import type { FormEvent } from 'react';
 
+import { PasswordInput } from '@/components/custom/password-input';
 import { AppFooter } from '@/components/custom/app-footer';
 import { Field, FieldDescription, InputError, Required, fieldGrid } from '@/components/custom/field';
 import { FormSection } from '@/components/custom/form-section';
@@ -121,9 +122,8 @@ export default function StoreSettings({ sections, values, secrets_set, image_url
                 return (
                     <Field key={field.key}>
                         {label}
-                        <Input
+                        <PasswordInput
                             id={id}
-                            type="password"
                             autoComplete="new-password"
                             value={String(value ?? '')}
                             disabled={!editable}

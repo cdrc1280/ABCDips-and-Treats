@@ -8,6 +8,7 @@ use App\Domains\Setting\Enums\SettingPermission;
 use App\Domains\Setting\Models\Setting;
 use App\Domains\Setting\Support\StoreSettingsSchema;
 use App\Http\Controllers\Controller;
+use App\Shared\Services\PublicUploads;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -42,7 +43,7 @@ class StoreSettingsController extends Controller implements HasMiddleware
                     break;
                 case 'image':
                     $path = (string) $stored;
-                    $imageUrls[$key] = $path === '' ? null : (str_starts_with($path, 'http') ? $path : asset('storage/'.ltrim($path, '/')));
+                    $imageUrls[$key] = PublicUploads::url($path);
                     $values[$key] = null;
                     break;
                 case 'bool':
