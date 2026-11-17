@@ -3,6 +3,18 @@
 use Illuminate\Support\Str;
 use Pdo\Mysql;
 
+// Postgres URL: DB_URL, else DATABASE_URL (what the Vercel → Neon integration injects).
+$pgsqlUrl = env('DB_URL', env('DATABASE_URL'));
+
+// Neon routes by SNI; Vercel's PHP runtime ships a libpq too old to send it ("Endpoint ID is not
+// specified"). Neon's documented fallback: put "endpoint=<id>;" in front of the password.
+// https://neon.com/sni
+if (is_string($pgsqlUrl)
+    && preg_match('#^(postgres(?:ql)?://[^:/@]+:)([^@]*)@(ep-[a-z0-9-]+?)(?:-pooler)?\.[^/@]*neon\.tech#', $pgsqlUrl, $neon)
+    && ! str_contains(rawurldecode($neon[2]), 'endpoint=')) {
+    $pgsqlUrl = $neon[1].'endpoint%3D'.$neon[3].'%3B'.$neon[2].substr($pgsqlUrl, strlen($neon[1].$neon[2]));
+}
+
 return [
 
     /*
@@ -86,8 +98,7 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            // DATABASE_URL is what the Vercel → Neon integration injects; DB_URL wins when both are set.
-            'url' => env('DB_URL', env('DATABASE_URL')),
+            'url' => $pgsqlUrl,
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'laravel'),
