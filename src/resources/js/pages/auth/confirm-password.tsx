@@ -1,10 +1,10 @@
 import { Form, Head } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 
+import { PasswordInput } from '@/components/custom/password-input';
 import { AuthHeading } from '@/components/custom/auth-heading';
 import { Field, InputError } from '@/components/custom/field';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { store } from '@/routes/password/confirm';
 
@@ -18,9 +18,8 @@ export default function ConfirmPassword() {
                     <>
                         <Field>
                             <Label htmlFor="password">Password</Label>
-                            <Input
+                            <PasswordInput
                                 id="password"
-                                type="password"
                                 name="password"
                                 required
                                 autoFocus
