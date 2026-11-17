@@ -1,0 +1,15 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 7
+    paths:
+        - app
+        - routes
+        - database
+        - config
+        - bootstrap/app.php
+    tmpDir: storage/framework/cache/phpstan
+    ignoreErrors:
+        # Array shapes for validation rules / pipelines / messages add noise without catching bugs.
+        - identifier: missingType.iterableValue

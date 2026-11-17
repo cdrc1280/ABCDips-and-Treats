@@ -4,7 +4,7 @@ set -e
 
 echo "Starting ABCDips & Treats Production Container..."
 
-# ─── 0. Set UTF-8 locale to prevent encoding issues in PHP/MySQL ──────────────
+# ─── 0. Set UTF-8 locale to prevent encoding issues in PHP and the database ──────────────
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 
@@ -15,7 +15,6 @@ mkdir -p \
     storage/framework/views \
     storage/app/public \
     storage/app/private \
-    storage/app/livewire-tmp \
     storage/logs \
     bootstrap/cache
 
@@ -40,6 +39,8 @@ fi
 # ─── 4. Generate APP_KEY if missing ───────────────────────────────────────────
 if ! grep -q "^APP_KEY=base64:" .env 2>/dev/null && [ -z "$APP_KEY" ]; then
     echo "Generating application key..."
+    # key:generate only replaces an existing APP_KEY= line, so make sure there is one.
+    grep -q "^APP_KEY=" .env 2>/dev/null || echo "APP_KEY=" >> .env
     php artisan key:generate --force
 fi
 
@@ -50,18 +51,15 @@ php artisan storage:link --force || true
 mkdir -p /var/log/supervisor
 
 # ─── 7. Run Database Migrations SAFELY ────────────────────────────────────────
-# Wait for MySQL to be truly ready (healthcheck may pass before full init)
+# Wait for the database to be truly ready (any driver, incl. DB_URL; healthcheck may pass before full init)
 DB_READY=0
 for i in 1 2 3 4 5 6 7 8 9 10; do
     if php -r "
         try {
-            \$pdo = new PDO(
-                'mysql:host=' . getenv('DB_HOST') . ';port=' . (getenv('DB_PORT') ?: 3306) . ';dbname=' . getenv('DB_DATABASE'),
-                getenv('DB_USERNAME'),
-                getenv('DB_PASSWORD')
-            );
+            require 'vendor/autoload.php'; \$app = require 'bootstrap/app.php'; \$app->make(Illuminate\\Contracts\\Console\\Kernel::class)->bootstrap();
+            Illuminate\\Support\\Facades\\DB::connection()->getPdo();
             echo 'ok';
-        } catch (Exception \$e) {
+        } catch (Throwable \$e) {
             echo 'fail';
         }
     " 2>/dev/null | grep -q "ok"; then
@@ -83,14 +81,9 @@ php artisan migrate --force || echo "WARNING: Migration failed — check databas
 # ─── 8. First-run seeders — GUARDED to never overwrite production data ─────────
 IS_FIRST_RUN=$(php -r "
     try {
-        \$pdo = new PDO(
-            'mysql:host=' . getenv('DB_HOST') . ';port=' . (getenv('DB_PORT') ?: 3306) . ';dbname=' . getenv('DB_DATABASE'),
-            getenv('DB_USERNAME'),
-            getenv('DB_PASSWORD')
-        );
-        \$count = \$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
-        echo (\$count == 0) ? 'yes' : 'no';
-    } catch (Exception \$e) {
+        require 'vendor/autoload.php'; \$app = require 'bootstrap/app.php'; \$app->make(Illuminate\\Contracts\\Console\\Kernel::class)->bootstrap();
+        echo Illuminate\\Support\\Facades\\DB::table('users')->count() === 0 ? 'yes' : 'no';
+    } catch (Throwable \$e) {
         echo 'yes';
     }
 " 2>/dev/null || echo "no")
@@ -100,7 +93,7 @@ if [ "$IS_FIRST_RUN" = "yes" ]; then
     php artisan db:seed --force || true
 else
     echo "Existing database detected — skipping seeders to protect production data."
-    php artisan db:seed --class=RolesAndPermissionsSeeder --force || true
+    php artisan db:seed --class=AccessSeeder --force || true
     php artisan db:seed --class=SettingsSeeder --force || true
 fi
 
@@ -109,12 +102,11 @@ php artisan permission:cache-reset || true
 
 # ─── 10. Optimize caches for production ───────────────────────────────────────
 if [ "$APP_ENV" = "production" ]; then
-    echo "Optimizing Laravel & Filament caches for production..."
+    echo "Optimizing Laravel caches for production..."
     php artisan config:cache
     php artisan route:cache
     php artisan view:cache
     php artisan event:cache || true
-    php artisan filament:cache-components || true
 else
     echo "Clearing caches for development environment..."
     php artisan config:clear || true

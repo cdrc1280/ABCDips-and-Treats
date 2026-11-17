@@ -1,0 +1,15 @@
+.git
+.github
+tests
+node_modules
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+!storage/app/public
+.vscode
+.idea
+.phpunit.result.cache
+phpunit.xml
+public/index.php
+public/hot
