@@ -211,7 +211,13 @@ try {
     $response->send();
     $kernel->terminate($request, $response);
 } catch (Throwable $e) {
-    error_log('Vercel Fatal Serverless Exception: '.$e->getMessage()."\n".$e->getTraceAsString());
+    // Message on its own short line first: log viewers cut long entries, and the trace would hide it.
+    error_log('Vercel fatal: '.get_class($e).': '.mb_substr($e->getMessage(), 0, 600));
+    $previous = $e->getPrevious();
+    if ($previous) {
+        error_log('Vercel fatal (previous): '.get_class($previous).': '.mb_substr($previous->getMessage(), 0, 600));
+    }
+    error_log('Vercel fatal trace: '.$e->getTraceAsString());
 
     http_response_code(500);
     $isApiRequest = isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], '/api/');
