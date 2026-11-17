@@ -56,7 +56,7 @@ return [
         // Cloudflare R2 (S3-compatible). R2_PUBLIC_URL is the bucket's public address
         // (https://pub-….r2.dev or a custom domain); R2_ENDPOINT is https://<account-id>.r2.cloudflarestorage.com.
         'r2' => [
-            'driver' => 's3',
+            'driver' => 'async-s3', // registered in AppServiceProvider (light client; Vercel size limit)
             'key' => env('R2_ACCESS_KEY_ID'),
             'secret' => env('R2_SECRET_ACCESS_KEY'),
             'region' => 'auto',
