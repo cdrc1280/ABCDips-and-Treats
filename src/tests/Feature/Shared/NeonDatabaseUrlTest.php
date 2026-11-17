@@ -9,10 +9,13 @@ use Tests\TestCase;
 class NeonDatabaseUrlTest extends TestCase
 {
     /** @return array<string, mixed> */
-    private function pgsqlFor(string $url): array
+    private function pgsqlFor(string $url, bool $onVercel = true): array
     {
         $saved = [$_ENV, $_SERVER];
-        unset($_ENV['DB_URL'], $_SERVER['DB_URL']);
+        unset($_ENV['DB_URL'], $_SERVER['DB_URL'], $_ENV['VERCEL'], $_SERVER['VERCEL']);
+        if ($onVercel) {
+            $_ENV['VERCEL'] = $_SERVER['VERCEL'] = '1';
+        }
         $_ENV['DATABASE_URL'] = $_SERVER['DATABASE_URL'] = $url;
         putenv('DB_URL');
         putenv("DATABASE_URL={$url}");
@@ -21,6 +24,7 @@ class NeonDatabaseUrlTest extends TestCase
             $config = (require config_path('database.php'))['connections']['pgsql'];
         } finally {
             [$_ENV, $_SERVER] = $saved;
+            putenv('VERCEL');
             putenv('DATABASE_URL');
         }
 
@@ -35,6 +39,14 @@ class NeonDatabaseUrlTest extends TestCase
         $this->assertSame('neondb_owner', $config['username']);
         $this->assertSame('ep-restless-silence-bd71my60-pooler.c-8.us-east-2.aws.neon.tech', $config['host']);
         $this->assertSame('neondb', $config['database']);
+    }
+
+    public function test_off_vercel_the_neon_password_is_untouched(): void
+    {
+        // Docker / scripts/prod-db.sh: modern libpq sends SNI; a prefixed password would be rejected.
+        $config = $this->pgsqlFor('postgresql://neondb_owner:s3cr%40t@ep-wispy-violet-ao79jnmu.c-2.ap-southeast-1.aws.neon.tech/neondb', onVercel: false);
+
+        $this->assertSame('s3cr@t', $config['password']);
     }
 
     public function test_other_postgres_urls_are_left_alone(): void
