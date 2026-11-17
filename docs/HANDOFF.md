@@ -1,6 +1,6 @@
 # Handoff — Inertia/React rewrite (branch `feature/inertia-react`)
 
-_Last updated: 2026-11-17 (phases 1–8 done, A16 done; open: owner confirms pay-policy defaults, Vercel `DB_URL`, review + commit). Nothing is committed yet. Commit only when asked._
+_Last updated: 2026-11-17. Rewrite is LIVE: merged to `main` (PR #6, dd87a9c), deployed on Vercel (Root Directory `src`, region sin1) with Neon Postgres in Singapore. Production setup/migrations: `scripts/prod-db.sh` (`migrate` after deploys that add migrations). Open: owner adds real products._
 
 > **Layout (2026-11-17):** the Laravel + React app moved into `src/`. Code paths in this file are relative to `src/`. Docker build: `docker/app.Dockerfile` (context = repo root). Vercel needs Root Directory = `src` once this ships to `main`.
 
