@@ -9,6 +9,7 @@ use App\Domains\Review\Models\Review;
 use App\Domains\Sales\Models\OrderItem;
 use App\Shared\Concerns\FreesUniqueValuesOnDelete;
 use App\Shared\Concerns\LogsModelActivity;
+use App\Shared\Services\PublicUploads;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
@@ -226,12 +227,7 @@ class Product extends Model implements HasMedia
      */
     private static function resolveImagePath(string $path): string
     {
-        if (str_starts_with($path, 'http')) {
-            return $path;
-        }
-        $path = ltrim($path, '/');
-
-        return str_starts_with($path, 'images/') ? asset($path) : asset('storage/'.$path);
+        return (string) PublicUploads::url($path);
     }
 
     /** The product's real photo, or null when it has none (the storefront draws its own fallback). */

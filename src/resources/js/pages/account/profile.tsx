@@ -1,6 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { Camera, MailCheck, MailWarning } from 'lucide-react';
 
+import { PasswordInput } from '@/components/custom/password-input';
 import { AccountShell } from '@/components/storefront/account-shell';
 import { PsgcAddressFields, type PsgcAddress } from '@/components/storefront/psgc-address-fields';
 import { Button } from '@/components/ui/button';
@@ -167,9 +168,8 @@ export default function AccountProfile({ profile, status }: { profile: Profile; 
                         ).map(([field, label, autoComplete]) => (
                             <div key={field} className="space-y-1.5">
                                 <Label htmlFor={field}>{label}</Label>
-                                <Input
+                                <PasswordInput
                                     id={field}
-                                    type="password"
                                     value={password.data[field]}
                                     onChange={(e) => password.setData(field, e.target.value)}
                                     autoComplete={autoComplete}

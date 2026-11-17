@@ -1,6 +1,7 @@
 import { Form, Head } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 
+import { PasswordInput } from '@/components/custom/password-input';
 import { AuthHeading } from '@/components/custom/auth-heading';
 import { Field, InputError } from '@/components/custom/field';
 import { TextLink } from '@/components/custom/text-link';
@@ -46,14 +47,7 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                                     </TextLink>
                                 )}
                             </div>
-                            <Input
-                                id="password"
-                                type="password"
-                                name="password"
-                                required
-                                autoComplete="current-password"
-                                aria-invalid={!!errors.password}
-                            />
+                            <PasswordInput id="password" name="password" required autoComplete="current-password" aria-invalid={!!errors.password} />
                             <InputError message={errors.password} />
                         </Field>
                         <label className="flex items-center gap-2 text-sm">

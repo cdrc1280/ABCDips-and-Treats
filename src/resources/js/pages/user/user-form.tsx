@@ -1,5 +1,6 @@
 import { KeyRound, UserCog } from 'lucide-react';
 
+import { PasswordInput } from '@/components/custom/password-input';
 import { Field, FieldDescription, FieldLabel, InputError, fieldGrid } from '@/components/custom/field';
 import { FormSection } from '@/components/custom/form-section';
 import { MultiSelect } from '@/components/custom/multi-select';
@@ -83,9 +84,8 @@ export function UserForm({ data, setData, errors, options }: Props) {
                 <div className={fieldGrid}>
                     <Field>
                         <FieldLabel name="password">Password</FieldLabel>
-                        <Input
+                        <PasswordInput
                             id="password"
-                            type="password"
                             value={data.password}
                             aria-invalid={!!errors.password}
                             onChange={(event) => setData('password', event.target.value)}
@@ -95,9 +95,8 @@ export function UserForm({ data, setData, errors, options }: Props) {
                     </Field>
                     <Field>
                         <FieldLabel name="password_confirmation">Confirm password</FieldLabel>
-                        <Input
+                        <PasswordInput
                             id="password_confirmation"
-                            type="password"
                             value={data.password_confirmation}
                             aria-invalid={!!errors.password_confirmation}
                             onChange={(event) => setData('password_confirmation', event.target.value)}

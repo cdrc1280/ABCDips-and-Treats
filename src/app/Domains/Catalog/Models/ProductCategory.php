@@ -6,6 +6,7 @@ use App\Concerns\InteractsWithModelFactory;
 use App\Domains\Catalog\Data\CategoryFilterData;
 use App\Shared\Concerns\FreesUniqueValuesOnDelete;
 use App\Shared\Concerns\LogsModelActivity;
+use App\Shared\Services\PublicUploads;
 use Illuminate\Database\Eloquent\Attributes\Guarded;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -46,9 +47,7 @@ class ProductCategory extends Model implements HasMedia
     public function getImageUrlAttribute(): ?string
     {
         if ($this->image_path) {
-            return str_starts_with($this->image_path, 'http')
-                ? $this->image_path
-                : asset('storage/'.ltrim($this->image_path, '/'));
+            return PublicUploads::url($this->image_path);
         }
         $mediaUrl = $this->getFirstMediaUrl('category_image');
 

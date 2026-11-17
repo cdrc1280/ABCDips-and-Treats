@@ -1,6 +1,7 @@
 import { Form, Head } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 
+import { PasswordInput } from '@/components/custom/password-input';
 import { AuthHeading } from '@/components/custom/auth-heading';
 import { Field, InputError } from '@/components/custom/field';
 import { Button } from '@/components/ui/button';
@@ -28,9 +29,8 @@ export default function ResetPassword({ token, email }: { token: string; email: 
                         </Field>
                         <Field>
                             <Label htmlFor="password">New password</Label>
-                            <Input
+                            <PasswordInput
                                 id="password"
-                                type="password"
                                 name="password"
                                 required
                                 autoFocus
@@ -41,7 +41,7 @@ export default function ResetPassword({ token, email }: { token: string; email: 
                         </Field>
                         <Field>
                             <Label htmlFor="password_confirmation">Confirm password</Label>
-                            <Input id="password_confirmation" type="password" name="password_confirmation" required autoComplete="new-password" />
+                            <PasswordInput id="password_confirmation" name="password_confirmation" required autoComplete="new-password" />
                         </Field>
                         <Button type="submit" className="w-full" disabled={processing}>
                             {processing && <Loader2 className="animate-spin" />} Save new password

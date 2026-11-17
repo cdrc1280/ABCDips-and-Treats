@@ -1,6 +1,7 @@
 import { Form, Head } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 
+import { PasswordInput } from '@/components/custom/password-input';
 import { AuthHeading } from '@/components/custom/auth-heading';
 import { Field, FieldDescription, InputError } from '@/components/custom/field';
 import { TextLink } from '@/components/custom/text-link';
@@ -31,20 +32,13 @@ export default function Register() {
                         </Field>
                         <Field>
                             <Label htmlFor="password">Password</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                name="password"
-                                required
-                                autoComplete="new-password"
-                                aria-invalid={!!errors.password}
-                            />
+                            <PasswordInput id="password" name="password" required autoComplete="new-password" aria-invalid={!!errors.password} />
                             <FieldDescription>At least 8 characters with upper and lower case letters, a number and a symbol.</FieldDescription>
                             <InputError message={errors.password} />
                         </Field>
                         <Field>
                             <Label htmlFor="password_confirmation">Confirm password</Label>
-                            <Input id="password_confirmation" type="password" name="password_confirmation" required autoComplete="new-password" />
+                            <PasswordInput id="password_confirmation" name="password_confirmation" required autoComplete="new-password" />
                         </Field>
                         <Button type="submit" className="w-full" disabled={processing}>
                             {processing && <Loader2 className="animate-spin" />} Create account

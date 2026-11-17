@@ -28,6 +28,12 @@ return [
     |
     */
 
+    /*
+    | Where admin uploads (product, category, blog and settings images) go. `public` keeps them on
+    | this server (Docker, local dev). Vercel's disk is temporary, so production uses `r2`.
+    */
+    'uploads_disk' => env('UPLOADS_DISK', 'public'),
+
     'disks' => [
 
         'local' => [
@@ -44,6 +50,22 @@ return [
             'url' => rtrim((string) env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,
+            'report' => false,
+        ],
+
+        // Cloudflare R2 (S3-compatible). R2_PUBLIC_URL is the bucket's public address
+        // (https://pub-….r2.dev or a custom domain); R2_ENDPOINT is https://<account-id>.r2.cloudflarestorage.com.
+        'r2' => [
+            'driver' => 's3',
+            'key' => env('R2_ACCESS_KEY_ID'),
+            'secret' => env('R2_SECRET_ACCESS_KEY'),
+            'region' => 'auto',
+            'bucket' => env('R2_BUCKET'),
+            'url' => env('R2_PUBLIC_URL'),
+            'endpoint' => env('R2_ENDPOINT'),
+            'use_path_style_endpoint' => true,
+            // No per-object ACLs on R2: the bucket itself is made public (r2.dev or custom domain).
+            'throw' => true,
             'report' => false,
         ],
 
