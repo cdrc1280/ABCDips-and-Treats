@@ -7,10 +7,14 @@
     - Primary Chocolates: Rich Cocoa (`#20150E`, `#1C1410`, `#2D1B10`)
     - Caramel / Butter Gold Accents: (`#C08E5D`, `#D9A876`, `#E2C08A`)
     - Fresh Pastry Cream & Canvas: (`#FBF3E7`, `#FDFBF7`)
-- **Anti-Generic Layout Engineering**:
-  - Ban cookie-cutter bootstrap/tailwind template layouts (rigid flat blocks, un-styled cards).
-  - Use asymmetrical layered visual hierarchy, backdrop blurs (`backdrop-blur-md`), subtle gold hairline borders (`border-[#C08E5D]/30`), depth shadows, and interactive 3D product showcases.
-  - Implement Lenis smooth inertia physics for all scrolling and GSAP ScrollTrigger timeline orchestration.
+- **Anti-Generic Layout Engineering** (full spec: `docs/project/design-direction.md`, "Bakery counter"):
+  - Ban cookie-cutter template layouts: no eyebrow + centered H1 + grey subtitle headers, no repeated logo as an image placeholder.
+  - Colours come from the tokens in `resources/css/tokens.css` only (no raw hex in components).
+  - Real photos lead (`public/images/textures/*`); products without one use `<ProductPhoto>`'s parchment stand-in.
+- **3D, motion and scrolling**:
+  - 3D only as the opt-in "Turn the loaf" dialog on product pages flagged in `Product::SLUGS_WITH_3D_MODEL` (≥768px, loads on click). Never in listings, cart, checkout, account, auth or the back office.
+  - Native scrolling only: no Lenis or other smooth-scroll/scroll-jacking libraries.
+  - Motion = small one-time reveals (≤ 300 ms fade/slide, e.g. `Reveal`), always respecting `prefers-reduced-motion`. No GSAP timelines.
 
 ## 2. Zero AI-Slop Copywriting & Vocabulary Ban
 - **STRICTLY FORBIDDEN BUZZWORDS**:
@@ -20,10 +24,10 @@
 
 ## 3. Zero AI-Slop Iconography Standards
 - Zero raw unicode emojis as primary buttons, navigation icons, badges, or watermarks.
-- Production vector icons only via `lucide-vue-next` with standard stroke widths.
+- Production vector icons only via `lucide-react` with standard stroke widths.
 
 ## 4. High Performance & Lightweight Architecture
-- **Chunk Splitting**: Keep vendor chunks separated (`vendor-vue`, `vendor-gsap`, `vendor-axios`, `vendor-icons`).
+- **Chunk Splitting**: Keep vendor chunks separated (`vendor-react`, `vendor-gsap`, `vendor-ui`; three.js stays lazy-loaded) — see `vite.config.ts`.
 - **Server Caching**: Wrap heavy catalog queries in `Cache::remember(..., 300, ...)`.
 - **Client SWR**: Avoid layout shifts with in-memory route caching.
 - **RAF Scheduling**: Always throttle continuous mouse/scroll animations with `requestAnimationFrame`.

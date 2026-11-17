@@ -1,0 +1,272 @@
+/* ─────────────────────────────────────────────────────────────
+   ABCDips & Treats: "Cocoa & Crème" design tokens.
+   The ONE colour system for the storefront, auth and back office.
+   Imported by app.css (admin) and storefront.css (shop) right after
+   Tailwind. Components use semantic classes only (bg-card,
+   text-muted-foreground, bg-success…), never raw hex values.
+
+   Contrast (WCAG): ink on canvas 15.4:1 · muted ink 6.0:1 ·
+   primary on canvas 5.0:1 · cream on primary 5.3:1 · dark primary
+   on dark canvas 8.6:1. Warning takes cocoa text (cream fails).
+   ───────────────────────────────────────────────────────────── */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+    color-scheme: light;
+
+    /* Surfaces & ink */
+    --background: #fbf6ee; /* canvas cream */
+    --foreground: #2a1b12; /* cocoa ink */
+    --card: #fffdf9;
+    --card-foreground: #2a1b12;
+    --popover: #fffdf9;
+    --popover-foreground: #2a1b12;
+    --muted: #f4eadc;
+    --muted-foreground: #6e5a4b;
+    --secondary: #f4eadc;
+    --secondary-foreground: #2a1b12;
+    --accent: #f1e2cd; /* hover / selected rows */
+    --accent-foreground: #2a1b12;
+    --border: #e9dccb; /* warm hairline */
+    --input: #e2d1bc;
+
+    /* Brand */
+    --primary: #9a5826; /* deep caramel */
+    --primary-foreground: #fffdf9;
+    --highlight: #d9a876; /* caramel highlight: rings, badges, one accent per screen */
+    --highlight-foreground: #2a1b12;
+    --ring: #d9a876;
+
+    /* Semantic */
+    --success: #5e7d4f; /* pandan */
+    --success-foreground: #fffdf9;
+    --warning: #c98a1e; /* burnt honey */
+    --warning-foreground: #2a1b12;
+    --destructive: #b4454f; /* berry */
+    --destructive-foreground: #fffdf9;
+    --info: #6f5b93; /* ube */
+    --info-foreground: #fffdf9;
+
+    /* Readable text versions of the semantic colours for tinted chips
+       (burnt honey alone is 2.9:1 on cream). Mixed toward the ink so
+       they also work in dark mode, where the ink is cream. */
+    --success-ink: color-mix(in oklab, var(--success) 72%, var(--foreground));
+    --warning-ink: color-mix(in oklab, var(--warning) 62%, var(--foreground));
+    --destructive-ink: color-mix(in oklab, var(--destructive) 78%, var(--foreground));
+    --info-ink: color-mix(in oklab, var(--info) 78%, var(--foreground));
+
+    /* Opaque table-row hover (frozen columns must hide what scrolls under them) */
+    --row-hover: color-mix(in oklab, var(--accent) 55%, var(--card));
+
+    /* Modal scrim */
+    --overlay: rgb(26 18 13 / 0.5);
+
+    /* Chart series, fixed order: caramel, pandan, ube, honey, blueberry.
+       Validated with the dataviz validator (lightness band, chroma floor,
+       CVD + normal-vision separation, 3:1 on the card) in both modes.
+       Never cycle: a 6th series folds into "Other" (--chart-other).
+       Status colours (success/warning/destructive) stay out of charts. */
+    --chart-1: #bd7221;
+    --chart-2: #007d5f;
+    --chart-3: #6f4fa1;
+    --chart-4: #af8f15;
+    --chart-5: #196ea9;
+    --chart-other: #b5a596;
+    --chart-grid: #efe5d8;
+
+    /* The cocoa surface, dark in both themes: back-office sidebar, storefront
+       footer, auth photo caption. Named sidebar-* because shadcn's sidebar reads them. */
+    --sidebar: #2a1b12;
+    --sidebar-foreground: #eadbc8;
+    --sidebar-muted-foreground: #b9a08a;
+    --sidebar-primary: #d9a876;
+    --sidebar-primary-foreground: #2a1b12;
+    --sidebar-accent: #3a2a1f;
+    --sidebar-accent-foreground: #fbf6ee;
+    --sidebar-border: #3d2c20;
+    --sidebar-ring: #d9a876;
+
+    /* Bakery-counter materials: parchment behind photo-less products,
+       kraft on price tags. Ink on each is ≥ 7:1. */
+    --parchment: #efe3cf;
+    --parchment-foreground: #4a2e1f;
+    --kraft: #d9b98c;
+    --kraft-foreground: #3b2417;
+
+    /* Shape: 14px cards (rounded-xl), 10px inputs/buttons (rounded-md) */
+    --radius: 0.75rem;
+
+    /* Hairlines over shadows: only floating layers get real depth */
+    --shadow-2xs: 0 1px 0 0 rgb(42 27 18 / 0.03);
+    --shadow-xs: 0 1px 0 0 rgb(42 27 18 / 0.04);
+    --shadow-sm: 0 1px 2px 0 rgb(42 27 18 / 0.05);
+    --shadow: 0 1px 2px 0 rgb(42 27 18 / 0.05);
+    --shadow-md: 0 6px 16px -6px rgb(42 27 18 / 0.14);
+    --shadow-lg: 0 12px 28px -10px rgb(42 27 18 / 0.18);
+    --shadow-xl: 0 20px 40px -14px rgb(42 27 18 / 0.22);
+}
+
+.dark {
+    color-scheme: dark;
+
+    --background: #1a120d;
+    --foreground: #f3e9dc;
+    --card: #231912;
+    --card-foreground: #f3e9dc;
+    --popover: #231912;
+    --popover-foreground: #f3e9dc;
+    --muted: #2c2018;
+    --muted-foreground: #b9a794;
+    --secondary: #2c2018;
+    --secondary-foreground: #f3e9dc;
+    --accent: #33251b;
+    --accent-foreground: #f3e9dc;
+    --border: #3a2b20;
+    --input: #453427;
+
+    --primary: #d9a876;
+    --primary-foreground: #2a1b12;
+    --highlight: #d9a876;
+    --highlight-foreground: #2a1b12;
+    --ring: #d9a876;
+
+    --success: #8fae7c;
+    --success-foreground: #1a120d;
+    --warning: #e0a948;
+    --warning-foreground: #1a120d;
+    --destructive: #d9737b;
+    --destructive-foreground: #1a120d;
+    --info: #a592c6;
+    --info-foreground: #1a120d;
+
+    --overlay: rgb(8 5 3 / 0.65);
+
+    --chart-1: #c6803c;
+    --chart-2: #149483;
+    --chart-3: #8c6ebd;
+    --chart-4: #a09935;
+    --chart-5: #478cc4;
+    --chart-other: #6b5a4c;
+    --chart-grid: #33261c;
+
+    --sidebar: #140d09;
+    --sidebar-foreground: #eadbc8;
+    --sidebar-muted-foreground: #a8917c;
+    --sidebar-primary: #d9a876;
+    --sidebar-primary-foreground: #2a1b12;
+    --parchment: #3a2a1e;
+    --parchment-foreground: #f0e2cd;
+    --kraft: #b8935f;
+    --kraft-foreground: #24160e;
+    --sidebar-accent: #2a1d15;
+    --sidebar-accent-foreground: #fbf6ee;
+    --sidebar-border: #2c2018;
+    --sidebar-ring: #d9a876;
+
+    --shadow-2xs: 0 1px 0 0 rgb(0 0 0 / 0.2);
+    --shadow-xs: 0 1px 0 0 rgb(0 0 0 / 0.22);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.25);
+    --shadow: 0 1px 2px 0 rgb(0 0 0 / 0.25);
+    --shadow-md: 0 8px 20px -8px rgb(0 0 0 / 0.5);
+    --shadow-lg: 0 14px 30px -10px rgb(0 0 0 / 0.55);
+    --shadow-xl: 0 22px 44px -14px rgb(0 0 0 / 0.6);
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-highlight: var(--highlight);
+    --color-highlight-foreground: var(--highlight-foreground);
+    --color-parchment: var(--parchment);
+    --color-parchment-foreground: var(--parchment-foreground);
+    --color-kraft: var(--kraft);
+    --color-kraft-foreground: var(--kraft-foreground);
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-info: var(--info);
+    --color-info-foreground: var(--info-foreground);
+    --color-success-ink: var(--success-ink);
+    --color-warning-ink: var(--warning-ink);
+    --color-destructive-ink: var(--destructive-ink);
+    --color-info-ink: var(--info-ink);
+    --color-overlay: var(--overlay);
+    --color-row-hover: var(--row-hover);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    --color-chart-other: var(--chart-other);
+    --color-chart-grid: var(--chart-grid);
+
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-muted-foreground: var(--sidebar-muted-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    /* Type: Young Serif for display (titles, hero, KPI figures), Figtree for UI */
+    --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Young Serif', ui-serif, Georgia, serif;
+    --font-mono: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+    --radius-xs: 0.25rem;
+    --radius-sm: 0.375rem;
+    --radius-md: 0.625rem; /* 10px: inputs, buttons */
+    --radius-lg: var(--radius); /* 12px */
+    --radius-xl: 0.875rem; /* 14px: cards */
+    --radius-2xl: 1.25rem;
+
+    --shadow-2xs: var(--shadow-2xs);
+    --shadow-xs: var(--shadow-xs);
+    --shadow-sm: var(--shadow-sm);
+    --shadow: var(--shadow);
+    --shadow-md: var(--shadow-md);
+    --shadow-lg: var(--shadow-lg);
+    --shadow-xl: var(--shadow-xl);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+
+    html {
+        background-color: var(--background);
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        @apply bg-background text-foreground font-sans antialiased;
+    }
+
+    ::selection {
+        background-color: color-mix(in oklab, var(--highlight) 40%, transparent);
+        color: var(--foreground);
+    }
+}

@@ -1,24 +1,33 @@
+# Build context is the repo root (docker/app.Dockerfile copies src/ and docker/ only).
 .git
 .github
+docs
+graphify-out
+scratch
+scripts
+*.md
 
-node_modules
-vendor
+src/node_modules
+src/vendor
+src/tests
+src/.env
+src/.env.*
+!src/.env.example
 
-storage/logs/*
-storage/framework/cache/*
-storage/framework/views/*
-storage/framework/sessions/*
-storage/app/*
-# Logs are a separate volume — never bake them into the image
-storage/logs/*
+src/storage/logs/*
+src/storage/framework/cache/*
+src/storage/framework/views/*
+src/storage/framework/sessions/*
+src/storage/app/*
 
-
-.env
-.env.*
-
-tests
-
-README.md
+# Generated locally — rebuilt inside the image
+src/bootstrap/cache/*.php
+src/public/build
+src/public/hot
+src/resources/js/routes
+src/resources/js/actions
+src/resources/js/wayfinder
+src/scripts/modgen/schema.json
 
 .vscode
 .idea
