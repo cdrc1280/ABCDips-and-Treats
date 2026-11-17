@@ -17,9 +17,7 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 
-# Wayfinder (generated)
-/resources/js/routes
-/resources/js/actions
-/resources/js/wayfinder
+# Wayfinder output (resources/js/{routes,actions,wayfinder}) IS committed: the Vercel build has no
+# PHP to generate it. Regenerate after route changes: scripts/t.sh php artisan wayfinder:generate --with-form
 /scripts/modgen/schema.json
 /scripts/modgen/__pycache__

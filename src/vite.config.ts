@@ -23,7 +23,9 @@ export default defineConfig(({ command }) => ({
         // React Compiler (auto-memoisation) for the React code only
         babel({ presets: [reactCompilerPreset()], include: [/\.tsx?$/], exclude: [/node_modules/] }),
         tailwindcss(),
-        wayfinder({ formVariants: true }),
+        // Wayfinder runs `php artisan wayfinder:generate`. Vercel's build image has no PHP, so there
+        // the committed output (resources/js/{routes,actions,wayfinder}) is used as-is.
+        ...(process.env.VERCEL ? [] : [wayfinder({ formVariants: true })]),
     ],
     resolve: {
         alias: {
