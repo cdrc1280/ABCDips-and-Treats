@@ -211,13 +211,13 @@ try {
     $response->send();
     $kernel->terminate($request, $response);
 } catch (Throwable $e) {
-    // Message on its own short line first: log viewers cut long entries, and the trace would hide it.
-    error_log('Vercel fatal: '.get_class($e).': '.mb_substr($e->getMessage(), 0, 600));
+    // Trace first, message LAST: Vercel's log viewers keep only the tail of a long entry.
+    error_log('Vercel fatal trace: '.$e->getTraceAsString());
     $previous = $e->getPrevious();
     if ($previous) {
         error_log('Vercel fatal (previous): '.get_class($previous).': '.mb_substr($previous->getMessage(), 0, 600));
     }
-    error_log('Vercel fatal trace: '.$e->getTraceAsString());
+    error_log('Vercel fatal: '.get_class($e).': '.mb_substr($e->getMessage(), 0, 600));
 
     http_response_code(500);
     $isApiRequest = isset($_SERVER['REQUEST_URI']) && str_contains($_SERVER['REQUEST_URI'], '/api/');
